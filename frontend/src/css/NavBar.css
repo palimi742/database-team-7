@@ -1,42 +1,60 @@
 .navbar{
-    display: flex;
     background-color: #3a5a40;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     padding: 2em;
-    align-items: center;
 }
-.home-link{
-    color: #ffffff;
+.navbar a{
     text-decoration: none;
-    font-size: 2rem;
-}
-.navbar-brand{
-    flex: 0 0 auto;
-    text-align: center;
-}
-.cart-link{
-    flex: 1 1 0;
-    justify-content: flex-end;
-    display: flex;
-    align-items: center;
-}
-.orders-link{
     color: #FFF;
-    text-decoration: none;
-    font-size: 1.6rem;
-    display: flex;
-    align-items: center;
-    flex: 1 1 0;
-    justify-content: flex-start;
-    gap: 5px;
-}
-.shopping-cart{
-    display: block;
-    width: 35px;
-    height: 35px;
 }
 
+.orders-link{
+    font-size: 1.6rem;
+    display: flex;
+    padding: 0.3em;
+    align-items: center;
+    gap: 5px;
+    border-radius: 20px;
+    transition: background-color 0.3s ease;
+}
 .receipt-svg{
-    display: block;
     width: 30px;
     height: 30px;
 }
+
+.home-link{
+    font-size: 2.2rem;
+    border-radius: 20px;
+    transition: background-color 0.3s ease;
+    padding: 0.2em;
+}
+
+.cart-link{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    transition: background-color 0.3s ease;
+}
+.shopping-cart{
+    width: 40px;
+    height: 40px;
+}
+
+.orders-link:hover, .home-link:hover{
+    border-radius: 20px;
+    padding: 0.3em;
+    background-color: #28442c;
+}
+.home-link:hover{
+    padding: 0.2em; 
+    /* css is top down. so it takes this */
+}
+.cart-link:hover{
+    background-color: #28442c;
+}
+

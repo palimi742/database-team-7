@@ -10,11 +10,9 @@ function NavBar() {
       <Link to="/my-orders" className="orders-link">
         My orders <img className="receipt-svg" src={receiptSVG} alt="" />
       </Link>
-      <div className="navbar-brand">
-        <Link className="home-link" to="/">
-          Local Groceries
-        </Link>
-      </div>
+      <Link className="home-link" to="/">
+        Local Groceries
+      </Link>
       <Link to="/cart" className="cart-link" aria-label="Shopping Cart">
         <img className="shopping-cart" src={shoppingCartSVG} alt="" />
       </Link>
