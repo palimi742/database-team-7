@@ -73,3 +73,20 @@
     background-color: #28442c;
 }
 
+@media (max-width: 617px ){
+    .navbar{
+        padding: 1em 0.75em;
+    }
+    .home-link{
+        font-size: 1.6rem;
+    }
+    .login-link{
+        font-size: 1.4rem;
+    }
+    .orders-link{
+        font-size: 1.3rem;
+    }
+    .navbar-right{
+        gap: 0;
+    }
+}

@@ -11,20 +11,19 @@ function CustomerLogin() {
     <main>
       <form className="login-form" onSubmit={handleSubmit}>
         <h1>Customer Login</h1>
-        <label htmlFor="username">Username</label>
+        <label className="username-label" htmlFor="username">Username</label>
         <input
           id="username"
           name="username"
           type="text"
-          placeholder="johnDoe871"
+          placeholder="JohnDoe123"
           required
         ></input>
-        <label htmlFor="password">Password</label>
+        <label className="password-label" htmlFor="password">Password</label>
         <input id="password" name="password" type="password" required></input>
-        <button type="submit">Log in</button>
+        <button className="login-btn" type="submit">Login</button>
         <p className="create-account">
-          Don't have an account?{" "}
-          <Link to="/create-account" className="createAccountLink"></Link>
+          Don't have an account? <Link to="/create-account" className="createAccountLink">Create one</Link>
         </p>
       </form>
     </main>
