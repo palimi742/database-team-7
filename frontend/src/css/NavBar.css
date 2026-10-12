@@ -1,3 +1,42 @@
+.navbar{
+    display: flex;
+    background-color: #3a5a40;
+    padding: 2em;
+    align-items: center;
+}
+.home-link{
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 2rem;
+}
 .navbar-brand{
-    color: orange;
+    flex: 0 0 auto;
+    text-align: center;
+}
+.cart-link{
+    flex: 1 1 0;
+    justify-content: flex-end;
+    display: flex;
+    align-items: center;
+}
+.orders-link{
+    color: #FFF;
+    text-decoration: none;
+    font-size: 1.6rem;
+    display: flex;
+    align-items: center;
+    flex: 1 1 0;
+    justify-content: flex-start;
+    gap: 5px;
+}
+.shopping-cart{
+    display: block;
+    width: 35px;
+    height: 35px;
+}
+
+.receipt-svg{
+    display: block;
+    width: 30px;
+    height: 30px;
 }
