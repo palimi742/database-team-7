@@ -13,9 +13,12 @@ function NavBar() {
       <Link className="home-link" to="/">
         Local Groceries
       </Link>
-      <Link to="/cart" className="cart-link" aria-label="Shopping Cart">
-        <img className="shopping-cart" src={shoppingCartSVG} alt="" />
-      </Link>
+      <div className="navbar-right">
+        <Link to="/customer-login" className="login-link">Log in</Link>
+        <Link to="/cart" className="cart-link" aria-label="Shopping Cart">
+          <img className="shopping-cart" src={shoppingCartSVG} alt="" />
+        </Link>
+      </div>
     </nav>
   );
 }

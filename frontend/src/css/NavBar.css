@@ -45,6 +45,21 @@
     height: 40px;
 }
 
+.navbar-right{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.login-link{
+    font-size: 1.6rem;
+    border-radius: 20px;
+    transition: background-color 0.3s ease;
+    padding: 0.1em 0.5em;
+}
+
+.login-link:hover{
+    background-color: #28442c;
+}
 .orders-link:hover, .home-link:hover{
     border-radius: 20px;
     padding: 0.3em;

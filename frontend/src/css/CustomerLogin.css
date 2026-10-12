@@ -1,0 +1,15 @@
+.login-form{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #c4bbaf;
+    width: 400px;
+    height: 400px;
+    margin: 0 auto;
+    margin-top: 5rem;
+    border-radius: 10px;
+}
+h2{
+    margin: 0
+}

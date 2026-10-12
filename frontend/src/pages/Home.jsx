@@ -1,5 +1,5 @@
 import "../css/Home.css";
-import { useState } from "react"
+import { useState } from "react";
 
 const categories = [
   "All",
