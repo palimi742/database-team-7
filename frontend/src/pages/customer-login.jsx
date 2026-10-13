@@ -23,7 +23,7 @@ function CustomerLogin() {
         <input id="password" name="password" type="password" required></input>
         <button className="login-btn" type="submit">Login</button>
         <p className="create-account">
-          Don't have an account? <Link to="/create-account" className="createAccountLink">Create one</Link>
+          Don't have an account? <Link to="/customer-signup" className="createAccountLink">Create one</Link>
         </p>
       </form>
     </main>
