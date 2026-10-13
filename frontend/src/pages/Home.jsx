@@ -27,7 +27,9 @@ function Home() {
               ? "category-button active"
               : "category-button"
           }
-          onClick={() => setSelectedCategory(category)}
+          onClick={() => setSelectedCategory((currentCategory) => (
+            currentCategory === category ? "" : category
+      ))}
         >
           {category}
         </button>
