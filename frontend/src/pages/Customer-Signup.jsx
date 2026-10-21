@@ -32,6 +32,10 @@ function CustomerSignup() {
 
         <label className="single-row-labels" htmlFor="password">Password</label>
         <input id="password" name="password" type="password" required></input>
+        
+        <label className="single-row-labels" htmlFor="address">Address</label>
+        <input id="address" name="address" type="text" placeholder="123 main street" required></input>
+
         <button className="signup-btn" type="submit">
           Sign up
         </button>
