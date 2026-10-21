@@ -3,12 +3,11 @@ import { useState } from "react";
 
 const categories = [
   "All",
-  "Fruits",
-  "Vegetables",
-  "Prepared",
-  "Asian",
-  "Marine",
-  "Sweets",
+  "Dairy",
+  "Produce",
+  "Meat",
+  "Frozen",
+  "Bakery",
 ];
 
 function Home() {
