@@ -1,0 +1,83 @@
+.employee-dashboard {
+  width: 100%;
+  max-width: 75rem;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem;
+  padding-top: 1.3rem;
+  flex: 1;
+}
+
+.employee-dashboard-title {
+  color: #385940;
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.employee-dashboard-btns {
+  display: flex;
+  gap: 0.75rem;
+  padding-bottom: 1.25rem;
+  margin-bottom: 1.75rem;
+  border-bottom: 1px solid #c9cec5;
+}
+
+.employee-dashboard-btn {
+  padding: 0.625em 1.25em;
+  border: 1px solid #385940;
+  border-radius: 0.375rem;
+  background-color: transparent;
+  color: #385940;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.employee-dashboard-btn:hover {
+  background-color: #e0e5dc;
+}
+
+.emplyee-product-table {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.inventory-table-header{
+    font-size: 1.5rem;
+}
+.emplyee-product-table h2 {
+  color: #385940;
+  font-size: 1.5rem;
+}
+
+.employee-add-product {
+  padding: 0.625em 1.25em;
+  border: 1px solid #385940;
+  border-radius: 0.375rem;
+  background-color: #385940;
+  color: white;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.employee-add-product:hover {
+  background-color: #29432f;
+}
+
+.employee-products {
+  min-height: 15.625rem;
+  padding: 1.25rem;
+  border: 1px solid #a8b3a7;
+  border-radius: 0.375rem;
+}
+
+.employee-dashboard button:focus-visible {
+  outline: 3px solid #385940;
+  outline-offset: 3px;
+}

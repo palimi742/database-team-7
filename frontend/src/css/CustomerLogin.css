@@ -2,7 +2,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    background-color: #c4bbaf;
+    background-color: #a19d97;
     max-width: 450px;
     min-height: 450px;
     margin: 5rem auto;
@@ -50,4 +50,9 @@
 .createAccountLink{
     color: #1541a0;
     font-weight: bold;
+}
+
+.employee-home-link{
+    margin-top: auto;
+    color: #1541a0;
 }

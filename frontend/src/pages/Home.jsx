@@ -1,36 +1,51 @@
 import "../css/Home.css";
-import { useState } from "react";
-
-const categories = [
-  "All",
-  "Dairy",
-  "Produce",
-  "Meat",
-  "Frozen",
-  "Bakery",
-];
+import { useState, useEffect } from "react";
 
 function Home() {
-  const [selectedCategory, setSelectedCategory] = useState("");
-  //this is standard in react. checks for any updates the page when something changes
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    async function loadCategories() {
+      try {
+        const res = await fetch("/api/categories");
+        if (!res.ok) {
+          throw new Error("Failed to fetch categories");
+        }
+        const data = await res.json();
+
+        setCategories(data);
+      } catch (err) {
+        console.log(err.message)
+      }
+    }
+    loadCategories();
+  }, []);
   return (
-    //going to use buttons and have them seen as "radio options"
-    //can only select one button at a time. each time a button is clicked. the state is updated
-    //if button is clicked give a className else give normal styling
     <div className="category-options">
+      <button
+        className={
+          selectedCategory === null
+            ? "category-button active"
+            : "category-button"
+        }
+        onClick={() => setSelectedCategory(null)}
+      >
+        All
+      </button>
       {categories.map((category) => (
         <button
-          key={category}
+          key={category.CategoryID}
           className={
-            selectedCategory === category
+            selectedCategory === category.CategoryID
               ? "category-button active"
               : "category-button"
           }
-          onClick={() => setSelectedCategory((currentCategory) => (
-            currentCategory === category ? "" : category
-      ))}
+          onClick={() =>
+            setSelectedCategory(category.CategoryID)
+          }
         >
-          {category}
+          {category.CategoryName}
         </button>
       ))}
     </div>

@@ -1,0 +1,16 @@
+.footer {
+  margin-top: auto;
+  background-color: #3a5a40;
+  padding: 1rem;
+  text-align: right;
+}
+.footer a {
+  color: white;
+  font-size: 1.3rem;
+  padding: 0.3em;
+  border-radius: 20px;
+}
+
+.footer a:hover{
+    background-color: #28442c;
+}

@@ -254,17 +254,3 @@ ALTER TABLE SeasonalSales    ADD CONSTRAINT chk_sale_dates CHECK (SalesEnd > Sal
 ALTER TABLE LoyaltyProgram ADD CONSTRAINT uq_loyalty_customer UNIQUE (CustomerID);
 ALTER TABLE Inventory      ADD CONSTRAINT uq_inventory_sku UNIQUE (SKU);
 ALTER TABLE Employee       ADD CONSTRAINT uq_employee_email UNIQUE (EmailAddress);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
