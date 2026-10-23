@@ -1,23 +1,21 @@
-import "./css/App.css";
+import './css/App.css';
+import { Routes, Route } from 'react-router-dom';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import Browse from './pages/Browse';
+import Loyalty from './pages/Loyalty';
+import Transactions from './pages/Transactions';
 
-import { Routes, Route } from "react-router-dom";
+function App(){
+  return(
+   <Routes>
+      <Route path='/' element={<Login/>}/>
+      <Route path='/signup' element={<Signup />}/>
+      <Route path="/browse" element={<Browse/>} />
+      <Route path="/transactions" element={<Transactions/>} />
+      <Route path="/loyalty" element={<Loyalty />} />
+   </Routes>
 
-import NavBar from "./components/NavBar";
-import Home from "./pages/Home";
-import CustomerLogin from "./pages/Customer-Login";
-import CustomerSignup from "./pages/Customer-Signup";
-
-function App() {
-  return (
-    <>
-      <NavBar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/customer-login" element={<CustomerLogin />} />
-        <Route path="/customer-signup" element={<CustomerSignup />} /> 
-      </Routes>
-    </>
   );
 }
-
 export default App;
