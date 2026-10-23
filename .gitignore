@@ -1,6 +1,12 @@
 .DS_Store
-backend/.env
 
+# Dependencies
 node_modules/
-**/.env
-**/.env.*
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Build output
+dist/
