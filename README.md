@@ -13,8 +13,8 @@ Open the Vite URL printed in the terminal (normally http://localhost:5173).
 This runs the React frontend and Express backend together. Ctrl+C stops both.
 Vite forwards `/api` requests to the backend on port 3000.
 
-- `frontend/`: React app, previously `client`.
-- `backend/`: Express/MySQL API, previously `server.eesha`.
+- `frontend/`: React app,`.
+- `backend/`: MySQL API.
 - `db/`: schema and seed SQL.
 
 The backend loads `backend/.env` regardless of the working directory.

@@ -1,6 +1,7 @@
 {
   "name": "database-team-7",
   "private": true,
+  "type": "module",
   "workspaces": [
     "frontend",
     "backend"
