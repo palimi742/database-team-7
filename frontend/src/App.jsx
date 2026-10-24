@@ -5,6 +5,7 @@ import Signup from './pages/Signup';
 import Browse from './pages/Browse';
 import Loyalty from './pages/Loyalty';
 import Transactions from './pages/Transactions';
+import ManagerDashboard from './pages/ManagerDashboard'
 
 function App(){
   return(
@@ -14,6 +15,7 @@ function App(){
       <Route path="/browse" element={<Browse/>} />
       <Route path="/transactions" element={<Transactions/>} />
       <Route path="/loyalty" element={<Loyalty />} />
+      <Route path="/manager" element={<ManagerDashboard />} />
    </Routes>
 
   );
