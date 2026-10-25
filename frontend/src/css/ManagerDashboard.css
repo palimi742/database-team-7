@@ -1,0 +1,30 @@
+.manager-main-dashboard{
+    margin-left: 14em;
+    padding: 1.5em;
+    text-align: left;
+
+}
+
+.manager-main-dashboard button {
+    margin-right: 0.375rem;
+    padding: 0.25em 0.5em;
+}
+
+.manager-main-dashboard h2 {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.manager-main-dashboard table {
+    border-collapse: collapse;
+}
+
+.manager-main-dashboard th,
+.manager-main-dashboard td {
+    padding: 0.375em 0.625em;
+    text-align: left;
+}
+
+.manager-main-dashboard select {
+    padding: 0.25em;
+}

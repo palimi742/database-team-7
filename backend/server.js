@@ -8,14 +8,18 @@ import couponRoutes from './routes/coupons.js';
 import seasonalSalesRoutes from './routes/seasonalSales.js';
 import categoriesRoutes from './routes/categories.js'
 
+import employeeRoutes from './routes/unassignedEmployees.js'
+import manageOrderRoutes from './routes/manageOrders.js'
 const app = express();
 
 app.use(cors({ origin: 'http://localhost:5173' }));
 app.use(express.json());
 
+app.use('/api/manager/orders', manageOrderRoutes)
 app.use('/api/customers', customerRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/loyalty', loyaltyRoutes);
+app.use('/api/employees/unassigned', employeeRoutes)
 app.use('/', healthRoutes);
 app.use('/api/coupons', couponRoutes);
 app.use('/api/seasonal-sales', seasonalSalesRoutes);

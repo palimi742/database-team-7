@@ -1,0 +1,30 @@
+.manager-sidebar {
+  width: 200px;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  padding: 20px;
+  box-sizing: border-box;
+  background-color: #f3f4f6;
+  color: #222;
+  border-right: 1px solid #ccc;
+}
+
+.manager-sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.manager-sidebar li {
+  margin-bottom: 16px;
+}
+
+.manager-sidebar a {
+  color: #222;
+  text-decoration: none;
+}
+
+.manager-sidebar a:hover {
+  text-decoration: underline;
+}
