@@ -8,65 +8,93 @@ function ManagerDashboard() {
   const [employees, setEmployees] = useState([]);
   const [employeeError, setEmployeeError] = useState("");
   const [orders, setOrders] = useState([]);
-  //   const [orders, setOrders] = useState([])
   const [orderError, setOrderError] = useState("");
 
-  //loads employees who don't have an order from the db
-  useEffect(() => {
-    async function loadEmployees() {
-      try {
-        const res = await fetch("/api/employees/unassigned");
-        const data = await res.json();
+  // Load employees with no active assignment when the dashboard opens.
+  async function loadEmployees() {
+    setEmployeeError("");
+    try {
+      const res = await fetch("/api/employees/unassigned");
+      const data = await res.json();
 
-        if (!res.ok) {
-          throw new Error(data.message);
-        }
-
-        setEmployees(
-          data.map((employee) => ({
-            id: String(employee.EmployeeID),
-            name: `${employee.FirstName} ${employee.LastName}`,
-          })),
-        );
-      } catch (err) {
-        setEmployeeError(err.message);
+      if (!res.ok) {
+        throw new Error(data.message);
       }
+
+      setEmployees(
+        data.map((employee) => ({
+          id: String(employee.EmployeeID),
+          name: `${employee.FirstName} ${employee.LastName}`,
+        })),
+      );
+    } catch (err) {
+      setEmployeeError(err.message);
     }
+  }
+
+  // Load orders and prepare their details for the table.
+  async function loadOrders() {
+    setOrderError("");
+    try {
+      const res = await fetch("/api/manager/orders");
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message);
+      }
+
+      const loadedOrders = data.map((order) => ({
+        id: order.FulfillmentID,
+        transactionID: order.TransactionID,
+        type: order.DeliveryName,
+        employeeID: order.EmployeeID === null ? "" : String(order.EmployeeID),
+        employeeName:
+          order.EmployeeID === null
+            ? "Unassigned"
+            : `${order.FirstName} ${order.LastName}`,
+        status: order.Status,
+      }));
+
+      // Keep an unsaved employee selection when the database order still needs assignment.
+      // loadedOrders is the full list; loadedOrder is one order from that list.
+      // To prevent our current selection from resetting on the fresh that happens
+      setOrders((currentOrders) => {
+        return loadedOrders.map((loadedOrder) => {
+          const currentOrder = currentOrders.find((order) => {
+            return order.id === loadedOrder.id;
+          });
+
+          if (
+            currentOrder !== undefined &&
+            currentOrder.status === "Needs Assignment" &&
+            loadedOrder.status === "Needs Assignment" &&
+            loadedOrder.employeeID === ""
+          ) {
+            return { ...loadedOrder, employeeID: currentOrder.employeeID };
+          }
+          return loadedOrder;
+        });
+      });
+    } catch (err) {
+      setOrderError(err.message);
+    }
+  }
+
+  useEffect(() => {
     loadEmployees();
-  }, []);
-
-  //load orders from db
-  useEffect(() => {
-    async function loadOrders() {
-      try {
-        const res = await fetch("/api/manager/orders");
-        const data = await res.json();
-
-        if (!res.ok) {
-          throw new Error(data.message);
-        }
-
-        setOrders(
-          data.map((order) => ({
-            id: order.FulfillmentID,
-            transactionID: order.TransactionID,
-            type: order.DeliveryName,
-            employeeID:
-              order.EmployeeID === null ? "" : String(order.EmployeeID),
-            employeeName:
-              order.EmployeeID === null
-                ? "Unassigned"
-                : `${order.FirstName} ${order.LastName}`,
-            status: order.Status,
-          })),
-        );
-      } catch (err) {
-        setOrderError(err.message);
-      }
-    }
     loadOrders();
+
+    // Refresh orders and employees every 5 seconds without reloading the page.
+    const refreshTimer = setInterval(() => {
+      loadEmployees();
+      loadOrders();
+    }, 5000);
+    return () => {
+      clearInterval(refreshTimer);
+    };
   }, []);
 
+  // Remember the dropdown selection in React until Assign is clicked.
   function selectEmployee(orderID, employeeID) {
     setOrders(
       orders.map((order) =>
@@ -75,6 +103,7 @@ function ManagerDashboard() {
     );
   }
 
+  // Send the selected employee and fulfillment ID to the backend to save the assignment.
   async function assignOrder(orderID) {
     const selectedOrder = orders.find((order) => {
       return order.id === orderID;
@@ -102,7 +131,10 @@ function ManagerDashboard() {
       if (!res.ok) {
         throw new Error(data.message);
       }
-      console.log("received data", data)  
+
+      //updates the list
+      await loadOrders();
+      await loadEmployees();
     } catch (err) {
       setOrderError(err.message);
     }

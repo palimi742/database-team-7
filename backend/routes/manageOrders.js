@@ -2,9 +2,11 @@ import { Router } from "express";
 import pool from "../db.js";
 const router = Router();
 
+// !TODO Remaining work: verify a successful save, refresh dashboard data after assignment, and prevent concurrent double assignments.
+
 router.get("/", async (req, res) => {
   try {
-    //Join connects 2 table rows using a matching val
+    // Get orders with their delivery type and employee name. LEFT JOIN keeps unassigned orders too.
     const result = await pool.query(`
         SELECT o.FulfillmentID,
         o.TransactionID,
@@ -20,8 +22,8 @@ router.get("/", async (req, res) => {
             ON o.EmployeeID = e.EmployeeID
         ORDER BY FulfillmentID
         `);
-    // Using a LEFT JOIN b/c it keeps all the orders even orders without an assigned employee
-    // RIGHT JOIN keeps empployees and employee's without an order.
+    //Using a LEFT JOIN b/c it keeps all the orders even orders without an assigned employee
+    // A RIGHT JOIN keeps employees and employee's without an order.
     // We want to manage orders to assign to employees without an order
     res.json(result[0]);
   } catch (err) {
@@ -33,11 +35,14 @@ router.get("/", async (req, res) => {
 });
 
 
-//update assignments via patch
+// Check the employee and order before saving an assignment.
+// PATCH is also used to request an update.
 router.patch("/:fulfillmentID/assign", async (req, res) => {
+  // Read the fulfillment ID from the URL and the employee ID from the request body.
   const fulfillmentID = Number(req.params.fulfillmentID);
   const employeeID = Number(req.body.employeeID);
 
+  // Reject IDs that are not positive whole numbers.
   if (!Number.isInteger(fulfillmentID) || fulfillmentID <= 0) {
     return res.status(400).json({
       message: "Invalid fulfillment ID",
@@ -51,7 +56,7 @@ router.patch("/:fulfillmentID/assign", async (req, res) => {
   }
 
   try {
-    //grabbing employees who have no jobs
+    // Find regular employees who have no active assignment.
     const results = await pool.query(
       `
             SELECT employeeID
@@ -65,11 +70,14 @@ router.patch("/:fulfillmentID/assign", async (req, res) => {
                 )
             `,
     );
+    
+    // The first query result contains the rows. Check whether the selected employee is in them.
     const availableEmployees = results[0];
     const selectedEmployee = availableEmployees.find((employee) => {
       return employee.employeeID === employeeID;
     });
 
+    // Find the requested fulfillment record so we can check its assignment status.
     const orderResults = await pool.query(`
         SELECT FulfillmentID, EmployeeID, Status
         FROM orderfulfillment
@@ -90,6 +98,7 @@ router.patch("/:fulfillmentID/assign", async (req, res) => {
         })
     }
 
+    // Only orders with no employee and a Needs Assignment status can be assigned.
     if (
       selectedOrder.Status !== "Needs Assignment" ||
       selectedOrder.EmployeeID !== null
@@ -99,7 +108,7 @@ router.patch("/:fulfillmentID/assign", async (req, res) => {
       });
     }
 
-    //saves any updates of assigning employees to our database
+    // Save the employee and status only if the order still needs assignment.
     const updateResult = await pool.query(`
         UPDATE orderfulfillment
         SET EmployeeID = ${employeeID},
@@ -108,6 +117,7 @@ router.patch("/:fulfillmentID/assign", async (req, res) => {
         AND EmployeeID IS NULL
         AND Status = 'Needs Assignment'
         `)
+        // No changed rows means the order no longer matched the update conditions.
         if(updateResult[0].affectedRows === 0){
             return res.status(400).json({
                 message: "Order couldn't be assigned"

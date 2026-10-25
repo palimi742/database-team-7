@@ -4,8 +4,7 @@ const router = Router();
 
 router.get("/", async (req, res) => {
   try {
-// Get employees who are not managers and have no orders marked 'Assigned'.
-// And employee IDs that are not busy
+    // Get regular employees who have no orders marked 'Assigned'.
     const result = await pool.query(`
             SELECT EmployeeID, FirstName, LastName
             FROM employee
