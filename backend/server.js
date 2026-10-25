@@ -4,6 +4,9 @@ import customerRoutes from './routes/customers.js';
 import productRoutes from './routes/products.js';
 import loyaltyRoutes from './routes/loyalty.js';
 import healthRoutes from './routes/health.js';
+import couponRoutes from './routes/coupons.js';
+import seasonalSalesRoutes from './routes/seasonalSales.js';
+import categoriesRoutes from './routes/categories.js'
 
 const app = express();
 
@@ -14,6 +17,9 @@ app.use('/api/customers', customerRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/loyalty', loyaltyRoutes);
 app.use('/', healthRoutes);
+app.use('/api/coupons', couponRoutes);
+app.use('/api/seasonal-sales', seasonalSalesRoutes);
+app.use('/api/categories', categoriesRoutes);
 
 app.use((error, req, res, next) => {
     console.error('API request failed:', error.message);
