@@ -5,7 +5,18 @@ const router = Router();
 
 router.get('/', async (req,res) => {
     try{
-        const[rows] = await pool.query('SELECT InventoryID, SKU, InventoryName, Price FROM Inventory')
+        const [rows] = await pool.query(`
+            SELECT
+                Inventory.InventoryID,
+                Inventory.SKU,
+                Inventory.InventoryName,
+                Inventory.Price,
+                Inventory.CategoryID,
+                Category.CategoryName
+            FROM Inventory
+            JOIN Category
+                ON Inventory.CategoryID = Category.CategoryID
+`);
         res.json(rows)
     }catch(error){
         console.error("Query Failed", error.message);
