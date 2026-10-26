@@ -18,7 +18,13 @@ function ManagerSidebar() {
           <Link to="/manager-coupon-sales">Coupons & Sales</Link>
         </li>
         <li>
-          <Link to="/manager/reports">Reports</Link>
+          <Link to="/manager/reports/employee-workload">Employee Workload Report</Link>
+        </li>
+        <li>
+          <Link to="/manager/reports/customer-loyalty">Customer Loyalty and Rewards Report</Link>
+        </li>
+        <li>
+          <Link to="/manager/reports/sales-performance">Sales Performance Report</Link>
         </li>
       </ul>
     </div>
