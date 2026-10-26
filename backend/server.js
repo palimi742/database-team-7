@@ -6,8 +6,6 @@ import loyaltyRoutes from './routes/loyalty.js';
 import healthRoutes from './routes/health.js';
 import couponRoutes from './routes/coupons.js';
 import seasonalSalesRoutes from './routes/seasonalSales.js';
-import categoriesRoutes from './routes/categories.js'
-
 import employeeRoutes from './routes/unassignedEmployees.js'
 import manageOrderRoutes from './routes/manageOrders.js'
 import categoryRoutes from "./routes/categories.js"
@@ -34,7 +32,6 @@ app.use("/api/categories", categoryRoutes)
 app.use('/', healthRoutes);
 app.use('/api/coupons', couponRoutes);
 app.use('/api/seasonal-sales', seasonalSalesRoutes);
-app.use('/api/categories', categoriesRoutes);
 
 app.use((error, req, res, next) => {
     console.error('API request failed:', error.message);
