@@ -6,6 +6,12 @@ import loyaltyRoutes from './routes/loyalty.js';
 import healthRoutes from './routes/health.js';
 import employeeRoutes from './routes/unassignedEmployees.js'
 import manageOrderRoutes from './routes/manageOrders.js'
+import categoryRoutes from "./routes/categories.js"
+import saveProductRoutes from './routes/saveProduct.js';
+import editProductRoutes from "./routes/editProduct.js"
+import deleteProductRoutes from "./routes/deleteProducts.js"
+import restoreProductRoute from "./routes/restoreProducts.js"
+
 const app = express();
 
 app.use(cors({ origin: 'http://localhost:5173' }));
@@ -14,8 +20,13 @@ app.use(express.json());
 app.use('/api/manager/orders', manageOrderRoutes)
 app.use('/api/customers', customerRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api/products', saveProductRoutes);
+app.use('/api/products', editProductRoutes)
+app.use('/api/products', deleteProductRoutes)
+app.use('/api/products', restoreProductRoute)
 app.use('/api/loyalty', loyaltyRoutes);
 app.use('/api/employees/unassigned', employeeRoutes)
+app.use("/api/categories", categoryRoutes)
 app.use('/', healthRoutes);
 
 app.use((error, req, res, next) => {
