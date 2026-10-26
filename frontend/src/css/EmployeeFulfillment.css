@@ -1,0 +1,151 @@
+
+.employee-page {
+  min-height: 100vh;
+  padding: 30px 20px;
+  background: #f4f8f3;
+  color: #183d24;
+  font-family: Arial, sans-serif;
+}
+
+.employee-page > * {
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.employee-header {
+  margin-bottom: 25px;
+}
+
+.employee-header h1 {
+  font-size: 30px;
+  margin-bottom: 8px;
+}
+
+.employee-header p {
+  color: #647466;
+}
+
+.employee-panel {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  margin-bottom: 25px;
+  border: 1px solid #d7e5d7;
+}
+
+.employee-search {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.employee-search input {
+  padding: 11px;
+  width: 180px;
+  border: 1px solid #b8ccb8;
+  border-radius: 6px;
+}
+
+.employee-page button {
+  background: #24733a;
+  color: white;
+  border: none;
+  border-radius: 7px;
+  padding: 11px 16px;
+  cursor: pointer;
+}
+
+.employee-page button:hover {
+  background: #185c2c;
+}
+
+.employee-page button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.employee-welcome,
+.employee-success {
+  color: #1c7938;
+  font-weight: 500;
+}
+
+.employee-error {
+  color: #b02a2a;
+}
+
+.employee-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.employee-toolbar select {
+  padding: 10px;
+  margin-right: 10px;
+  border-radius: 6px;
+  border: 1px solid #b8ccb8;
+}
+
+.employee-order-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  gap: 18px;
+  margin-top: 20px;
+}
+
+.employee-order {
+  background: #fbfdfb;
+  border: 1px solid #d9e5d9;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.employee-order-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.employee-order-top h3 {
+  margin: 0;
+}
+
+.employee-status {
+  background: #e0efe1;
+  color: #206038;
+  border-radius: 20px;
+  padding: 7px 11px;
+  font-size: 13px;
+}
+
+.employee-items {
+  margin: 18px 0;
+  border-top: 1px solid #e1e9e2;
+  padding-top: 12px;
+}
+
+.employee-items ul {
+  padding-left: 20px;
+}
+
+.employee-items li {
+  margin-bottom: 6px;
+}
+
+@media (max-width: 600px) {
+  .employee-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .employee-page {
+    padding: 15px;
+  }
+}
+
