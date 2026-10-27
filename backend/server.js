@@ -6,10 +6,15 @@ import loyaltyRoutes from './routes/loyalty.js';
 import healthRoutes from './routes/health.js';
 import couponRoutes from './routes/coupons.js';
 import seasonalSalesRoutes from './routes/seasonalSales.js';
-import categoriesRoutes from './routes/categories.js'
-
 import employeeRoutes from './routes/unassignedEmployees.js'
 import manageOrderRoutes from './routes/manageOrders.js'
+import categoryRoutes from "./routes/categories.js"
+import saveProductRoutes from './routes/saveProduct.js';
+import editProductRoutes from "./routes/editProduct.js"
+import deleteProductRoutes from "./routes/deleteProducts.js"
+import restoreProductRoute from "./routes/restoreProducts.js"
+import salesPerformanceRoutes from "./routes/salesPerformance.js"
+
 import loyaltyReportRoutes from './routes/loyaltyReports.js';
 import inventoryReportRoutes from './routes/inventoryReports.js';
 const app = express();
@@ -20,12 +25,17 @@ app.use(express.json());
 app.use('/api/manager/orders', manageOrderRoutes)
 app.use('/api/customers', customerRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api/products', saveProductRoutes);
+app.use('/api/products', editProductRoutes)
+app.use('/api/products', deleteProductRoutes)
+app.use('/api/products', restoreProductRoute)
 app.use('/api/loyalty', loyaltyRoutes);
 app.use('/api/employees/unassigned', employeeRoutes)
+app.use("/api/categories", categoryRoutes)
 app.use('/', healthRoutes);
 app.use('/api/coupons', couponRoutes);
 app.use('/api/seasonal-sales', seasonalSalesRoutes);
-app.use('/api/categories', categoriesRoutes);
+app.use("/api/manager/reports/sales-performance", salesPerformanceRoutes)
 app.use('/api/reports/loyalty', loyaltyReportRoutes);
 app.use('/api/reports/inventory', inventoryReportRoutes);
 
