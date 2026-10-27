@@ -15,6 +15,8 @@ import deleteProductRoutes from "./routes/deleteProducts.js"
 import restoreProductRoute from "./routes/restoreProducts.js"
 import salesPerformanceRoutes from "./routes/salesPerformance.js"
 
+import loyaltyReportRoutes from './routes/loyaltyReports.js';
+import inventoryReportRoutes from './routes/inventoryReports.js';
 const app = express();
 
 app.use(cors({ origin: 'http://localhost:5173' }));
@@ -34,6 +36,8 @@ app.use('/', healthRoutes);
 app.use('/api/coupons', couponRoutes);
 app.use('/api/seasonal-sales', seasonalSalesRoutes);
 app.use("/api/manager/reports/sales-performance", salesPerformanceRoutes)
+app.use('/api/reports/loyalty', loyaltyReportRoutes);
+app.use('/api/reports/inventory', inventoryReportRoutes);
 
 app.use((error, req, res, next) => {
     console.error('API request failed:', error.message);
