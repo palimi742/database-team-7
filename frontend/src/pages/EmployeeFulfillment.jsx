@@ -2,7 +2,9 @@
 import { useState } from "react";
 import "../css/EmployeeFulfillment.css";
 
-const API = "http://localhost:3001/api/employee/fulfillment";
+//const API = "http://localhost:3001/api/employee/fulfillment";
+const API = "/api/employee/fulfillment";
+// replaced
 
 export default function EmployeeFulfillment() {
   const [employeeId, setEmployeeId] = useState("");
@@ -106,7 +108,14 @@ export default function EmployeeFulfillment() {
             type="number"
             min="1"
             value={employeeId}
-            onChange={event => setEmployeeId(event.target.value)}
+            onChange={event => {
+              setEmployeeId(event.target.value);
+              setEmployee(null);
+              setOrders([]);
+              setError("");
+              setMessage("");
+}}
+            //onChange={event => setEmployeeId(event.target.value)}
             placeholder="Enter your employee ID"
           />
 

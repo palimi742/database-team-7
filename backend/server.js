@@ -7,6 +7,8 @@ import healthRoutes from './routes/health.js';
 import couponRoutes from './routes/coupons.js';
 import seasonalSalesRoutes from './routes/seasonalSales.js';
 import categoriesRoutes from './routes/categories.js'
+//addition by Shahzeb, not in main
+import employeeFulfillmentRoutes from './routes/employeeFulfillment.js'; 
 
 import employeeRoutes from './routes/unassignedEmployees.js'
 import manageOrderRoutes from './routes/manageOrders.js'
@@ -33,3 +35,5 @@ app.use((error, req, res, next) => {
 app.listen(3000, () => {
     console.log('FreshMart server is running on port 3000');
 });
+//addition by shahzeb, not in main
+app.use('/api/employee/fulfillment', employeeFulfillmentRoutes);
