@@ -4,6 +4,17 @@ const router = Router();
 
 router.get("/", async (req, res) => {
   const { startDate, endDate } = req.query;
+  if(!startDate || !endDate){
+    return res.status(400).json({
+        message: "Start date and end date are required"
+    })
+  }
+  if(startDate > endDate){
+    return res.status(400).json({
+        message: "start date cannot be after end date"
+    })
+  }
+
   try {
     const results = await pool.query(
       `SELECT
@@ -16,7 +27,6 @@ router.get("/", async (req, res) => {
       [startDate, endDate],
     );
     const reportData = results[0];
-    const reportFields = results[1];
 
     if (reportData[0].TotalRevenue === null) {
       reportData[0].TotalRevenue = 0;
