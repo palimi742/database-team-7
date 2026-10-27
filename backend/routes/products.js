@@ -1,5 +1,5 @@
-import { Router } from 'express';
-import pool from '../db.js';
+import { Router } from "express";
+import pool from "../db.js";
 
 const router = Router();
 
@@ -11,6 +11,7 @@ router.get('/', async (req,res) => {
                 Inventory.SKU,
                 Inventory.InventoryName,
                 Inventory.Price,
+                Inventory.IsActive,
                 Inventory.CategoryID,
                 Category.CategoryName
             FROM Inventory
@@ -21,10 +22,10 @@ router.get('/', async (req,res) => {
     }catch(error){
         console.error("Query Failed", error.message);
 
-        return res.status(500).json({
-            message: "Something went wrong with loading products"
-        });
-    }
+    return res.status(500).json({
+      message: "Something went wrong with loading products",
+    });
+  }
 });
 
 export default router;
