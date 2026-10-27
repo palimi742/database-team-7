@@ -10,6 +10,8 @@ import categoriesRoutes from './routes/categories.js'
 
 import employeeRoutes from './routes/unassignedEmployees.js'
 import manageOrderRoutes from './routes/manageOrders.js'
+import loyaltyReportRoutes from './routes/loyaltyReports.js';
+import inventoryReportRoutes from './routes/inventoryReports.js';
 const app = express();
 
 app.use(cors({ origin: 'http://localhost:5173' }));
@@ -24,6 +26,8 @@ app.use('/', healthRoutes);
 app.use('/api/coupons', couponRoutes);
 app.use('/api/seasonal-sales', seasonalSalesRoutes);
 app.use('/api/categories', categoriesRoutes);
+app.use('/api/reports/loyalty', loyaltyReportRoutes);
+app.use('/api/reports/inventory', inventoryReportRoutes);
 
 app.use((error, req, res, next) => {
     console.error('API request failed:', error.message);

@@ -12,5 +12,8 @@
     "dev:backend": "npm run dev --workspace=backend",
     "start": "npm start --workspace=backend",
     "build": "npm run build --workspace=frontend"
+  },
+  "dependencies": {
+    "recharts": "^3.10.1"
   }
 }
