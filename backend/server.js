@@ -14,6 +14,7 @@ import editProductRoutes from "./routes/editProduct.js"
 import deleteProductRoutes from "./routes/deleteProducts.js"
 import restoreProductRoute from "./routes/restoreProducts.js"
 import salesPerformanceRoutes from "./routes/salesPerformance.js"
+import cartRoutes from './routes/cart.js';
 
 import loyaltyReportRoutes from './routes/loyaltyReports.js';
 import inventoryReportRoutes from './routes/inventoryReports.js';
@@ -38,6 +39,7 @@ app.use('/api/seasonal-sales', seasonalSalesRoutes);
 app.use("/api/manager/reports/sales-performance", salesPerformanceRoutes)
 app.use('/api/reports/loyalty', loyaltyReportRoutes);
 app.use('/api/reports/inventory', inventoryReportRoutes);
+app.use('/api/cart', cartRoutes);
 
 app.use((error, req, res, next) => {
     console.error('API request failed:', error.message);
