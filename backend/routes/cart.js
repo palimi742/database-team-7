@@ -1,7 +1,7 @@
-const express = require('express');
-const crypto = require('crypto');
+import express from 'express';
+import crypto from 'crypto';
 
-module.exports = function (pool) {
+export default function (pool) {
   const router = express.Router();
 
   // Passes errors along instead of crashing the server
@@ -16,8 +16,9 @@ module.exports = function (pool) {
   }
 
   // security signs cart ids so carts can't be guessed.
-  const CART_SECRET = process.env.CART_SECRET || 'most random secret here idk what could be longer so this is it';
-
+  const CART_SECRET = process.env.CART_SECRET || (process.env.NODE_ENV === 'production' ? null : 'dev-only-cart-secret');
+  if (!CART_SECRET) throw new Error('Set the CART_SECRET environment variable');
+  
   // the EmployeeID that online orders are assigned to at first.
   // Leave null to use the lowest EmployeeID. Staff can reassign later.
   const FULFILLMENT_EMPLOYEE_ID = null;
