@@ -13,6 +13,7 @@ import saveProductRoutes from './routes/saveProduct.js';
 import editProductRoutes from "./routes/editProduct.js"
 import deleteProductRoutes from "./routes/deleteProducts.js"
 import restoreProductRoute from "./routes/restoreProducts.js"
+import salesPerformanceRoutes from "./routes/salesPerformance.js"
 
 const app = express();
 
@@ -32,6 +33,7 @@ app.use("/api/categories", categoryRoutes)
 app.use('/', healthRoutes);
 app.use('/api/coupons', couponRoutes);
 app.use('/api/seasonal-sales', seasonalSalesRoutes);
+app.use("/api/manager/reports/sales-performance", salesPerformanceRoutes)
 
 app.use((error, req, res, next) => {
     console.error('API request failed:', error.message);

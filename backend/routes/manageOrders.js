@@ -2,7 +2,6 @@ import { Router } from "express";
 import pool from "../db.js";
 const router = Router();
 
-// !TODO Remaining work: verify a successful save, refresh dashboard data after assignment, and prevent concurrent double assignments.
 
 router.get("/", async (req, res) => {
   try {
