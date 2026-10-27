@@ -1,5 +1,5 @@
 import express from 'express';
-import crypto from 'crypto';
+import pool from '../db.js';
 
 export default function (pool) {
   const router = express.Router();
