@@ -14,7 +14,9 @@ import SalesPerformanceReport from "./pages/SalesPerformanceReport";
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Login />} />
+      <Route path="/" element={<Login key="customer" />} />
+      <Route path="/employee/login" element={<Login key="employee" role="employee" />} />
+      <Route path="/manager/login" element={<Login key="manager" role="manager" />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/browse" element={<Browse />} />
       <Route path="/transactions" element={<Transactions />} />

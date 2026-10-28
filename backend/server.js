@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import customerRoutes from './routes/customers.js';
+import managerLoginRoutes from './routes/managerLogin.js';
 import productRoutes from './routes/products.js';
 import loyaltyRoutes from './routes/loyalty.js';
 import healthRoutes from './routes/health.js';
@@ -24,6 +25,7 @@ app.use(express.json());
 
 app.use('/api/manager/orders', manageOrderRoutes)
 app.use('/api/customers', customerRoutes);
+app.use('/api/manager', managerLoginRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/products', saveProductRoutes);
 app.use('/api/products', editProductRoutes)
@@ -44,6 +46,10 @@ app.use((error, req, res, next) => {
     res.status(500).json({ message: 'Unable to complete the request. Check the database connection.' });
 });
 
-app.listen(3000, () => {
-    console.log('FreshMart server is running on port 3000');
-});
+if (!process.env.VERCEL) {
+    app.listen(3000, () => {
+        console.log('FreshMart server is running on port 3000');
+    });
+}
+
+export default app;

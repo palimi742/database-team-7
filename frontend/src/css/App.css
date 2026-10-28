@@ -276,6 +276,16 @@
   background-color: #D9A0AD;
 }
 
+.login-links {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 16px;
+  font-size: 14px;
+}
+
+.login-links a { color: #245522; }
+
 
 nav {
   display: flex;
