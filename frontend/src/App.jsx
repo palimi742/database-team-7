@@ -10,6 +10,14 @@ import ManagerProducts from "./pages/ManagerProducts";
 import EmployeeWorkloadReport from "./pages/EmployeeWorkloadReport";
 import CustomerLoyaltyReport from "./pages/CustomerLoyaltyReport";
 import SalesPerformanceReport from "./pages/SalesPerformanceReport";
+import Cart from "./pages/cart";
+import Checkout from "./pages/checkout";
+import Home from "./pages/home";
+import OrderDetail from "./pages/orderdetail";
+import Orders from "./pages/orders";
+import Payment from "./pages/payment";
+import Receipt from "./pages/receipt";
+import ReturnRequest from "./pages/return_request";
 
 function App() {
   return (
@@ -33,6 +41,14 @@ function App() {
         path="/manager/reports/sales-performance"
         element={<SalesPerformanceReport />}
       />
+      <Route path="/cart" element={<Cart />} />
+      <Route path="/checkout" element={<Checkout />} />
+      <Route path="/home" element={<Home />} />
+      <Route path="/orderdetail" element={<OrderDetail />} />
+      <Route path="/orders" element={<Orders />} />
+      <Route path="/payment" element={<Payment />} />
+      <Route path="/receipt" element={<Receipt />} />
+      <Route path="/return-request" element={<ReturnRequest />} />
     </Routes>
   );
 }
