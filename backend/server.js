@@ -18,12 +18,15 @@ import deleteProductRoutes from "./routes/deleteProducts.js";
 import restoreProductRoute from "./routes/restoreProducts.js";
 import salesPerformanceRoutes from "./routes/salesPerformance.js";
 import cartRoutes from "./routes/cart.js";
-
 import loyaltyReportRoutes from "./routes/loyaltyReports.js";
 import inventoryReportRoutes from "./routes/inventoryReports.js";
+import managePromotionRoutes from "./routes/managePromotions.js";
+import employeeWorkloadRoutes from "./routes/employeeWorkload.js";
 const app = express();
 
 app.use(express.json());
+app.use("/api/manager/reports/employee-workload", employeeWorkloadRoutes);
+app.use("/api/manager/promotions", managePromotionRoutes);
 app.use("/api/employees", employeeLoginRoutes);
 app.use("/api/employee/fulfillment", employeeFulfillmentRoutes);
 //add
@@ -47,17 +50,15 @@ app.use("/api/cart", cartRoutes);
 
 app.use((error, req, res, next) => {
   console.error("API request failed:", error.message);
-  res
-    .status(500)
-    .json({
-      message: "Unable to complete the request. Check the database connection.",
-    });
+  res.status(500).json({
+    message: "Unable to complete the request. Check the database connection.",
+  });
 });
 
 if (!process.env.VERCEL) {
-    app.listen(3000, () => {
-        console.log('FreshMart server is running on port 3000');
-    });
+  app.listen(3000, () => {
+    console.log("FreshMart server is running on port 3000");
+  });
 }
 
 export default app;
