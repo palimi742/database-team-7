@@ -6,6 +6,7 @@ import {Link, useNavigate} from 'react-router-dom';
 function Login({role = 'customer'}){
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
     async function handleLogin(event){
         event.preventDefault();
@@ -38,9 +39,17 @@ function Login({role = 'customer'}){
       <input type="text" 
       placeholder="Enter your username"
       onChange = {(event) => setUsername(event.target.value)} />
-      <input type="password"
+      <input type={showPassword ? "text" : "password"}
        placeholder="Enter your password" 
        onChange = {(event) => setPassword(event.target.value)}/>
+      <button
+        type="button"
+        className="password-toggle"
+        aria-pressed={showPassword}
+        onClick={() => setShowPassword(!showPassword)}
+      >
+        {showPassword ? "Hide password" : "Show password"}
+      </button>
       <button className="signin-btn" onClick={handleLogin}>Sign In</button>
       <p>Don't have an account? <a href='/signup'>Sign up</a></p>
       <Footer />
