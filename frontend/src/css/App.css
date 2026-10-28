@@ -736,3 +736,15 @@ nav a:hover{
 
 
 
+
+.login-card .password-toggle {
+  display: block;
+  margin: 8px auto 12px;
+  padding: 4px 8px;
+  border: none;
+  background: transparent;
+  color: #365e43;
+  font-size: 14px;
+  text-decoration: underline;
+  cursor: pointer;
+}
