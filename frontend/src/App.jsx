@@ -14,6 +14,7 @@ import CustomerLoyaltyReport from "./pages/CustomerLoyaltyReport";
 import SalesPerformanceReport from "./pages/SalesPerformanceReport";
 import ManagerReturns from "./pages/ManagerReturns";
 import ManagerPromotions from "./pages/ManagerPromotions";
+import ProtectedManagerRoute from "./components/ProtectedManagerRoute";
 
 function App() {
   return (
@@ -34,22 +35,25 @@ function App() {
       <Route path="/browse" element={<Browse />} />
       <Route path="/transactions" element={<Transactions />} />
       <Route path="/loyalty" element={<Loyalty />} />
-      <Route path="/manager" element={<ManagerDashboard />} />
-      <Route path="/manager-coupon-sales" element={<ManagerPromotions />} />
-      <Route path="/manager/products" element={<ManagerProducts />} />
-      <Route
-        path="/manager/reports/employee-workload"
-        element={<EmployeeWorkloadReport />}
-      />
-      <Route
-        path="/manager/reports/customer-loyalty"
-        element={<CustomerLoyaltyReport />}
-      />
-      <Route
-        path="/manager/reports/sales-performance"
-        element={<SalesPerformanceReport />}
-      />
-      <Route path="/manager/returns" element={<ManagerReturns />} />
+      <Route element={<ProtectedManagerRoute />}>
+        <Route path="/manager" element={<ManagerDashboard />} />
+        <Route
+          path="/manager/reports/customer-loyalty"
+          element={<CustomerLoyaltyReport />}
+        />
+        <Route
+          path="/manager/reports/sales-performance"
+          element={<SalesPerformanceReport />}
+        />
+        <Route path="/manager/returns" element={<ManagerReturns />} />
+        <Route
+          path="/manager/reports/employee-workload"
+          element={<EmployeeWorkloadReport />}
+        />
+        <Route path="/manager/products" element={<ManagerProducts />} />
+
+        <Route path="/manager-coupon-sales" element={<ManagerPromotions />} />
+      </Route>
     </Routes>
   );
 }

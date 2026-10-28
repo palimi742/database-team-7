@@ -9,6 +9,8 @@
   background-color: #f3f4f6;
   color: #222;
   border-right: 1px solid #ccc;
+  display: flex;
+  flex-direction: column;
 }
 
 .manager-sidebar ul {
@@ -27,4 +29,21 @@
 
 .manager-sidebar a:hover {
   text-decoration: underline;
+}
+
+.manager-logout {
+  margin-top: auto;
+  border: none;
+  background-color: none;
+  cursor: pointer;
+  background-color: #f3f4f6;
+  color: #222;
+  text-decoration: underline;
+  font-size: 1.1rem;
+  align-self: center;
+  padding: 0.6em;
+  border-radius: 5px;
+}
+.manager-logout:hover {
+  background-color: #d0d0d5;
 }
