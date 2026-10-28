@@ -1,5 +1,7 @@
 import express from "express";
 import employeeLoginRoutes from "./routes/employeeLogin.js";
+import employeeFulfillmentRoutes from "./routes/employeeFulfillment.js";
+//add
 
 import customerRoutes from "./routes/customers.js";
 import productRoutes from "./routes/products.js";
@@ -23,6 +25,8 @@ const app = express();
 
 app.use(express.json());
 app.use("/api/employees", employeeLoginRoutes);
+app.use("/api/employee/fulfillment", employeeFulfillmentRoutes);
+//add
 app.use("/api/manager/orders", manageOrderRoutes);
 app.use("/api/customers", customerRoutes);
 app.use("/api/products", productRoutes);
