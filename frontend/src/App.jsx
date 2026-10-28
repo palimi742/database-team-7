@@ -1,6 +1,8 @@
 import "./css/App.css";
 import { Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
+import StaffLogin from "./pages/StaffLogin";
+import EmployeeDashboard from "./pages/EmployeeDashboard";
 import Signup from "./pages/Signup";
 import Browse from "./pages/Browse";
 import Loyalty from "./pages/Loyalty";
@@ -14,9 +16,12 @@ import SalesPerformanceReport from "./pages/SalesPerformanceReport";
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Login key="customer" />} />
-      <Route path="/employee/login" element={<Login key="employee" role="employee" />} />
-      <Route path="/manager/login" element={<Login key="manager" role="manager" />} />
+      <Route path="/" element={<Login />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/staff/login" element={<StaffLogin />} />
+      <Route path="/employee/login" element={<StaffLogin key="employee" loginType="employee" />} />
+      <Route path="/admin/login" element={<StaffLogin key="admin" loginType="admin" />} />
+      <Route path="/employee" element={<EmployeeDashboard />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/browse" element={<Browse />} />
       <Route path="/transactions" element={<Transactions />} />
@@ -39,3 +44,4 @@ function App() {
   );
 }
 export default App;
+

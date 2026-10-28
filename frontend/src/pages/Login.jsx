@@ -1,4 +1,5 @@
 import '../css/App.css';
+import Footer from '../components/Footer';
 import {useState} from 'react';
 import {Link, useNavigate} from 'react-router-dom';
 
@@ -33,30 +34,16 @@ function Login({role = 'customer'}){
     <div className="login-card">
       <h1>FreshMart POS.</h1>
       <h2>Welcome back.</h2>
-      <p>{role === 'customer' ? 'Sign in to access your workspace.' : `${role === 'manager' ? 'Manager' : 'Employee'} sign in`}</p>
-      {role === 'employee' ? (
-        <p>Employee sign-in is coming soon.</p>
-      ) : (
-        <form onSubmit={handleLogin}>
-          <input type="text"
-            aria-label="Username"
-            autoComplete="username"
-            placeholder="Enter your username"
-            onChange={(event) => setUsername(event.target.value)} />
-          <input type="password"
-            aria-label="Password"
-            autoComplete="current-password"
-            placeholder="Enter your password"
-            onChange={(event) => setPassword(event.target.value)} />
-          <button className="signin-btn" type="submit">Sign In</button>
-        </form>
-      )}
-      {role === 'customer' && <p>Dont have an account? <Link to="/signup">Sign up</Link></p>}
-      <div className="login-links">
-        <Link to="/employee/login">Employee sign in</Link>
-        <Link to="/manager/login">Manager sign in</Link>
-      </div>
-      {role !== 'customer' && <p><Link to="/">Back to customer sign in</Link></p>}
+      <p>Sign in to access your account.</p>
+      <input type="text" 
+      placeholder="Enter your username"
+      onChange = {(event) => setUsername(event.target.value)} />
+      <input type="password"
+       placeholder="Enter your password" 
+       onChange = {(event) => setPassword(event.target.value)}/>
+      <button className="signin-btn" onClick={handleLogin}>Sign In</button>
+      <p>Don't have an account? <a href='/signup'>Sign up</a></p>
+      <Footer />
     </div>
   </div>
   );
