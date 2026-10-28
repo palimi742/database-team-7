@@ -1,7 +1,13 @@
-import { Link } from "react-router-dom";
-import "../css/ManagerSidebar.css"
+import { Link, useNavigate } from "react-router-dom";
+import "../css/ManagerSidebar.css";
 
 function ManagerSidebar() {
+  const navigate = useNavigate();
+  function handleLogout() {
+    localStorage.removeItem("employee");
+    localStorage.removeItem("manager");
+    navigate("/admin/login", { replace: true });
+  }
   return (
     <div className="manager-sidebar">
       <h2>Freshmart</h2>
@@ -21,15 +27,24 @@ function ManagerSidebar() {
           <Link to="/manager/returns">Returns</Link>
         </li>
         <li>
-          <Link to="/manager/reports/employee-workload">Employee Workload Report</Link>
+          <Link to="/manager/reports/employee-workload">
+            Employee Workload Report
+          </Link>
         </li>
         <li>
-          <Link to="/manager/reports/customer-loyalty">Customer Loyalty and Rewards Report</Link>
+          <Link to="/manager/reports/customer-loyalty">
+            Customer Loyalty and Rewards Report
+          </Link>
         </li>
         <li>
-          <Link to="/manager/reports/sales-performance">Sales Performance Report</Link>
+          <Link to="/manager/reports/sales-performance">
+            Sales Performance Report
+          </Link>
         </li>
       </ul>
+      <button className="manager-logout" type="button" onClick={handleLogout}>
+        Logout
+      </button>
     </div>
   );
 }
