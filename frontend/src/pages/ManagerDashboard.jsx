@@ -9,7 +9,6 @@ function ManagerDashboard() {
   const [employeeError, setEmployeeError] = useState("");
   const [orders, setOrders] = useState([]);
   const [orderError, setOrderError] = useState("");
-
   // Load employees with no active assignment when the dashboard opens.
   async function loadEmployees() {
     setEmployeeError("");

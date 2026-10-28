@@ -1,0 +1,50 @@
+.sales-report{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  margin: 1.5rem 0
+}
+.sales-report-data{
+  flex: 1 1 200px;
+}
+
+.sales-report-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.sales-report-form label {
+  display: block;
+  margin-bottom: 0.375rem;
+}
+
+.sales-report-form input {
+  padding: 0.5rem;
+}
+
+.sales-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.sales-summary-card {
+  flex: 1 1 200px;
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.sales-summary-card h2 {
+  margin-top: 0;
+  font-size: 1rem;
+}
+
+.sales-summary-card p {
+  margin-bottom: 0;
+  font-size: 1.5rem;
+}
