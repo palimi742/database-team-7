@@ -37,5 +37,12 @@ Have 2 terminals open
 2. npm install
 3. npm start
 
-Employee sign-in and transactions are placeholders. The cart is local page state;
+Use the Manager sign-in link on the login page (or `/manager/login`) to sign in
+with an active manager account. The separate Employee link (`/employee/login`)
+shows a coming-soon page until the employee workspace is implemented.
+The seed data includes username `manager1` and password `manager123`.
+Login follows the existing customer credential storage pattern; manager API routes
+still need server-side session authorization before production use.
+
+Non-manager employee sign-in and transactions are placeholders. The cart is local page state;
 checkout does not have a backend endpoint yet.
