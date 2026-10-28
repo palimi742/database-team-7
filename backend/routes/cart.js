@@ -4,12 +4,11 @@ import pool from '../db.js';
 export default function (pool) {
   const router = express.Router();
 
-  // Passes errors along instead of crashing the server
+  // Passes errors along 
   const ah = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
 
-  //return the logged-in person's CustomerID, or null.
+  //return logged-in person's CustomerID, or null.
   async function getCustomerId(req) {
-    // OPTION A: your login saved the CustomerID
     const id = req.session?.customerId ?? req.user?.customerId ?? null;
     if (id != null) return Number(id);
     return null;
@@ -20,10 +19,9 @@ export default function (pool) {
   if (!CART_SECRET) throw new Error('Set the CART_SECRET environment variable');
   
   // the EmployeeID that online orders are assigned to at first.
-  // Leave null to use the lowest EmployeeID. Staff can reassign later.
   const FULFILLMENT_EMPLOYEE_ID = null;
 
-  //  Other settings 
+  //Fees
   const TAX_RATE = 0;               // taxes
   const DELIVERY_FEE = 5.99;
   const FREE_DELIVERY_OVER = 50;    // free delivery at or above this subtotal
