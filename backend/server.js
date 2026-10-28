@@ -2,7 +2,7 @@ import express from "express";
 import employeeLoginRoutes from "./routes/employeeLogin.js";
 import employeeFulfillmentRoutes from "./routes/employeeFulfillment.js";
 //add
-
+import returnRoutes from "./routes/returns.js"
 import customerRoutes from "./routes/customers.js";
 import productRoutes from "./routes/products.js";
 import loyaltyRoutes from "./routes/loyalty.js";
@@ -30,6 +30,7 @@ app.use("/api/manager/promotions", managePromotionRoutes);
 app.use("/api/employees", employeeLoginRoutes);
 app.use("/api/employee/fulfillment", employeeFulfillmentRoutes);
 //add
+app.use("/api/returns", returnRoutes)
 app.use("/api/manager/orders", manageOrderRoutes);
 app.use("/api/customers", customerRoutes);
 app.use("/api/products", productRoutes);

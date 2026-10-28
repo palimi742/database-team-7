@@ -12,7 +12,7 @@ import ManagerProducts from "./pages/ManagerProducts";
 import EmployeeWorkloadReport from "./pages/EmployeeWorkloadReport";
 import CustomerLoyaltyReport from "./pages/CustomerLoyaltyReport";
 import SalesPerformanceReport from "./pages/SalesPerformanceReport";
-
+import ManagerReturns from "./pages/ManagerReturns";
 import ManagerPromotions from "./pages/ManagerPromotions";
 
 function App() {
@@ -49,6 +49,7 @@ function App() {
         path="/manager/reports/sales-performance"
         element={<SalesPerformanceReport />}
       />
+      <Route path="/manager/returns" element={<ManagerReturns />} />
     </Routes>
   );
 }
