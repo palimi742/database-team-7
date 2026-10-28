@@ -13,8 +13,10 @@ router.get("/", async (req, res) => {
                 SELECT EmployeeID
                 FROM orderfulfillment
                 WHERE Status = 'Assigned'
-                    AND EmployeeID IS NOT NULL)`);
-        
+                    AND EmployeeID IS NOT NULL
+                GROUP BY EmployeeID
+                HAVING COUNT(*) >= 5)`);
+
     res.json(result[0]);
   } catch (err) {
     console.log("Error loading employees", err.message);

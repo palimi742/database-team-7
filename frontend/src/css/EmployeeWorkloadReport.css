@@ -1,0 +1,7 @@
+.employee-workload-report .sales-report-form { margin-top: 1rem; }
+.employee-workload-report .sales-summary-card { border-color: var(--border); }
+.employee-workload-report .employee-report-table { overflow-x: auto; margin-bottom: 1.5rem; }
+.employee-workload-report table { width: 100%; }
+.employee-workload-report th { background: var(--code-bg); color: var(--text-h); }
+.employee-workload-report td { border-bottom: 1px solid var(--border); }
+.employee-workload-report [role="alert"] { color: #dc6666; }

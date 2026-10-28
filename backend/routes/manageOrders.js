@@ -58,14 +58,16 @@ router.patch("/:fulfillmentID/assign", async (req, res) => {
     // Find regular employees who have no active assignment.
     const results = await pool.query(
       `
-            SELECT employeeID
+            SELECT EmployeeID AS employeeID
             FROM employee
             WHERE EmployeeRole != 'Manager'
                 AND EmployeeID NOT IN (
                 SELECT EmployeeID
                 From orderfulfillment
                 WHERE Status = 'Assigned'
-                    AND employeeID IS NOT NULL
+                    AND EmployeeID IS NOT NULL
+                GROUP BY EmployeeID
+                HAVING COUNT(*) >= 5
                 )
             `,
     );
