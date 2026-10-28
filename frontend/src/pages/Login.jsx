@@ -1,4 +1,5 @@
 import '../css/App.css';
+import Footer from '../components/Footer';
 import {useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 
@@ -35,12 +36,7 @@ function Login(){
     <div className="login-card">
       <h1>FreshMart POS.</h1>
       <h2>Welcome back.</h2>
-      <p>Sign in to access your workspace.</p>
-      <h3>I am signing in as a...</h3>
-      <div className="role-buttons">
-        <button className='role-btn customer-btn'>Customer</button>
-        <button className = 'role-btn employee-btn'>Employee</button>
-      </div>
+      <p>Sign in to access your account.</p>
       <input type="text" 
       placeholder="Enter your username"
       onChange = {(event) => setUsername(event.target.value)} />
@@ -48,7 +44,8 @@ function Login(){
        placeholder="Enter your password" 
        onChange = {(event) => setPassword(event.target.value)}/>
       <button className="signin-btn" onClick={handleLogin}>Sign In</button>
-      <p>Dont have an account?<a href='/signup'>Sign up</a></p>
+      <p>Don't have an account? <a href='/signup'>Sign up</a></p>
+      <Footer />
     </div>
   </div>
   );

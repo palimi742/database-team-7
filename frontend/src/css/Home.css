@@ -1,0 +1,10 @@
+.login-footer {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #ddd;
+  font-size: 14px;
+}
+
+.login-footer a {
+  color: #486f52;
+}
