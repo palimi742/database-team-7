@@ -1,16 +1,22 @@
-# React + Vite
+# FreshMart frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Run from the repository root with `npm run dev`. Build with `npm run build`.
 
-Currently, two official plugins are available:
+## Source folders
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- `src/pages/customer/`: browsing, savings, cart, checkout, orders, and loyalty pages.
+- `src/pages/auth/`: customer signup/login and staff login pages.
+- `src/pages/manager/`: manager dashboard, management pages, and reports.
+- `src/pages/employee/`: employee dashboard and fulfillment.
+- `src/components/layout/`: navbar, footer, and manager sidebar.
+- `src/components/auth/`: password input and route/login guards.
+- `src/components/cart/`: the Browse cart panel.
+- `src/components/products/`: product modals and product shopping components.
+- `src/components/checkout/`: checkout and order summary components.
+- `src/components/orders/`: receipt and order history components.
+- `src/context/`: shared shopping state.
+- `src/css/`: global styles (`App.css` and `index.css`). Other CSS lives with its page or component group.
+- `src/assets/`: images and icons.
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+`src/App.jsx` defines page routes. Moving source files does not change the URLs.
+`src/api.js` provides shared API and formatting helpers.

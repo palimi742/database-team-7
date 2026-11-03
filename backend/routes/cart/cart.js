@@ -135,6 +135,17 @@ export default function (pool) {
     return rows;
   }
 
+  async function cartResponse(cartId) {
+    const items = await getCartItems(pool, cartId);
+    const subtotal =
+      items.reduce(
+        (sum, item) =>
+          sum + Math.round(Number(item.price) * 100) * Number(item.quantity),
+        0,
+      ) / 100;
+    return { items, subtotal };
+  }
+
   // Who is logged in
   router.get(
     "/shop-me",
@@ -211,17 +222,17 @@ export default function (pool) {
         return res.status(400).json({ error: "Invalid product or quantity." });
       }
       const [[product]] = await pool.query(
-        "SELECT StockQuantity FROM Inventory WHERE InventoryID = ?",
-        [productId],
+        `SELECT i.StockQuantity, COALESCE(cd.Quantity, 0) AS CartQuantity
+         FROM Inventory i
+         LEFT JOIN CartDetail cd
+           ON cd.InventoryID = i.InventoryID AND cd.CartID = ?
+         WHERE i.InventoryID = ?`,
+        [req.cart.id, productId],
       );
       if (!product)
         return res.status(404).json({ error: "Product not found." });
 
-      const [[line]] = await pool.query(
-        "SELECT Quantity FROM CartDetail WHERE CartID = ? AND InventoryID = ?",
-        [req.cart.id, productId],
-      );
-      const inCart = line ? Number(line.Quantity) : 0;
+      const inCart = Number(product.CartQuantity);
       if (inCart + quantity > product.StockQuantity) {
         return res
           .status(400)
@@ -234,7 +245,14 @@ export default function (pool) {
        ON DUPLICATE KEY UPDATE Quantity = Quantity + ?`,
         [req.cart.id, productId, quantity, quantity],
       );
-      res.json({ ok: true });
+      const items = await getCartItems(pool, req.cart.id);
+      const subtotal =
+        items.reduce(
+          (sum, item) =>
+            sum + Math.round(Number(item.price) * 100) * Number(item.quantity),
+          0,
+        ) / 100;
+      res.json({ items, subtotal });
     }),
   );
 
@@ -247,7 +265,7 @@ export default function (pool) {
           "DELETE FROM CartDetail WHERE CartID = ? AND InventoryID = ?",
           [req.cart.id, req.params.productId],
         );
-        return res.json({ ok: true });
+        return res.json(await cartResponse(req.cart.id));
       }
       const [[product]] = await pool.query(
         "SELECT StockQuantity FROM Inventory WHERE InventoryID = ?",
@@ -264,7 +282,7 @@ export default function (pool) {
         "UPDATE CartDetail SET Quantity = ? WHERE CartID = ? AND InventoryID = ?",
         [quantity, req.cart.id, req.params.productId],
       );
-      res.json({ ok: true });
+      res.json(await cartResponse(req.cart.id));
     }),
   );
 
@@ -275,7 +293,7 @@ export default function (pool) {
         "DELETE FROM CartDetail WHERE CartID = ? AND InventoryID = ?",
         [req.cart.id, req.params.productId],
       );
-      res.json({ ok: true });
+      res.json(await cartResponse(req.cart.id));
     }),
   );
 
@@ -285,7 +303,7 @@ export default function (pool) {
       await pool.query("DELETE FROM CartDetail WHERE CartID = ?", [
         req.cart.id,
       ]);
-      res.json({ ok: true });
+      res.json(await cartResponse(req.cart.id));
     }),
   );
 

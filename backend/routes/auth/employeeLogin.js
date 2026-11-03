@@ -26,7 +26,7 @@ router.post("/login", async (req, res) => {
       return res.status(403).json({ message: "Please use Employee Login for this account." });
     }
     if (loginType === "employee" && isManager) {
-      return res.status(403).json({ message: "Please use Admin Login for this account." });
+      return res.status(403).json({ message: "Please use Manager Login for this account." });
     }
     res.json({ message: "Signed in successfully.", employee: employees[0] });
   } catch (err) {

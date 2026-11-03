@@ -4,6 +4,7 @@ import {
   useState,
   useEffect,
   useCallback,
+  useRef,
 } from "react";
 import { useLocation } from "react-router-dom";
 import { api } from "../api";
@@ -15,13 +16,15 @@ export function ShopProvider({ children }) {
   useLocation(); // Re-read the signed-in customer after navigation.
   let customer = null;
   try {
-    customer = JSON.parse(localStorage.getItem("customer"));
+    customer = JSON.parse(sessionStorage.getItem("customer"));
   } catch {
     /* Signed out. */
   }
   const customerID = customer?.CustomerID;
   const [cartId, setCartId] = useState(null);
   const [cart, setCart] = useState({ items: [], subtotal: 0 });
+  const saving = useRef(false);
+  const [updating, setUpdating] = useState(false);
   const [error, setError] = useState("");
   const [checkoutInfo, setCheckoutInfo] = useState(null);
   const [profile, setProfile] = useState(null);
@@ -56,17 +59,30 @@ export function ShopProvider({ children }) {
     setCart(data);
   }, [cartId]);
 
-  async function cartAction(path, method, body) {
+  async function cartAction(path, method, body, optimisticUpdate) {
     if (!cartId) {
       setError("Your cart is not ready. Please sign in or reload the page.");
       return;
     }
+    if (saving.current) return;
+    saving.current = true;
+    setUpdating(true);
+    const previousCart = cart;
+    if (optimisticUpdate) setCart(optimisticUpdate(cart));
     setError("");
     try {
-      await api(`/api/cart/${cartId}${path}`, method, body);
-      await refreshCart();
+      const result = await api(`/api/cart/${cartId}${path}`, method, body);
+      if (Array.isArray(result?.items)) {
+        setCart(result);
+      } else {
+        await refreshCart();
+      }
     } catch (err) {
+      if (optimisticUpdate) setCart(previousCart);
       setError(err.message);
+    } finally {
+      saving.current = false;
+      setUpdating(false);
     }
   }
 
@@ -79,6 +95,7 @@ export function ShopProvider({ children }) {
   return (
     <ShopContext.Provider
       value={{
+        updating,
         cartId,
         cart,
         error,
@@ -91,7 +108,31 @@ export function ShopProvider({ children }) {
         addItem: (id) =>
           cartAction("/items", "POST", { productId: id, quantity: 1 }),
         setQuantity: (id, quantity) =>
-          cartAction(`/items/${id}`, "PUT", { quantity }),
+          cartAction(`/items/${id}`, "PUT", { quantity }, (current) => {
+            const items = current.items
+              .map((item) =>
+                item.productId === id
+                  ? {
+                      ...item,
+                      quantity,
+                      lineTotal:
+                        (Math.round(Number(item.price) * 100) * quantity) / 100,
+                    }
+                  : item,
+              )
+              .filter((item) => Number(item.quantity) > 0);
+            return {
+              items,
+              subtotal:
+                items.reduce(
+                  (sum, item) =>
+                    sum +
+                    Math.round(Number(item.price) * 100) *
+                      Number(item.quantity),
+                  0,
+                ) / 100,
+            };
+          }),
         removeItem: (id) => cartAction(`/items/${id}`, "DELETE"),
         clearCart: () => cartAction("", "DELETE"),
       }}

@@ -1,0 +1,25 @@
+.login-footer {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-top: auto;
+  padding: 16px 24px;
+  border-top: 1px solid #d7dfd1;
+  background: #fafafa;
+  font-size: 15px;
+}
+
+.login-footer a {
+  color: #486f52;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.login-footer a:hover {
+  text-decoration: underline;
+}
+
+.app-content {
+  flex: 1;
+}

@@ -1,34 +1,38 @@
 import "./css/App.css";
 import { Routes, Route } from "react-router-dom";
-import Login from "./pages/Login";
-import StaffLogin from "./pages/StaffLogin";
-import EmployeeDashboard from "./pages/EmployeeDashboard";
-import EmployeeFulfillment from "./pages/EmployeeFulfillment";
-import Signup from "./pages/Signup";
-import Browse from "./pages/Browse";
-import Loyalty from "./pages/Loyalty";
-import Transactions from "./pages/Transactions";
-import ManagerDashboard from "./pages/ManagerDashboard";
-import ManagerProducts from "./pages/ManagerProducts";
-import EmployeeWorkloadReport from "./pages/EmployeeWorkloadReport";
-import CustomerLoyaltyReport from "./pages/CustomerLoyaltyReport";
-import SalesPerformanceReport from "./pages/SalesPerformanceReport";
-import ManagerReturns from "./pages/ManagerReturns";
-import ManagerPromotions from "./pages/ManagerPromotions";
-import ProtectedManagerRoute from "./components/ProtectedManagerRoute";
-import Home from "./pages/Home";
-import NavBar from "./components/Navbar";
+import Login from "./pages/auth/Login";
+import StaffLogin from "./pages/auth/StaffLogin";
+import EmployeeDashboard from "./pages/employee/EmployeeDashboard";
+import EmployeeFulfillment from "./pages/employee/EmployeeFulfillment";
+import Signup from "./pages/auth/Signup";
+import Browse from "./pages/customer/Browse";
+import Savings from "./pages/customer/Savings";
+import Loyalty from "./pages/customer/Loyalty";
+import Transactions from "./pages/customer/Transactions";
+import ManagerDashboard from "./pages/manager/ManagerDashboard";
+import ManagerProducts from "./pages/manager/ManagerProducts";
+import EmployeeWorkloadReport from "./pages/manager/EmployeeWorkloadReport";
+import CustomerLoyaltyReport from "./pages/manager/CustomerLoyaltyReport";
+import SalesPerformanceReport from "./pages/manager/SalesPerformanceReport";
+import ManagerReturns from "./pages/manager/ManagerReturns";
+import ManagerPromotions from "./pages/manager/ManagerPromotions";
+import ProtectedManagerRoute from "./components/auth/ProtectedManagerRoute";
+import Home from "./pages/customer/Home";
+import NavBar from "./components/layout/Navbar";
+import Footer from "./components/layout/Footer";
 
-import Cart from "./pages/cart";
-import Checkout from "./pages/checkout";
-import OrderDetail from "./pages/orderdetail";
-import Orders from "./pages/orders";
-import Payment from "./pages/payment";
-import Receipt from "./pages/receipt";
-import ReturnRequest from "./pages/return_request";
+import CartPage from "./pages/customer/CartPage";
+import Checkout from "./pages/customer/checkout";
+import OrderDetail from "./pages/customer/orderdetail";
+import Orders from "./pages/customer/orders";
+import Payment from "./pages/customer/payment";
+import Receipt from "./pages/customer/receipt";
+import ReturnRequest from "./pages/customer/return_request";
 
 function App() {
   return (
+    <>
+    <div className="app-content">
     <Routes>
       <Route path="/" element={<><NavBar /><Home /></>}/>
       <Route path="/login" element={<Login />} />
@@ -42,11 +46,13 @@ function App() {
         path="/admin/login"
         element={<StaffLogin key="admin" loginType="admin" />}
       />
+      <Route path="/manager/login" element={<StaffLogin key="manager" loginType="admin" />} />
       <Route path="/employee" element={<EmployeeDashboard />} />
       <Route path="/employee/fulfillment" element={<EmployeeFulfillment />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/customer-signup" element={<Signup />} />
       <Route path="/browse" element={<Browse />} />
+      <Route path="/savings" element={<Savings />} />
       <Route path="/transactions" element={<Transactions />} />
       <Route path="/loyalty" element={<Loyalty />} />
       <Route element={<ProtectedManagerRoute />}>
@@ -68,7 +74,7 @@ function App() {
 
         <Route path="/manager-coupon-sales" element={<ManagerPromotions />} />
       </Route>
-      <Route path="/cart" element={<Cart />} />
+      <Route path="/cart" element={<CartPage />} />
       <Route path="/checkout" element={<Checkout />} />
       <Route path="/home" element={<><NavBar /><Home /></>} />
       <Route path="/orderdetail" element={<OrderDetail />} />
@@ -77,6 +83,9 @@ function App() {
       <Route path="/receipt" element={<Receipt />} />
       <Route path="/return-request" element={<ReturnRequest />} />
     </Routes>
+    </div>
+    <Footer />
+    </>
   );
 }
 export default App;
