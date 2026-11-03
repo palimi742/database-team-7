@@ -1,4 +1,6 @@
 import "../css/App.css";
+import "../css/Product.css";
+import "../css/Coupon.css";
 import Cart from "../components/Cart";
 import { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";

@@ -1,0 +1,34 @@
+.staff-login-form {
+  min-height: auto;
+  padding: 32px 24px;
+}
+
+.staff-login-form h1 {
+  margin-bottom: 12px;
+}
+
+.staff-login-description {
+  margin-bottom: 28px;
+  color: #647365;
+  font-size: 16px;
+}
+
+.staff-login-error {
+  margin-bottom: 16px;
+  color: #a12b2b;
+  font-size: 16px;
+}
+
+.staff-login-back {
+  margin-top: 24px;
+  font-size: 16px;
+}
+
+.staff-login-back a {
+  color: #1541a0;
+}
+
+.staff-login-form .login-btn:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}

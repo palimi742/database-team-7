@@ -25,7 +25,7 @@ function EmployeeDashboard() {
         <h1>Employee Dashboard</h1>
         <p>Welcome, {employee.FirstName}.</p>
         <p>Role: {employee.EmployeeRole}</p>
-        <p>The delivery and curbside workspace has not been connected yet.</p>
+        <Link to="/employee/fulfillment">View delivery and curbside orders</Link>
       </section></main>
     </div>
   );
