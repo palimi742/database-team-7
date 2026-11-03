@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import StaffLogin from "./pages/StaffLogin";
 import EmployeeDashboard from "./pages/EmployeeDashboard";
+import EmployeeFulfillment from "./pages/EmployeeFulfillment";
 import Signup from "./pages/Signup";
 import Browse from "./pages/Browse";
 import Loyalty from "./pages/Loyalty";
@@ -15,12 +16,15 @@ import SalesPerformanceReport from "./pages/SalesPerformanceReport";
 import ManagerReturns from "./pages/ManagerReturns";
 import ManagerPromotions from "./pages/ManagerPromotions";
 import ProtectedManagerRoute from "./components/ProtectedManagerRoute";
+import Home from "./pages/Home";
+import NavBar from "./components/Navbar";
 
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Login />} />
+      <Route path="/" element={<><NavBar /><Home /></>}/>
       <Route path="/login" element={<Login />} />
+      <Route path="/customer-login" element={<Login />} />
       <Route path="/staff/login" element={<StaffLogin />} />
       <Route
         path="/employee/login"
@@ -31,7 +35,9 @@ function App() {
         element={<StaffLogin key="admin" loginType="admin" />}
       />
       <Route path="/employee" element={<EmployeeDashboard />} />
+      <Route path="/employee/fulfillment" element={<EmployeeFulfillment />} />
       <Route path="/signup" element={<Signup />} />
+      <Route path="/customer-signup" element={<Signup />} />
       <Route path="/browse" element={<Browse />} />
       <Route path="/transactions" element={<Transactions />} />
       <Route path="/loyalty" element={<Loyalty />} />
