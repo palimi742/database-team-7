@@ -1,0 +1,46 @@
+export const LOGIN_URL = "/customer-login";
+
+export async function api(url, method = "GET", body) {
+  const response = await fetch(url, {
+    method,
+    credentials: "same-origin",
+    ...(body === undefined
+      ? {}
+      : {
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        }),
+  });
+
+  const text = await response.text();
+  let data = null;
+  if (text) {
+    try {
+      data = JSON.parse(text);
+    } catch {
+      const error = new Error("The server returned an unexpected response. Check that the backend is running.");
+      error.status = response.status;
+      throw error;
+    }
+  }
+
+  if (!response.ok) {
+    const error = new Error(data?.error || data?.message || "Unable to complete the request.");
+    error.status = response.status;
+    throw error;
+  }
+  return data;
+}
+
+export function money(value) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  }).format(Number(value));
+}
+
+export function fmtDate(value) {
+  if (!value) return "";
+  const date = new Date(/^\d{4}-\d{2}-\d{2}$/.test(value) ? `${value}T00:00:00` : value);
+  return Number.isNaN(date.getTime()) ? "" : date.toLocaleDateString("en-US");
+}

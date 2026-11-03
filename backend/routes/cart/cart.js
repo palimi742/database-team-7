@@ -128,7 +128,7 @@ export default function (pool) {
               i.StockQuantity AS stock, cd.Quantity AS quantity,
               i.Price * cd.Quantity AS lineTotal
        FROM CartDetail cd
-       JOIN Inventory i ON i.InventoryID = cd.ProductID
+       JOIN Inventory i ON i.InventoryID = cd.InventoryID
        WHERE cd.CartID = ? ${forUpdate ? "FOR UPDATE" : ""}`,
       [cartId],
     );
@@ -170,7 +170,17 @@ export default function (pool) {
   router.post(
     "/cart",
     ah(async (req, res) => {
-      const [result] = await pool.query("INSERT INTO Cart () VALUES ()");
+      const customerID = Number(req.body.customerID);
+      if (!Number.isInteger(customerID) || customerID <= 0) {
+        return res
+          .status(400)
+          .json({ error: "Please sign in before opening a cart." });
+      }
+      const [result] = await pool.query(
+        `INSERT INTO Cart (CustomerID) VALUES (?)
+         ON DUPLICATE KEY UPDATE CartID = LAST_INSERT_ID(CartID)`,
+        [customerID],
+      );
       res.json({ cartId: makeCartToken(result.insertId) });
     }),
   );
@@ -208,10 +218,10 @@ export default function (pool) {
         return res.status(404).json({ error: "Product not found." });
 
       const [[line]] = await pool.query(
-        "SELECT Quantity FROM CartDetail WHERE CartID = ? AND ProductID = ?",
+        "SELECT Quantity FROM CartDetail WHERE CartID = ? AND InventoryID = ?",
         [req.cart.id, productId],
       );
-      const inCart = line ? line.Quantity : 0;
+      const inCart = line ? Number(line.Quantity) : 0;
       if (inCart + quantity > product.StockQuantity) {
         return res
           .status(400)
@@ -219,7 +229,7 @@ export default function (pool) {
       }
 
       await pool.query(
-        `INSERT INTO CartDetail (CartID, ProductID, Quantity)
+        `INSERT INTO CartDetail (CartID, InventoryID, Quantity)
        VALUES (?, ?, ?)
        ON DUPLICATE KEY UPDATE Quantity = Quantity + ?`,
         [req.cart.id, productId, quantity, quantity],
@@ -234,7 +244,7 @@ export default function (pool) {
       const quantity = Number(req.body.quantity);
       if (!Number.isInteger(quantity) || quantity < 1) {
         await pool.query(
-          "DELETE FROM CartDetail WHERE CartID = ? AND ProductID = ?",
+          "DELETE FROM CartDetail WHERE CartID = ? AND InventoryID = ?",
           [req.cart.id, req.params.productId],
         );
         return res.json({ ok: true });
@@ -251,7 +261,7 @@ export default function (pool) {
           .json({ error: `Only ${product.StockQuantity} in stock.` });
       }
       await pool.query(
-        "UPDATE CartDetail SET Quantity = ? WHERE CartID = ? AND ProductID = ?",
+        "UPDATE CartDetail SET Quantity = ? WHERE CartID = ? AND InventoryID = ?",
         [quantity, req.cart.id, req.params.productId],
       );
       res.json({ ok: true });
@@ -262,7 +272,7 @@ export default function (pool) {
     "/cart/:cartId/items/:productId",
     ah(async (req, res) => {
       await pool.query(
-        "DELETE FROM CartDetail WHERE CartID = ? AND ProductID = ?",
+        "DELETE FROM CartDetail WHERE CartID = ? AND InventoryID = ?",
         [req.cart.id, req.params.productId],
       );
       res.json({ ok: true });
@@ -336,11 +346,9 @@ export default function (pool) {
         const short = items.find((i) => i.quantity > i.stock);
         if (short) {
           await conn.rollback();
-          return res
-            .status(400)
-            .json({
-              error: `Only ${short.stock} of "${short.name}" left in stock.`,
-            });
+          return res.status(400).json({
+            error: `Only ${short.stock} of "${short.name}" left in stock.`,
+          });
         }
 
         const [[delivery]] = await conn.query(
@@ -364,11 +372,9 @@ export default function (pool) {
         }
         if (!employeeId) {
           await conn.rollback();
-          return res
-            .status(500)
-            .json({
-              error: "Add at least one Employee so orders can be assigned.",
-            });
+          return res.status(500).json({
+            error: "Add at least one Employee so orders can be assigned.",
+          });
         }
 
         const t = calcTotals(items, fulfillmentType);
@@ -530,11 +536,9 @@ export default function (pool) {
       );
       if (!order) return res.status(404).json({ error: "Order not found." });
       if (order.ageDays > RETURN_WINDOW_DAYS) {
-        return res
-          .status(400)
-          .json({
-            error: `The ${RETURN_WINDOW_DAYS}-day return window has passed.`,
-          });
+        return res.status(400).json({
+          error: `The ${RETURN_WINDOW_DAYS}-day return window has passed.`,
+        });
       }
 
       const [[item]] = await pool.query(

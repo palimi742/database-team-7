@@ -1,5 +1,5 @@
 import { Router } from "express";
-import pool from "../db.js";
+import pool from "../../db.js";
 
 export function summarizeEmployees(employees, hiredSince, asOf) {
   let totalPay = 0;

@@ -2,8 +2,12 @@ import "../css/Home.css";
 import "../css/App.css";
 import "../css/Product.css";
 import { useEffect, useState } from "react";
+import { useShop } from "../context/ShopContext.jsx";
+import { useNavigate } from "react-router-dom";
 
 function Home() {
+  const { addItem, cartId, error: cartError } = useShop();
+  const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [search, setSearch] = useState("");
   const [categories, setCategories] = useState([]);
@@ -107,6 +111,7 @@ function Home() {
       </div>
 
       {error && <p role="alert">{error}</p>}
+      {cartError && <p role="alert">{cartError}</p>}
       {loading ? (
         <p role="status">Loading products...</p>
       ) : productError ? (
@@ -119,6 +124,15 @@ function Home() {
             <div className="product-card" key={product.InventoryID}>
               <h3>{product.InventoryName}</h3>
               <p>${Number(product.Price).toFixed(2)}</p>
+              <button
+                onClick={() =>
+                  cartId
+                    ? addItem(product.InventoryID)
+                    : navigate("/customer-login")
+                }
+              >
+                Add to cart
+              </button>
             </div>
           ))}
         </div>

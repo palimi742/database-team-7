@@ -4,10 +4,25 @@ import "../css/Coupon.css";
 import Cart from "../components/Cart";
 import { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
+import { useShop } from "../context/ShopContext.jsx";
+import { useNavigate } from "react-router-dom";
 
 function Browse() {
-  const [cartID, setCartID] = useState(null);
-  const [cart, setCart] = useState([]);
+  const {
+    cartId: cartID,
+    cart: sharedCart,
+    addItem,
+    removeItem,
+    clearCart,
+    error: cartError,
+  } = useShop();
+  const navigate = useNavigate();
+  const cart = sharedCart.items.map((item) => ({
+    InventoryID: item.productId,
+    InventoryName: item.name,
+    Price: item.price,
+    Quantity: item.quantity,
+  }));
   const [products, setProducts] = useState([]);
   const [seasonalProducts, setSeasonalProducts] = useState([]);
   const [coupons, setCoupons] = useState([]);
@@ -122,61 +137,6 @@ function Browse() {
     loadClippedCoupons();
   }, []);
 
-  useEffect(() => {
-    async function openCart() {
-      try {
-        const customer = JSON.parse(localStorage.getItem("customer"));
-
-        if (!customer) {
-          return;
-        }
-
-        const response = await fetch("/api/cart", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            customerID: customer.CustomerID,
-          }),
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.message || "Unable to open cart.");
-        }
-
-        setCartID(data.cartId);
-      } catch (err) {
-        setError(err.message);
-      }
-    }
-
-    openCart();
-  }, []);
-
-  useEffect(() => {
-    if (!cartID) {
-      return;
-    }
-
-    async function loadCart() {
-      try {
-        const response = await fetch(`/api/cart/${cartID}`);
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.message || "Unable to load cart.");
-        }
-
-        setCart(data.items);
-      } catch (err) {
-        setError(err.message);
-      }
-    }
-
-    loadCart();
-  }, [cartID]);
-
   const filteredProducts = products.filter((product) => {
     const matchesSearch = product.InventoryName.toLowerCase().includes(
       search.toLowerCase(),
@@ -210,94 +170,14 @@ function Browse() {
     return discount;
   }
 
-  async function addToCart(product) {
-    if (!cartID) {
-      setError("Your cart is not ready. Please sign in and try again.");
-      return;
-    }
-
-    setError("");
-
-    try {
-      const response = await fetch(`/api/cart/${cartID}/items`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          inventoryID: product.InventoryID,
-          quantity: 1,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Unable to add item.");
-      }
-
-      const cartResponse = await fetch(`/api/cart/${cartID}`);
-      const cartData = await cartResponse.json();
-
-      if (!cartResponse.ok) {
-        throw new Error(cartData.message || "Unable to reload cart.");
-      }
-
-      setCart(cartData.items);
-    } catch (err) {
-      setError(err.message);
-    }
+  function addToCart(product) {
+    return addItem(product.InventoryID);
   }
-
-  async function removefromCart(indexToRemove) {
-    const item = cart[indexToRemove];
-
-    if (!cartID || !item) {
-      return;
-    }
-
-    setError("");
-
-    try {
-      const response = await fetch(
-        `/api/cart/${cartID}/items/${item.InventoryID}`,
-        { method: "DELETE" },
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Unable to remove item.");
-      }
-
-      setCart((previous) =>
-        previous.filter((product) => product.InventoryID !== item.InventoryID),
-      );
-    } catch (err) {
-      setError(err.message);
-    }
+  function removefromCart(index) {
+    return removeItem(cart[index].InventoryID);
   }
-
-  async function emptyCart() {
-    if (!cartID) {
-      return;
-    }
-
-    setError("");
-
-    try {
-      const response = await fetch(`/api/cart/${cartID}`, {
-        method: "DELETE",
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Unable to empty cart.");
-      }
-
-      setCart([]);
-    } catch (err) {
-      setError(err.message);
-    }
+  function emptyCart() {
+    return clearCart();
   }
 
   async function clipCoupon(couponID) {
@@ -435,6 +315,7 @@ function Browse() {
         </div>
 
         {error && <p role="alert">{error}</p>}
+        {cartError && <p role="alert">{cartError}</p>}
 
         <div className="product-grid">
           {filteredProducts.map((product) => {
@@ -477,7 +358,7 @@ function Browse() {
           className="checkout-button"
           disabled={cart.length === 0}
           onClick={() => {
-            // TODO: Implement checkout.
+            navigate("/cart");
           }}
         >
           Proceed to Checkout →

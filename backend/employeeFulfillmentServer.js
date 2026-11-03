@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import employeeFulfillmentRoutes from "./routes/employeeFulfillment.js";
+import employeeFulfillmentRoutes from "./routes/employees/employeeFulfillment.js";
 
 const app = express();
 
