@@ -1,56 +1,59 @@
-import '../css/App.css';
-import {useState} from 'react';
-import {useNavigate} from 'react-router-dom';
+import "../css/CustomerLogin.css";
 
-function Login(){
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const navigate = useNavigate();
-    async function handleLogin(){
-        try {
-        const response = await fetch('/api/customers/login', {
-          
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                username: username,
-                password: password
-            })
-        });
-          const data = await response.json();
-          console.log(data);
-          alert(data.message);
-          if(response.ok){
-            localStorage.setItem('customer', JSON.stringify(data.customer));
-            navigate('/browse');
-          }
-        } catch {
-            alert('Unable to reach the backend. Check that it is running and the database is configured.');
-        }
+import { Link, useNavigate } from "react-router-dom";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
+import PasswordInput from "../components/PasswordInput";
+
+function CustomerLogin() {
+  const navigate = useNavigate();
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+    const fields = Object.fromEntries(new FormData(event.currentTarget));
+    try {
+      const response = await fetch("/api/customers/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(fields),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        alert(data.message || "Unable to submit the form.");
+        return;
+      }
+      localStorage.setItem("customer", JSON.stringify(data.customer));
+      navigate("/browse");
+    } catch {
+      alert("Unable to reach the backend. Check that it is running and the database is configured.");
     }
-  return(
-   <div className="login-container">
-    <div className="login-card">
-      <h1>FreshMart POS.</h1>
-      <h2>Welcome back.</h2>
-      <p>Sign in to access your workspace.</p>
-      <h3>I am signing in as a...</h3>
-      <div className="role-buttons">
-        <button className='role-btn customer-btn'>Customer</button>
-        <button className = 'role-btn employee-btn'>Employee</button>
-      </div>
-      <input type="text" 
-      placeholder="Enter your username"
-      onChange = {(event) => setUsername(event.target.value)} />
-      <input type="password"
-       placeholder="Enter your password" 
-       onChange = {(event) => setPassword(event.target.value)}/>
-      <button className="signin-btn" onClick={handleLogin}>Sign In</button>
-      <p>Dont have an account?<a href='/signup'>Sign up</a></p>
-    </div>
-  </div>
+  }
+
+  return (
+    <>
+      <Navbar />
+    <main>
+      <form className="login-form" onSubmit={handleSubmit}>
+        <h1>Customer Login</h1>
+        <label className="username-label" htmlFor="username">Username</label>
+        <input
+          id="username"
+          name="username"
+          type="text"
+          placeholder="JohnDoe123"
+          required
+        ></input>
+        <label className="password-label" htmlFor="password">Password</label>
+        <PasswordInput autoComplete="current-password" />
+        <button className="login-btn" type="submit">Login</button>
+        <p className="create-account">
+          Don't have an account? <Link to="/customer-signup" className="createAccountLink">Create one</Link>
+        </p>
+      </form>
+    </main>
+      <Footer />
+    </>
   );
 }
-export default Login;
+
+export default CustomerLogin;

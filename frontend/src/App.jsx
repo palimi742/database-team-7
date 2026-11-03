@@ -1,6 +1,9 @@
 import "./css/App.css";
 import { Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
+import StaffLogin from "./pages/StaffLogin";
+import EmployeeDashboard from "./pages/EmployeeDashboard";
+import EmployeeFulfillment from "./pages/EmployeeFulfillment";
 import Signup from "./pages/Signup";
 import Browse from "./pages/Browse";
 import Loyalty from "./pages/Loyalty";
@@ -10,9 +13,14 @@ import ManagerProducts from "./pages/ManagerProducts";
 import EmployeeWorkloadReport from "./pages/EmployeeWorkloadReport";
 import CustomerLoyaltyReport from "./pages/CustomerLoyaltyReport";
 import SalesPerformanceReport from "./pages/SalesPerformanceReport";
+import ManagerReturns from "./pages/ManagerReturns";
+import ManagerPromotions from "./pages/ManagerPromotions";
+import ProtectedManagerRoute from "./components/ProtectedManagerRoute";
+import Home from "./pages/Home";
+import NavBar from "./components/Navbar";
+
 import Cart from "./pages/cart";
 import Checkout from "./pages/checkout";
-import Home from "./pages/home";
 import OrderDetail from "./pages/orderdetail";
 import Orders from "./pages/orders";
 import Payment from "./pages/payment";
@@ -22,28 +30,47 @@ import ReturnRequest from "./pages/return_request";
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Login />} />
+      <Route path="/" element={<><NavBar /><Home /></>}/>
+      <Route path="/login" element={<Login />} />
+      <Route path="/customer-login" element={<Login />} />
+      <Route path="/staff/login" element={<StaffLogin />} />
+      <Route
+        path="/employee/login"
+        element={<StaffLogin key="employee" loginType="employee" />}
+      />
+      <Route
+        path="/admin/login"
+        element={<StaffLogin key="admin" loginType="admin" />}
+      />
+      <Route path="/employee" element={<EmployeeDashboard />} />
+      <Route path="/employee/fulfillment" element={<EmployeeFulfillment />} />
       <Route path="/signup" element={<Signup />} />
+      <Route path="/customer-signup" element={<Signup />} />
       <Route path="/browse" element={<Browse />} />
       <Route path="/transactions" element={<Transactions />} />
       <Route path="/loyalty" element={<Loyalty />} />
-      <Route path="/manager" element={<ManagerDashboard />} />
-      <Route path="/manager/products" element={<ManagerProducts />} />
-      <Route
-        path="/manager/reports/employee-workload"
-        element={<EmployeeWorkloadReport />}
-      />
-      <Route
-        path="/manager/reports/customer-loyalty"
-        element={<CustomerLoyaltyReport />}
-      />
-      <Route
-        path="/manager/reports/sales-performance"
-        element={<SalesPerformanceReport />}
-      />
+      <Route element={<ProtectedManagerRoute />}>
+        <Route path="/manager" element={<ManagerDashboard />} />
+        <Route
+          path="/manager/reports/customer-loyalty"
+          element={<CustomerLoyaltyReport />}
+        />
+        <Route
+          path="/manager/reports/sales-performance"
+          element={<SalesPerformanceReport />}
+        />
+        <Route path="/manager/returns" element={<ManagerReturns />} />
+        <Route
+          path="/manager/reports/employee-workload"
+          element={<EmployeeWorkloadReport />}
+        />
+        <Route path="/manager/products" element={<ManagerProducts />} />
+
+        <Route path="/manager-coupon-sales" element={<ManagerPromotions />} />
+      </Route>
       <Route path="/cart" element={<Cart />} />
       <Route path="/checkout" element={<Checkout />} />
-      <Route path="/home" element={<Home />} />
+      <Route path="/home" element={<><NavBar /><Home /></>} />
       <Route path="/orderdetail" element={<OrderDetail />} />
       <Route path="/orders" element={<Orders />} />
       <Route path="/payment" element={<Payment />} />
