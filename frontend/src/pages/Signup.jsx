@@ -1,60 +1,74 @@
-import '../css/App.css'
-import {useState} from 'react';
+import "../css/CustomerSignup.css";
 
-function Signup(){
-    const [username, setUsername] = useState('');
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName] = useState('');
-    const [phoneNumber, setPhoneNumber] = useState('')
-    const [address, setAddress] = useState('');
-    const [password, setPassword] = useState('');
-    async function handleSignup() {
-        try {
-        const response = await fetch('/api/customers/signup', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                firstName: firstName,
-                lastName: lastName,
-                phoneNumber: phoneNumber,
-                customerAddress: address,
-                username: username,
-                password: password
-            })
-        });
+import { Link, useNavigate } from "react-router-dom";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
+import PasswordInput from "../components/PasswordInput";
 
-        const data = await response.json();
-        alert(data.message);
-        } catch {
-            alert('Unable to reach the backend. Check that it is running and the database is configured.');
-        }
+function CustomerSignup() {
+  const navigate = useNavigate();
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+    const fields = Object.fromEntries(new FormData(event.currentTarget));
+    try {
+      const response = await fetch("/api/customers/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(fields),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        alert(data.message || "Unable to submit the form.");
+        return;
+      }
+      alert(data.message);
+      navigate("/customer-login");
+    } catch {
+      alert("Unable to reach the backend. Check that it is running and the database is configured.");
     }
-    return(
-    <div className="signup-container">
-        <div className="signup-card">
-            <h1>FreshMart POS</h1>
-            <h2>Create Your Account</h2>
-            <p>Sign up to get started</p>
-            <input type="text" 
-            placeholder="First name" 
-            onChange = {(event) => setFirstName(event.target.value)}/>
-            <input type="text" placeholder="Last name"
-            onChange = {(event) => setLastName(event.target.value)}/>
-            <input type="tel" placeholder="Phone number" 
-            onChange = {(event) => setPhoneNumber(event.target.value)}/>
-            <input type="text" placeholder="Address" 
-            onChange = {(event) => setAddress(event.target.value)} />
-            <input type="text" placeholder="Username" 
-            onChange = {(event) => setUsername(event.target.value)}/>
-            <input type="password" placeholder="Password" 
-            onChange = {(event) => setPassword(event.target.value)}/>
-            <button onClick={handleSignup}>Create Account</button>
-            <p>Already have an account? <a href="/">Log in</a></p>
+  }
+
+  return (
+    <>
+      <Navbar />
+    <main>
+      <form className="signup-form" onSubmit={handleSubmit}>
+        <h1 className="signup-heading">Customer Signup</h1>
+
+        <div className="names-row">
+          <div className="name-field">
+            <label htmlFor="firstName">First Name</label>
+            <input placeholder="John" id="firstName" name="firstName" type="text" required></input>
+          </div>
+
+          <div className="name-field">
+            <label htmlFor="lastName">Last Name</label>
+            <input placeholder="Doe" id="lastName" name="lastName" type="text" required></input>
+          </div>
         </div>
-    </div>
-    );
+
+        <label className="single-row-labels" htmlFor="phoneNumber">Phone Number</label>
+        <input placeholder="555-123-4567" id="phoneNumber" name="phoneNumber" type="tel" required></input>
+
+        <label className="single-row-labels" htmlFor="username">Username</label>
+        <input placeholder="johnDoe972" id="username" name="username" type="text" required></input>
+
+        <label className="single-row-labels" htmlFor="password">Password</label>
+        <PasswordInput autoComplete="new-password" />
+
+        <label className="single-row-labels" htmlFor="address">Address</label>
+        <input id="address" name="customerAddress" type="text" placeholder="123 main street" required></input>
+
+        <button className="signup-btn" type="submit">
+          Sign up
+        </button>
+        <p>Already have an account? <Link to="/customer-login">Log in</Link></p>
+      </form>
+    </main>
+      <Footer />
+    </>
+  );
 }
 
-export default Signup
+export default CustomerSignup;
