@@ -26,6 +26,11 @@ export default function OrderSummary({ summary, type }) {
               </span>
             </div>
           )}
+          {type === "delivery" && (
+            <p className="note">
+              Free delivery on orders of $50 or more. Delivery is $5.99 below $50.
+            </p>
+          )}
           <div className="cart-row total">
             <span>Total</span>
             <span>{money(summary.total)}</span>

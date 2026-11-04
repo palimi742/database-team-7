@@ -92,7 +92,7 @@ function CartPanel({
         </div>
 
         <p className="cart-note">
-          Delivery and discounts calculated at checkout.
+          Free delivery on orders of $50 or more. Delivery is $5.99 below $50.
         </p>
 
         <button

@@ -100,7 +100,7 @@ export default function CartPage() {
                 <span>Subtotal</span>
                 <strong>{money(cart.subtotal)}</strong>
               </div>
-              <p>Delivery and discounts calculated at checkout.</p>
+              <p>Free delivery on orders of $50 or more. Delivery is $5.99 below $50.</p>
               {updating ? (
                 <button className="cart-page-primary" disabled>
                   Updating cart…
