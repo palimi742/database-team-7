@@ -21,6 +21,7 @@ import Home from "./pages/customer/Home";
 import NavBar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
 
+import Account from "./pages/customer/Account";
 import CartPage from "./pages/customer/CartPage";
 import Checkout from "./pages/customer/checkout";
 import OrderDetails from "./pages/customer/OrderDetails";
@@ -91,6 +92,7 @@ function App() {
               element={<ManagerPromotions />}
             />
           </Route>
+          <Route path="/account" element={<Account />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route

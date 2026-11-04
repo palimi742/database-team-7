@@ -3,9 +3,51 @@ import pool from "../../db.js";
 import {
   createCustomerSession,
   clearCustomerSession,
+  readCustomerSession,
 } from "../../auth/customerSession.js";
 
 const router = Router();
+
+// Identity comes from the verified cookie, never a customer ID in the form.
+router.use("/profile", (req, res, next) => {
+  req.customerId = readCustomerSession(req);
+  if (!req.customerId) {
+    return res.status(401).json({ message: "Please sign in." });
+  }
+  next();
+});
+
+router.get("/profile", async (req, res) => {
+  const [rows] = await pool.query(
+    `SELECT FirstName, LastName, PhoneNumber, CustomerAddress
+     FROM Customer WHERE CustomerID = ?`,
+    [req.customerId],
+  );
+  if (!rows.length) return res.status(404).json({ message: "Customer not found." });
+  res.json(rows[0]);
+});
+
+router.put("/profile", async (req, res) => {
+  const { FirstName, LastName, PhoneNumber, CustomerAddress } = req.body || {};
+  const fields = [FirstName, LastName, PhoneNumber, CustomerAddress];
+  const limits = [100, 100, 50, 150];
+  if (fields.some((value, index) =>
+    typeof value !== "string" || !value.trim() || value.trim().length > limits[index]
+  )) {
+    return res.status(400).json({ message: "Enter all fields within the allowed lengths." });
+  }
+  const digits = PhoneNumber.replace(/\D/g, "");
+  if (digits.length < 7 || digits.length > 15) {
+    return res.status(400).json({ message: "Enter a phone number with 7 to 15 digits." });
+  }
+  await pool.query(
+    `UPDATE Customer
+     SET FirstName = ?, LastName = ?, PhoneNumber = ?, CustomerAddress = ?
+     WHERE CustomerID = ?`,
+    [...fields.map(value => value.trim()), req.customerId],
+  );
+  res.json({ message: "Account updated." });
+});
 
 router.post("/signup", async (req, res) => {
   let connection = null;

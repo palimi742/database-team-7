@@ -1,0 +1,56 @@
+.account-page {
+  max-width: 500px;
+  margin: 3rem auto;
+  padding: 1.5rem;
+  color: #263b2b;
+}
+
+.account-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin: 1rem 0;
+}
+
+.account-field input {
+  padding: 0.7rem;
+  border: 1px solid #cbd5cb;
+  border-radius: 4px;
+  font: inherit;
+}
+
+.account-page button {
+  padding: 0.7rem 1.2rem;
+  background: #466645;
+  color: white;
+  border: 0;
+  border-radius: 4px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.account-page button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.account-message {
+  margin: 1.2rem 0;
+  padding: 1rem;
+  border: 2px solid;
+  border-radius: 4px;
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.account-success {
+  color: #23512c;
+  background: #e5f3e7;
+  border-color: #466645;
+}
+
+.account-error {
+  color: #842029;
+  background: #fbe9eb;
+  border-color: #b74751;
+}

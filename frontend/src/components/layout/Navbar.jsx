@@ -44,9 +44,7 @@ function NavBar() {
       <div className="navbar-right">
         {customer ? (
           <>
-            <span className="customer-name">
-              Hi, {customer.FirstName || customer.Username}
-            </span>
+            <Link to="/account" className="login-link">My Account</Link>
             <button
               className="login-link logout-button"
               type="button"
