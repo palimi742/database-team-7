@@ -1,30 +1,30 @@
 .signup-form {
   background-color: #ffffff;
-    border: 1px solid #dce4dc;
+  border: 1px solid #dce4dc;
   width: 90%;
   max-width: 850px;
   margin: 2em auto;
-  border-radius: 20px;
+  border-radius: 1.111rem;
   padding: 1.2em;
   display: flex;
   flex-direction: column;
   color: #263b2b;
-  gap: 10px;
+  gap: 0.556rem;
 }
 
 .signup-heading {
-    margin-top: 0;
+  margin-top: 0;
   text-align: center;
   margin-bottom: 0.5em;
 }
-.signup-form label{
-    font-size: 1.2rem;
-    margin-bottom: 0;
+.signup-form label {
+  font-size: 1.2rem;
+  margin-bottom: 0;
 }
 
 .names-row {
   display: flex;
-  gap: 30px;
+  gap: 1.667rem;
 }
 
 .name-field {
@@ -32,37 +32,37 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0.556rem;
 }
 
 .signup-form input {
   width: 100%;
   padding: 0.5em;
   border: 1px solid #cbd5cb;
-  border-radius: 5px;
+  border-radius: 0.278rem;
   font: inherit;
   font-size: 1.2rem;
 }
 
-.signup-btn{
-    background-color: #588157;
-    color: #fff;
-    cursor: pointer;
-    margin-top: 1.3em;
-    align-self: center;
-    border: none;
-    padding: 1rem 2rem;
-    border-radius: 20px;
-    font-size: 1.3rem;
+.signup-btn {
+  background-color: #588157;
+  color: #fff;
+  cursor: pointer;
+  margin-top: 1.3em;
+  align-self: center;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 1.111rem;
+  font-size: 1.3rem;
 }
-.signup-btn:hover{
-    background-color: #466645;
-    color: #FFF;
+.signup-btn:hover {
+  background-color: #466645;
+  color: #fff;
 }
 
 .signup-form {
   box-sizing: border-box;
-  width: calc(100% - 32px);
+  width: calc(100% - 1.778rem);
 }
 
 .signup-form input {
@@ -72,7 +72,7 @@
 @media (max-width: 550px) {
   .names-row {
     flex-direction: column;
-    gap: 10px;
+    gap: 0.556rem;
   }
 }
 

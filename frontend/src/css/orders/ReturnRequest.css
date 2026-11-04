@@ -1,0 +1,30 @@
+.return-form label {
+  display: block;
+  margin: 1rem 0;
+  font-size: 0.9rem;
+}
+
+.return-form select,
+.return-form textarea,
+.return-form input {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.75em;
+  border: 1px solid #d7dfd1;
+  border-radius: 0.375rem;
+  background: white;
+  color: #263b2b;
+  font: inherit;
+}
+
+.return-form button {
+  margin-right: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.return-form button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

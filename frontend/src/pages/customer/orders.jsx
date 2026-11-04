@@ -1,35 +1,78 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { api, money, fmtDate } from '../../api';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { api, money, fmtDate } from "../../api";
+import Navbar from "../../components/layout/Navbar";
+import "../../css/orders/Orders.css";
 
 export default function Orders() {
   const navigate = useNavigate();
   const [orders, setOrders] = useState(null);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
+  const [orderFilter, setOrderFilter] = useState("not-completed");
 
   useEffect(() => {
-    api('/api/orders').then(setOrders).catch(err => setError(err.message));
+    api("/api/my-orders")
+      .then(setOrders)
+      .catch((err) => setError(err.message));
   }, []);
 
+  const filteredOrders = (orders || []).filter((order) => {
+    if (orderFilter === "completed") {
+      return order.status === "Completed";
+    }
+    return order.status !== "Completed";
+  });
+
   return (
-    <main id="view-history">
-      <section className="panel">
-        <h2>Order History</h2>
-        {error && <p className="error">{error}</p>}
-        {orders && orders.length === 0 && <p>You have no orders yet.</p>}
-        {orders?.map(o => (
-          <div className="cart-row" key={o.id}>
+    <div className="orders-page">
+      <Navbar />
+      <div className="orders-container">
+        <div className="orders-heading">
+          <h1>Past orders</h1>
+          <div className="order-tabs">
+            <button
+              className={orderFilter === "not-completed" ? "active" : ""}
+              onClick={() => setOrderFilter("not-completed")}
+            >
+              Not completed
+            </button>
+            <button
+              className={orderFilter === "completed" ? "active" : ""}
+              onClick={() => setOrderFilter("completed")}
+            >
+              Completed
+            </button>
+          </div>
+        </div>
+
+        {error && <p className="orders-error">{error}</p>}
+
+        {!orders && !error && (
+          <p className="orders-message">Loading your orders...</p>
+        )}
+
+        {orders && !error && filteredOrders.length === 0 && (
+          <p className="orders-message">No orders in this category</p>
+        )}
+
+        {filteredOrders.map((order) => (
+          <div className="order-card" key={order.id}>
             <div>
-              <strong>Order #{o.id}</strong><br />
-              {fmtDate(o.orderDate)} &middot; {o.fulfillmentType || 'In-store'} &middot; {o.status}
+              <h2>Order #{order.id}</h2>
+              <p>{fmtDate(order.orderDate)}</p>
+              <p>{order.fulfillmentType || "In-store"}</p>
+              <span className="order-status">{order.status}</span>
             </div>
-            <div>
-              {money(o.total)}{' '}
-              <button onClick={() => navigate(`/orders/${o.id}`)}>View</button>
+
+            <div className="order-card-actions">
+              <strong>{money(order.total)}</strong>
+              <button onClick={() => navigate(`/my-orders/${order.id}`)}>
+                View order
+              </button>
             </div>
           </div>
         ))}
-      </section>
-    </main>
+      </div>
+    </div>
   );
 }

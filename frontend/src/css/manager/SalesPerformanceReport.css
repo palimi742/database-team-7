@@ -1,11 +1,11 @@
-.sales-report{
+.sales-report {
   display: flex;
   flex-wrap: wrap;
   gap: 2rem;
-  margin: 1.5rem 0
+  margin: 1.5rem 0;
 }
-.sales-report-data{
-  flex: 1 1 200px;
+.sales-report-data {
+  flex: 1 1 11.111rem;
 }
 
 .sales-report-form {
@@ -33,10 +33,10 @@
 }
 
 .sales-summary-card {
-  flex: 1 1 200px;
+  flex: 1 1 11.111rem;
   padding: 1rem;
   border: 1px solid #ccc;
-  border-radius: 6px;
+  border-radius: 0.333rem;
 }
 
 .sales-summary-card h2 {

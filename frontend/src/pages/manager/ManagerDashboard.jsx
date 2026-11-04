@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import ManagerSidebar from "../../components/layout/ManagerSidebar";
-import "./ManagerDashboard.css";
+import "../../css/manager/ManagerDashboard.css";
 
 function ManagerDashboard() {
   const orderStatus = ["Needs Assignment", "Assigned", "Completed"];

@@ -36,7 +36,7 @@ export function ShopProvider({ children }) {
     setCheckoutInfo(null);
     setError("");
     if (customerID) {
-      api("/api/cart", "POST", { customerID })
+      api("/api/cart", "POST")
         .then(async ({ cartId: id }) => {
           const data = await api(`/api/cart/${id}`);
           if (active) {

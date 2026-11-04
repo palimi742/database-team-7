@@ -18,14 +18,18 @@ export async function api(url, method = "GET", body) {
     try {
       data = JSON.parse(text);
     } catch {
-      const error = new Error("The server returned an unexpected response. Check that the backend is running.");
+      const error = new Error(
+        "The server returned an unexpected response. Check that the backend is running.",
+      );
       error.status = response.status;
       throw error;
     }
   }
 
   if (!response.ok) {
-    const error = new Error(data?.error || data?.message || "Unable to complete the request.");
+    const error = new Error(
+      data?.error || data?.message || "Unable to complete the request.",
+    );
     error.status = response.status;
     throw error;
   }
@@ -41,6 +45,17 @@ export function money(value) {
 
 export function fmtDate(value) {
   if (!value) return "";
-  const date = new Date(/^\d{4}-\d{2}-\d{2}$/.test(value) ? `${value}T00:00:00` : value);
+  const date = new Date(
+    /^\d{4}-\d{2}-\d{2}$/.test(value) ? `${value}T00:00:00` : value,
+  );
   return Number.isNaN(date.getTime()) ? "" : date.toLocaleDateString("en-US");
+}
+
+export function formatPhone(phoneNumber) {
+  const digits = String(phoneNumber || "").replace(/\D/g, "");
+  const hasCountryCode = digits.length === 11 && digits.startsWith("1");
+  const localNumber = hasCountryCode ? digits.slice(1) : digits;
+  if (localNumber.length !== 10) return phoneNumber || "";
+  const formattedNumber = `${localNumber.slice(0, 3)} ${localNumber.slice(3, 6)} ${localNumber.slice(6)}`;
+  return hasCountryCode ? `+1 ${formattedNumber}` : formattedNumber;
 }

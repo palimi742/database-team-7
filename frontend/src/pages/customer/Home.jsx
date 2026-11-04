@@ -1,5 +1,5 @@
 import "../../css/App.css";
-import "./Product.css";
+import "../../css/customer/Product.css";
 import { useEffect, useState } from "react";
 import { useShop } from "../../context/ShopContext.jsx";
 import { useNavigate } from "react-router-dom";
@@ -85,30 +85,30 @@ function Home() {
       <div className="category-section">
         <h2>Shop by Category</h2>
         <div className="category-buttons">
-        <button
-          className={
-            selectedCategory === "All"
-              ? "category-btn active"
-              : "category-btn"
-          }
-          onClick={() => setSelectedCategory("All")}
-        >
-          All
-        </button>
-
-        {categories.map((category) => (
           <button
-            key={category.CategoryID}
             className={
-              selectedCategory === category.CategoryID
+              selectedCategory === "All"
                 ? "category-btn active"
                 : "category-btn"
             }
-            onClick={() => setSelectedCategory(category.CategoryID)}
+            onClick={() => setSelectedCategory("All")}
           >
-            {category.CategoryName}
+            All
           </button>
-        ))}
+
+          {categories.map((category) => (
+            <button
+              key={category.CategoryID}
+              className={
+                selectedCategory === category.CategoryID
+                  ? "category-btn active"
+                  : "category-btn"
+              }
+              onClick={() => setSelectedCategory(category.CategoryID)}
+            >
+              {category.CategoryName}
+            </button>
+          ))}
         </div>
       </div>
 

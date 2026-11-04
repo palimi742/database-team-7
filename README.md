@@ -46,3 +46,15 @@ still need server-side session authorization before production use.
 
 Non-manager employee sign-in and transactions are placeholders. The cart is local page state;
 checkout does not have a backend endpoint yet.
+
+### Customer sessions and carts
+
+Set `SESSION_SECRET` to a long random value in `backend/.env` locally and in
+Vercel's environment variables for deployed environments. Generate a value with
+`openssl rand -hex 32`; keep it private and out of Git. Production login requires
+this setting. Local development uses a development-only fallback.
+
+Login sets an HttpOnly signed customer cookie. Cart endpoints use that cookie
+for customer identity and check ownership of ordinary numeric cart IDs. They do
+not accept a customer ID from the browser. `CART_SECRET` is no longer used;
+existing sessions must sign in again after this change.

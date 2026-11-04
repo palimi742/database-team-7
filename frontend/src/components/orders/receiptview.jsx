@@ -1,31 +1,68 @@
-import { money, fmtDate } from '../../api';
+import { money, fmtDate, formatPhone } from "../../api";
+import { useNavigate } from "react-router-dom";
 
-export default function ReceiptView({ o }) {
-  const type = (o.fulfillmentType || '').toLowerCase();
-  let where = <p><strong>In-store purchase</strong></p>;
-  if (type.includes('curb')) {
-    where = <p><strong>Curbside pickup:</strong> {o.deliveryAddress}</p>;
-  } else if (type.includes('deliver')) {
-    where = <p><strong>Delivery to:</strong> {o.deliveryAddress}</p>;
-  }
+export default function ReceiptView({ order }) {
+  const navigate = useNavigate();
+  const isCompleted = order.status === "Completed";
 
   return (
     <>
-      <h3>Order #{o.id}</h3>
-      <p>{fmtDate(o.orderDate)} &middot; Status: <strong>{o.status}</strong></p>
-      <p>{o.firstName} {o.lastName}{o.phone ? ` \u00b7 ${o.phone}` : ''}</p>
-      {where}
-      {o.items.map(i => (
-        <div className="cart-row" key={i.id}>
-          <span>{i.name} x {i.quantity}</span>
-          <span>{money(i.unitPrice * i.quantity)}</span>
+      <div className="order-receipt-header">
+        <div className="order-receipt-heading">
+          <h3>Order #{order.id}</h3>
+          <span className="order-receipt-status">{order.status}</span>
+        </div>
+        <div className="order-receipt-row">
+          <span>{fmtDate(order.orderDate)}</span>
+          <span>{order.fulfillmentType || "In-store"}</span>
+        </div>
+        <div className="order-receipt-row">
+          <span>
+            {order.firstName} {order.lastName}
+          </span>
+          {order.phone && <span>{formatPhone(order.phone)}</span>}
+        </div>
+        {order.fulfillmentType?.toLowerCase().includes("deliver") &&
+          order.deliveryAddress && (
+            <p className="order-receipt-address">{order.deliveryAddress}</p>
+          )}
+      </div>
+
+      {order.items.map((orderItem) => (
+        <div className="cart-row" key={orderItem.id}>
+          <span>
+            {orderItem.name} x {orderItem.quantity}
+          </span>
+          <div className="order-item-actions">
+            <span>{money(orderItem.unitPrice * orderItem.quantity)}</span>
+            {isCompleted && orderItem.quantity > orderItem.returnedQty && (
+              <button
+                onClick={() =>
+                  navigate(`/my-orders/${order.id}/return/${orderItem.id}`)
+                }
+              >
+                Request return
+              </button>
+            )}
+          </div>
         </div>
       ))}
-      <div className="cart-row"><span>Subtotal</span><span>{money(o.subtotal)}</span></div>
-      <div className="cart-row"><span>Delivery fee &amp; tax</span><span>{money(o.feesAndTax)}</span></div>
-      <div className="cart-row total"><span>Total</span><span>{money(o.total)}</span></div>
-      <p>Payment: {o.paymentMethod}</p>
-      {o.points > 0 && <p className="note">Points earned: {o.points}</p>}
+      <div className="cart-row">
+        <span>Subtotal</span>
+        <span>{money(order.subtotal)}</span>
+      </div>
+      <div className="cart-row">
+        <span>Delivery fee</span>
+        <span>{money(order.deliveryFee)}</span>
+      </div>
+      <div className="cart-row total">
+        <span>Total</span>
+        <span>{money(order.total)}</span>
+      </div>
+      <p>Payment: {order.paymentMethod}</p>
+      {order.points > 0 && (
+        <p className="note">Points earned: {order.points}</p>
+      )}
     </>
   );
 }

@@ -14,7 +14,7 @@ export default function Receipt() {
   useEffect(() => {
     setCheckoutInfo(null);
     refreshCart().catch(console.error);
-    api(`/api/orders/${orderId}`)
+    api(`/api/my-orders/${orderId}`)
       .then(setOrder)
       .catch((err) => setError(err.message));
   }, [orderId]);
@@ -33,13 +33,13 @@ export default function Receipt() {
         <h2>Thank you! Your order is confirmed.</h2>
         <p>Keep your order number. You will need it for returns and support.</p>
         <div className="receipt">
-          <ReceiptView o={order} />
+          <ReceiptView order={order} />
         </div>
         <button onClick={() => window.print()}>Print Receipt</button>
         <button className="secondary" onClick={() => navigate("/")}>
           Continue Shopping
         </button>
-        <button className="secondary" onClick={() => navigate("/orders")}>
+        <button className="secondary" onClick={() => navigate("/my-orders")}>
           View Order History
         </button>
       </section>

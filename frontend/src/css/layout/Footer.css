@@ -2,18 +2,17 @@
   display: flex;
   justify-content: flex-end;
   flex-wrap: wrap;
-  gap: 24px;
+  gap: 1.333rem;
   margin-top: auto;
-  padding: 16px 24px;
+  padding: 0.889rem 1.333rem;
   border-top: 1px solid #d7dfd1;
   background: #fafafa;
-  font-size: 15px;
+  font-size: 0.833rem;
 }
 
 .login-footer a {
   color: #486f52;
   font-weight: 600;
-  text-decoration: none;
 }
 
 .login-footer a:hover {

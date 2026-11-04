@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import ManagerSidebar from "../../components/layout/ManagerSidebar";
-import "./ManagerDashboard.css";
-import "./SalesPerformanceReport.css";
-import "./EmployeeWorkloadReport.css";
+import "../../css/manager/ManagerDashboard.css";
+import "../../css/manager/SalesPerformanceReport.css";
+import "../../css/manager/EmployeeWorkloadReport.css";
 
 function dateInput(date) {
   const year = date.getFullYear();
@@ -139,9 +139,18 @@ export default function EmployeeWorkloadReport() {
             <div className="sales-summary">
               {[
                 ["Employees", report.employeeCount],
-                ["Average salary / pay rate", "$" + Number(report.averageSalary).toFixed(2)],
-                ["Highest salary / pay rate", "$" + Number(report.highestSalary).toFixed(2)],
-                ["Scheduled hours / week", Number(report.weeklyHours).toFixed(2)],
+                [
+                  "Average salary / pay rate",
+                  "$" + Number(report.averageSalary).toFixed(2),
+                ],
+                [
+                  "Highest salary / pay rate",
+                  "$" + Number(report.highestSalary).toFixed(2),
+                ],
+                [
+                  "Scheduled hours / week",
+                  Number(report.weeklyHours).toFixed(2),
+                ],
                 ["Recent hires", report.recentHires.length],
               ].map(([label, value]) => (
                 <div className="sales-summary-card" key={label}>

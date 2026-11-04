@@ -1,4 +1,4 @@
-import "./ProductModal.css";
+import "../../css/products/ProductModal.css";
 import { useState } from "react";
 
 function EditProductModal({ product, onClose, onSaved }) {

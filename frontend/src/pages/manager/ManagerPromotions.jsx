@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import ManagerSidebar from "../../components/layout/ManagerSidebar";
-import "./ManagerDashboard.css";
-import "./ManagerPromotions.css";
+import "../../css/manager/ManagerDashboard.css";
+import "../../css/manager/ManagerPromotions.css";
 
 const emptyForm = {
   CouponName: "",

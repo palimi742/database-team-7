@@ -15,7 +15,7 @@ Run from the repository root with `npm run dev`. Build with `npm run build`.
 - `src/components/checkout/`: checkout and order summary components.
 - `src/components/orders/`: receipt and order history components.
 - `src/context/`: shared shopping state.
-- `src/css/`: global styles (`App.css` and `index.css`). Other CSS lives with its page or component group.
+- `src/css/`: all styles. Global styles (`App.css` and `index.css`) stay at the root; feature styles are grouped into `auth/`, `cart/`, `customer/`, `employee/`, `layout/`, `manager/`, `orders/`, and `products/`.
 - `src/assets/`: images and icons.
 
 `src/App.jsx` defines page routes. Moving source files does not change the URLs.

@@ -1,0 +1,64 @@
+.order-modal-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.order-modal {
+  box-sizing: border-box;
+  width: 23.333rem;
+  max-width: 90%;
+  padding: 1.778rem;
+  background: white;
+  border-radius: 0.667rem;
+  text-align: center;
+}
+
+.order-modal h2 {
+  margin-bottom: 0.889rem;
+  color: #315b40;
+  font-size: 1.333rem;
+}
+
+.order-modal p {
+  margin-bottom: 1.333rem;
+  color: #647365;
+}
+
+.order-modal-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 0.667rem;
+}
+
+.order-modal-btns button {
+  padding: 0.667rem;
+  background: #496b52;
+  color: white;
+  border: none;
+  border-radius: 0.444rem;
+  font: inherit;
+  font-size: 0.889rem;
+  cursor: pointer;
+}
+
+.order-modal-btns button:hover {
+  background: #315b40;
+}
+
+.order-modal-btns .order-modal-secondary {
+  background: white;
+  color: #222;
+  border: 1px solid #ccc;
+}
+
+.order-modal-btns .order-modal-secondary:hover {
+  background: #f2f2f2;
+}

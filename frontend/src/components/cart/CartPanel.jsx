@@ -1,4 +1,4 @@
-import "./CartPanel.css";
+import "../../css/cart/CartPanel.css";
 
 function CartPanel({
   items,

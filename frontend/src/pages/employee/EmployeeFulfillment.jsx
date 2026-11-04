@@ -1,6 +1,5 @@
-
 import { useState } from "react";
-import "./EmployeeFulfillment.css";
+import "../../css/employee/EmployeeFulfillment.css";
 
 //const API = "http://localhost:3001/api/employee/fulfillment";
 const API = "/api/employee/fulfillment";
@@ -35,12 +34,10 @@ export default function EmployeeFulfillment() {
 
       setEmployee(data.employee);
       setOrders(data.orders);
-
     } catch (err) {
       setError(err.message);
       setEmployee(null);
       setOrders([]);
-
     } finally {
       setLoading(false);
     }
@@ -54,7 +51,7 @@ export default function EmployeeFulfillment() {
     try {
       const response = await fetch(
         `${API}/${employeeId}/orders/${orderId}/${action}`,
-        { method: "PATCH" }
+        { method: "PATCH" },
       );
 
       const data = await response.json();
@@ -65,16 +62,14 @@ export default function EmployeeFulfillment() {
 
       await loadOrders();
       setMessage(data.message);
-
     } catch (err) {
       setError(err.message);
-
     } finally {
       setBusyOrder(null);
     }
   }
 
-  const visibleOrders = orders.filter(order => {
+  const visibleOrders = orders.filter((order) => {
     if (filter === "All") return true;
 
     if (filter === "Completed") {
@@ -96,7 +91,7 @@ export default function EmployeeFulfillment() {
 
         <form
           className="employee-search"
-          onSubmit={event => {
+          onSubmit={(event) => {
             event.preventDefault();
             loadOrders();
           }}
@@ -108,13 +103,13 @@ export default function EmployeeFulfillment() {
             type="number"
             min="1"
             value={employeeId}
-            onChange={event => {
+            onChange={(event) => {
               setEmployeeId(event.target.value);
               setEmployee(null);
               setOrders([]);
               setError("");
               setMessage("");
-}}
+            }}
             //onChange={event => setEmployeeId(event.target.value)}
             placeholder="Enter your employee ID"
           />
@@ -142,7 +137,7 @@ export default function EmployeeFulfillment() {
             <div>
               <select
                 value={filter}
-                onChange={event => setFilter(event.target.value)}
+                onChange={(event) => setFilter(event.target.value)}
               >
                 <option value="Active">Active</option>
                 <option value="Completed">Completed</option>
@@ -155,30 +150,22 @@ export default function EmployeeFulfillment() {
             </div>
           </div>
 
-          {visibleOrders.length === 0 && (
-            <p>No orders found.</p>
-          )}
+          {visibleOrders.length === 0 && <p>No orders found.</p>}
 
           <div className="employee-order-grid">
-            {visibleOrders.map(order => (
-              <article
-                className="employee-order"
-                key={order.FulfillmentID}
-              >
+            {visibleOrders.map((order) => (
+              <article className="employee-order" key={order.FulfillmentID}>
                 <div className="employee-order-top">
                   <div>
                     <h3>Order #{order.TransactionID}</h3>
                     <p>{order.DeliveryName}</p>
                   </div>
 
-                  <span className="employee-status">
-                    {order.status}
-                  </span>
+                  <span className="employee-status">{order.status}</span>
                 </div>
 
                 <p>
-                  <strong>Customer:</strong>{" "}
-                  {order.CustomerFirstName}{" "}
+                  <strong>Customer:</strong> {order.CustomerFirstName}{" "}
                   {order.CustomerLastName}
                 </p>
 
@@ -190,8 +177,7 @@ export default function EmployeeFulfillment() {
                 )}
 
                 <p>
-                  <strong>Total:</strong>{" "}
-                  ${Number(order.TotalPrice).toFixed(2)}
+                  <strong>Total:</strong> ${Number(order.TotalPrice).toFixed(2)}
                 </p>
 
                 <div className="employee-items">
@@ -209,9 +195,7 @@ export default function EmployeeFulfillment() {
                 {order.status === "Assigned" && (
                   <button
                     disabled={busyOrder === order.FulfillmentID}
-                    onClick={() =>
-                      updateOrder(order.FulfillmentID, "ready")
-                    }
+                    onClick={() => updateOrder(order.FulfillmentID, "ready")}
                   >
                     Mark Ready
                   </button>
@@ -220,9 +204,7 @@ export default function EmployeeFulfillment() {
                 {order.status === "Ready" && (
                   <button
                     disabled={busyOrder === order.FulfillmentID}
-                    onClick={() =>
-                      updateOrder(order.FulfillmentID, "complete")
-                    }
+                    onClick={() => updateOrder(order.FulfillmentID, "complete")}
                   >
                     {order.DeliveryName === "Home Delivery"
                       ? "Confirm Delivered"
@@ -231,9 +213,7 @@ export default function EmployeeFulfillment() {
                 )}
 
                 {order.status === "Completed" && (
-                  <p className="employee-success">
-                    Order Completed
-                  </p>
+                  <p className="employee-success">Order Completed</p>
                 )}
               </article>
             ))}

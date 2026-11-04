@@ -1,4 +1,4 @@
-import "./CustomerLogin.css";
+import "../../css/auth/CustomerLogin.css";
 
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../../components/layout/Navbar";

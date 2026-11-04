@@ -1,14 +1,23 @@
 .product-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 24px;
-  margin-top: 20px;
+  gap: 1.333rem;
+  margin-top: 1.111rem;
+}
+
+.order-success {
+  margin-bottom: 0.889rem;
+  padding: 0.889rem;
+  border: 1px solid #d7dfd1;
+  border-radius: 0.444rem;
+  background: white;
+  color: #315b40;
 }
 
 @media (max-width: 900px) {
   .product-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 16px;
+    gap: 0.889rem;
   }
 }
 
@@ -20,52 +29,53 @@
 
 .product-card {
   background-color: #ffffff;
-  padding: 24px 20px;
-  border-radius: 16px;
+  padding: 1.333rem 1.111rem;
+  border-radius: 0.889rem;
   border: 1px solid #e1e8dc;
   text-align: center;
   box-shadow: 0 4px 12px rgba(45, 75, 51, 0.06);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .product-card:hover {
-  transform: translateY(-3px);
+  transform: translateY(-0.167rem);
   box-shadow: 0 8px 18px rgba(45, 75, 51, 0.12);
 }
 
-.product-card h3{
-  color: #496B52;
-  margin-bottom: 10px;
-  font-size: 22px;
+.product-card h3 {
+  color: #496b52;
+  margin-bottom: 0.556rem;
+  font-size: 1.222rem;
 }
 
-.product-card p{
+.product-card p {
   color: #555;
-  font-size: 18px;
+  font-size: 1rem;
 }
 
 .product-card button {
   background-color: #496b52;
   color: white;
   border: none;
-  padding: 10px 18px;
-  border-radius: 6px;
+  padding: 0.556rem 1rem;
+  border-radius: 0.333rem;
   cursor: pointer;
-  margin-top: 8px;
-  font-size: 17px;
+  margin-top: 0.444rem;
+  font-size: 0.944rem;
 }
 
 .product-card button:hover {
   background-color: #344d3a;
 }
 
-
 .browse-shop-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 340px;
+  grid-template-columns: minmax(0, 1fr) 18.889rem;
   align-items: start;
-  gap: 24px;
-  margin-top: 24px;
+  gap: 1.333rem;
+  margin-top: 1.333rem;
 }
 
 .browse-shop-layout .product-grid {
@@ -75,7 +85,7 @@
 
 .browse-cart-column {
   position: sticky;
-  top: 24px;
+  top: 1.333rem;
   min-width: 0;
 }
 

@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { money } from "../../api.js";
 import { useShop } from "../../context/ShopContext.jsx";
 import Navbar from "../../components/layout/Navbar";
-import "./CartPage.css";
+import "../../css/customer/CartPage.css";
 
 export default function CartPage() {
   const { cart, setQuantity, removeItem, clearCart, error, cartId, updating } =
@@ -16,10 +16,14 @@ export default function CartPage() {
     <div className="cart-page">
       <Navbar />
       <div className="cart-page-container">
-        <Link to="/browse" className="cart-page-back">Continue shopping</Link>
+        <Link to="/browse" className="cart-page-back">
+          Continue shopping
+        </Link>
         <div className="cart-page-heading">
           <h1>Your cart</h1>
-          <span>{itemCount} {itemCount === 1 ? "item" : "items"}</span>
+          <span>
+            {itemCount} {itemCount === 1 ? "item" : "items"}
+          </span>
         </div>
         {error && <p className="cart-page-message">{error}</p>}
         {!cartId && !error && (
@@ -32,13 +36,17 @@ export default function CartPage() {
           <div className="cart-page-empty">
             <h2>Your cart is empty</h2>
             <p>Find your favorites and start filling your cart.</p>
-            <Link to="/browse" className="cart-page-primary">Shop groceries</Link>
+            <Link to="/browse" className="cart-page-primary">
+              Shop groceries
+            </Link>
           </div>
         ) : (
           <div className="cart-page-layout">
             <div className="cart-page-items">
               <div className="cart-page-columns">
-                <span>Item</span><span>Quantity</span><span>Total</span>
+                <span>Item</span>
+                <span>Quantity</span>
+                <span>Total</span>
               </div>
               {cart.items.map((item) => (
                 <div className="cart-page-row" key={item.productId}>
@@ -54,14 +62,34 @@ export default function CartPage() {
                     </button>
                   </div>
                   <div className="cart-page-quantity">
-                    <button disabled={updating} onClick={() => setQuantity(item.productId, Number(item.quantity) - 1)}>−</button>
+                    <button
+                      disabled={updating}
+                      onClick={() =>
+                        setQuantity(item.productId, Number(item.quantity) - 1)
+                      }
+                    >
+                      −
+                    </button>
                     <span>{item.quantity}</span>
-                    <button disabled={updating} onClick={() => setQuantity(item.productId, Number(item.quantity) + 1)}>+</button>
+                    <button
+                      disabled={updating}
+                      onClick={() =>
+                        setQuantity(item.productId, Number(item.quantity) + 1)
+                      }
+                    >
+                      +
+                    </button>
                   </div>
-                  <strong className="cart-page-line-total">{money(item.lineTotal)}</strong>
+                  <strong className="cart-page-line-total">
+                    {money(item.lineTotal)}
+                  </strong>
                 </div>
               ))}
-              <button className="cart-page-text-button cart-page-clear" disabled={updating} onClick={clearCart}>
+              <button
+                className="cart-page-text-button cart-page-clear"
+                disabled={updating}
+                onClick={clearCart}
+              >
                 Empty cart
               </button>
             </div>
@@ -74,11 +102,17 @@ export default function CartPage() {
               </div>
               <p>Delivery and discounts calculated at checkout.</p>
               {updating ? (
-                <button className="cart-page-primary" disabled>Updating cart…</button>
+                <button className="cart-page-primary" disabled>
+                  Updating cart…
+                </button>
               ) : (
-                <Link to="/checkout" className="cart-page-primary">Proceed to checkout</Link>
+                <Link to="/checkout" className="cart-page-primary">
+                  Proceed to checkout
+                </Link>
               )}
-              <Link to="/browse" className="cart-page-back">Continue shopping</Link>
+              <Link to="/browse" className="cart-page-back">
+                Continue shopping
+              </Link>
             </div>
           </div>
         )}

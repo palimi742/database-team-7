@@ -9,7 +9,7 @@ import {
   CartesianGrid,
 } from "recharts";
 import ManagerSidebar from "../../components/layout/ManagerSidebar";
-import "./ManagerDashboard.css";
+import "../../css/manager/ManagerDashboard.css";
 
 function CustomerLoyaltyReport() {
   const [locations, setLocations] = useState([]);

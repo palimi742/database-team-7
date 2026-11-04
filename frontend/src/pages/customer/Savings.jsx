@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../../components/layout/Navbar";
 import "../../css/App.css";
-import "./Coupon.css";
+import "../../css/customer/Coupon.css";
 
 function Savings() {
   const navigate = useNavigate();
@@ -85,8 +85,6 @@ function Savings() {
       }
 
       setClippedCoupons((previous) => [...previous, Number(couponID)]);
-
-
     } catch (err) {
       setError(err.message);
     } finally {
@@ -95,9 +93,11 @@ function Savings() {
   }
 
   function shopCoupon(coupon) {
-    const category = coupon.CategoryID ?? coupons.find(
-      (offer) => Number(offer.CouponID) === Number(coupon.CouponID),
-    )?.CategoryID;
+    const category =
+      coupon.CategoryID ??
+      coupons.find(
+        (offer) => Number(offer.CouponID) === Number(coupon.CouponID),
+      )?.CategoryID;
     navigate(category ? `/browse?category=${category}` : "/browse");
   }
 
@@ -117,7 +117,10 @@ function Savings() {
           ) : (
             <div className="coupon-grid">
               {coupons.map((coupon) => (
-                <div className={`coupon-card ${clippedCoupons.includes(Number(coupon.CouponID)) ? "coupon-clipped" : ""}`} key={coupon.CouponID}>
+                <div
+                  className={`coupon-card ${clippedCoupons.includes(Number(coupon.CouponID)) ? "coupon-clipped" : ""}`}
+                  key={coupon.CouponID}
+                >
                   <div className="coupon-heading">
                     <h3>{coupon.CouponName}</h3>
                     <p>${Number(coupon.DiscountAmount).toFixed(2)} Off</p>
@@ -127,22 +130,24 @@ function Savings() {
                     <span className="coupon-status">✓ Clipped</span>
                   )}
                   <button
-                    onClick={() => clippedCoupons.includes(Number(coupon.CouponID))
-                      ? shopCoupon(coupon)
-                      : clipCoupon(coupon.CouponID)}
+                    onClick={() =>
+                      clippedCoupons.includes(Number(coupon.CouponID))
+                        ? shopCoupon(coupon)
+                        : clipCoupon(coupon.CouponID)
+                    }
                     disabled={clipping !== null}
                   >
                     {clippedCoupons.includes(Number(coupon.CouponID))
                       ? "Add items"
-                      : clipping === coupon.CouponID ? "Clipping…" : "Clip coupon"}
+                      : clipping === coupon.CouponID
+                        ? "Clipping…"
+                        : "Clip coupon"}
                   </button>
                 </div>
               ))}
             </div>
           )}
         </div>
-
-
       </div>
     </div>
   );

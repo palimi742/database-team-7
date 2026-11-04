@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import ManagerSidebar from "../../components/layout/ManagerSidebar";
-import "./ManagerDashboard.css";
+import "../../css/manager/ManagerDashboard.css";
 
 function ManagerReturns() {
   const [requests, setRequests] = useState([]);
@@ -30,11 +30,11 @@ function ManagerReturns() {
     loadRequests();
   }, []);
 
-  async function reviewReturn(returnID, decision) {
+  async function reviewReturn(returnRequestId, decision) {
     setError("");
     setSaving(true);
     try {
-      const res = await fetch(`/api/returns/${returnID}/${decision}`, {
+      const res = await fetch(`/api/returns/${returnRequestId}/${decision}`, {
         method: "PATCH",
       });
       const data = await res.json();
@@ -62,7 +62,7 @@ function ManagerReturns() {
           <table>
             <thead>
               <tr>
-                <th>Return ID</th>
+                <th>Request ID</th>
                 <th>Transaction Item</th>
                 <th>Quantity</th>
                 <th>Reason</th>
@@ -73,23 +73,27 @@ function ManagerReturns() {
 
             <tbody>
               {requests.map((request) => (
-                <tr key={request.ReturnID}>
-                  <td>{request.ReturnID}</td>
+                <tr key={request.ReturnRequestID}>
+                  <td>{request.ReturnRequestID}</td>
                   <td>{request.TransactionItemID}</td>
-                  <td>{request.QuantityReturned}</td>
+                  <td>{request.Quantity}</td>
                   <td>{request.Reason}</td>
                   <td>{request.Status}</td>
                   <td>
                     <button
                       disabled={saving}
-                      onClick={() => reviewReturn(request.ReturnID, "approve")}
+                      onClick={() =>
+                        reviewReturn(request.ReturnRequestID, "approve")
+                      }
                     >
                       Approve
                     </button>
 
                     <button
                       disabled={saving}
-                      onClick={() => reviewReturn(request.ReturnID, "decline")}
+                      onClick={() =>
+                        reviewReturn(request.ReturnRequestID, "decline")
+                      }
                     >
                       Decline
                     </button>

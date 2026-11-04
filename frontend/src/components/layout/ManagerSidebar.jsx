@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import "./ManagerSidebar.css";
+import "../../css/layout/ManagerSidebar.css";
 
 function ManagerSidebar() {
   const navigate = useNavigate();

@@ -1,0 +1,140 @@
+.order-details-page {
+  min-height: 100vh;
+  background: #fafafa;
+  color: #263b2b;
+}
+
+.order-details-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  text-align: left;
+}
+
+.order-details-container h1 {
+  margin: 0 0 1.5rem;
+  color: #315b40;
+  font-size: 2rem;
+}
+
+.order-details-card {
+  margin-bottom: 1.5rem;
+  padding: 1.5rem;
+  background: white;
+  border: 1px solid #d7dfd1;
+  border-radius: 0.75rem;
+}
+
+.order-details-card h3 {
+  margin: 0 0 1rem;
+  color: #315b40;
+  font-size: 1.5rem;
+}
+
+.order-details-card h4 {
+  margin: 1.5rem 0 0.75rem;
+  font-size: 1rem;
+}
+
+.order-details-card p {
+  margin: 0.75rem 0;
+  color: #647365;
+  font-size: 0.875rem;
+}
+
+.order-details-card .cart-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid #e1e8dc;
+  font-size: 0.9rem;
+}
+
+.order-details-card .total {
+  font-size: 1.125rem;
+  font-weight: bold;
+}
+
+.order-details-container button {
+  padding: 0.75em 1em;
+  background: #496b52;
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.order-details-container button:hover {
+  background: #315b40;
+}
+
+.order-details-container button.secondary {
+  background: white;
+  color: #222;
+  border: 1px solid #ccc;
+}
+
+.order-details-error {
+  margin-bottom: 1rem;
+  color: #a12b2b;
+}
+
+@media (max-width: 600px) {
+  .order-details-container {
+    padding: 1.5rem 1rem;
+  }
+
+  .order-details-card .cart-row {
+    flex-wrap: wrap;
+  }
+}
+
+.order-item-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.order-receipt-header {
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e1e8dc;
+}
+
+.order-receipt-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.order-receipt-heading h3 {
+  margin: 0;
+}
+
+.order-receipt-status {
+  padding: 0.375em 0.75em;
+  border-radius: 0.375rem;
+  background: #edf2e9;
+  color: #315b40;
+  font-size: 0.8rem;
+}
+
+.order-receipt-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  margin-top: 0.375rem;
+  color: #647365;
+  font-size: 0.875rem;
+}
+
+.order-details-card .order-receipt-address {
+  margin: 0.375rem 0 0;
+}

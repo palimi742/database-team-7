@@ -3,7 +3,7 @@ import ManagerSidebar from "../../components/layout/ManagerSidebar";
 import DeleteProductModal from "../../components/products/DeleteProductModal";
 import InsertProductModal from "../../components/products/InsertProductModal";
 import EditProductModal from "../../components/products/EditProductModal";
-import "./ManagerDashboard.css";
+import "../../css/manager/ManagerDashboard.css";
 
 function ManagerProducts() {
   const [error, setError] = useState("");

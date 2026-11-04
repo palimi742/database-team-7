@@ -1,49 +1,54 @@
 .coupon-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 340px));
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(min(100%, 14.444rem), 18.889rem)
+  );
   justify-content: center;
-  gap: 16px;
+  gap: 0.889rem;
   align-items: stretch;
 }
 
 .coupon-card {
   min-width: 0;
-  padding: 16px;
+  padding: 0.889rem;
   background: #ffffff;
   border: 1px solid #dce4d6;
-  border-radius: 14px;
+  border-radius: 0.778rem;
   box-shadow: 0 2px 7px rgba(49, 91, 64, 0.06);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .coupon-card:hover {
-  transform: translateY(-3px);
+  transform: translateY(-0.167rem);
   box-shadow: 0 6px 14px rgba(49, 91, 64, 0.12);
 }
 
 .coupon-card h3 {
-  margin: 0 0 8px;
+  margin: 0 0 0.444rem;
   color: #315b40;
-  font-size: 20px;
+  font-size: 1.111rem;
 }
 
 .coupon-card p {
-  margin: 6px 0;
+  margin: 0.333rem 0;
   color: #465448;
-  font-size: 17px;
+  font-size: 0.944rem;
   line-height: 1.5;
   overflow-wrap: anywhere;
 }
 
 .coupon-card button {
   width: 100%;
-  margin-top: 12px;
-  padding: 9px 12px;
+  margin-top: 0.667rem;
+  padding: 0.5rem 0.667rem;
   border: none;
-  border-radius: 999px;
+  border-radius: 55.5rem;
   background: #496b52;
   color: white;
-  font-size: 16px;
+  font-size: 0.889rem;
   font-weight: 600;
   cursor: pointer;
 }
@@ -53,18 +58,18 @@
 }
 
 .coupon-container {
-  margin-bottom: 36px;
+  margin-bottom: 2rem;
 }
 
 .coupons-container,
 .coupon-container {
-  margin: 28px 0;
+  margin: 1.556rem 0;
 }
 
 .coupons-container > h2,
 .coupon-container > h2 {
-  margin-bottom: 16px;
-  font-size: 22px;
+  margin-bottom: 0.889rem;
+  font-size: 1.222rem;
   color: #315b40;
 }
 
@@ -75,12 +80,12 @@
 
 .savings-page > a {
   display: inline-block;
-  margin-top: 16px;
+  margin-top: 0.889rem;
   color: #496b52;
 }
 
 .savings-page .coupon-grid {
-  grid-template-columns: repeat(auto-fill, minmax(0, 260px));
+  grid-template-columns: repeat(auto-fill, minmax(0, 14.444rem));
   justify-content: start;
 }
 
@@ -90,20 +95,20 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding: 20px;
+  padding: 1.111rem;
 }
 
 .savings-page .coupon-card button {
   margin-top: auto;
-  border-radius: 8px;
+  border-radius: 0.444rem;
 }
 
 .savings-page .coupon-card p {
-  margin-bottom: 20px;
+  margin-bottom: 1.111rem;
 }
 
 .savings-page .coupon-heading h3 {
-  margin-bottom: 4px;
+  margin-bottom: 0.222rem;
 }
 
 .savings-page .coupon-heading p {
@@ -116,9 +121,9 @@
 }
 
 .coupon-status {
-  margin-bottom: 16px;
+  margin-bottom: 0.889rem;
   color: #315b40;
-  font-size: 14px;
+  font-size: 0.778rem;
   font-weight: 600;
 }
 

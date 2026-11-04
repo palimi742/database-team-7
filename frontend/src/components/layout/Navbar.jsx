@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 import shoppingCartSVG from "../../assets/shopping-cart.svg";
 import receiptSVG from "../../assets/receipt.svg";
-import "./NavBar.css";
+import "../../css/layout/NavBar.css";
 
 function NavBar() {
   const navigate = useNavigate();
@@ -15,7 +15,14 @@ function NavBar() {
     }
   });
 
-  function logOut() {
+  async function logOut() {
+    try {
+      const response = await fetch("/api/customers/logout", { method: "POST" });
+      if (!response.ok) throw new Error("Could not log out. Please try again.");
+    } catch {
+      alert("Could not log out. Please try again.");
+      return;
+    }
     sessionStorage.removeItem("customer");
     setCustomer(null);
     navigate("/");
@@ -24,10 +31,12 @@ function NavBar() {
   return (
     <nav className="navbar">
       <div className="navbar-left">
-      <Link to="/my-orders" className="orders-link">
-        My orders <img className="receipt-svg" src={receiptSVG} alt="" />
-      </Link>
-      <Link to="/savings" className="savings-link">Savings</Link>
+        <Link to="/my-orders" className="orders-link">
+          My orders <img className="receipt-svg" src={receiptSVG} alt="" />
+        </Link>
+        <Link to="/savings" className="savings-link">
+          Savings
+        </Link>
       </div>
       <Link className="home-link" to="/browse">
         FreshMart

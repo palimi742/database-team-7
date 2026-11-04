@@ -1,5 +1,5 @@
 import { Link, Navigate, useNavigate } from "react-router-dom";
-import "../customer/Home.css";
+import "../../css/customer/Home.css";
 
 function EmployeeDashboard() {
   const navigate = useNavigate();
@@ -20,13 +20,24 @@ function EmployeeDashboard() {
 
   return (
     <div className="home-page">
-      <header className="home-header"><Link className="home-brand" to="/">FreshMart</Link><button className="home-button" onClick={signOut}>Sign Out</button></header>
-      <main className="staff-main"><section className="staff-card">
-        <h1>Employee Dashboard</h1>
-        <p>Welcome, {employee.FirstName}.</p>
-        <p>Role: {employee.EmployeeRole}</p>
-        <Link to="/employee/fulfillment">View delivery and curbside orders</Link>
-      </section></main>
+      <header className="home-header">
+        <Link className="home-brand" to="/">
+          FreshMart
+        </Link>
+        <button className="home-button" onClick={signOut}>
+          Sign Out
+        </button>
+      </header>
+      <main className="staff-main">
+        <section className="staff-card">
+          <h1>Employee Dashboard</h1>
+          <p>Welcome, {employee.FirstName}.</p>
+          <p>Role: {employee.EmployeeRole}</p>
+          <Link to="/employee/fulfillment">
+            View delivery and curbside orders
+          </Link>
+        </section>
+      </main>
     </div>
   );
 }

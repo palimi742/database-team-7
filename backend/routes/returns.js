@@ -4,133 +4,133 @@ const router = Router();
 
 router.get("/", async (req, res) => {
   try {
-    const results = await pool.query(`
-      SELECT *
-      FROM ProductReturns
-      WHERE Status = 'Pending'
-      ORDER BY ReturnDate
-    `);
-
-    res.json(results[0]);
-  } catch (err) {
-    console.log(err.message);
-    res.status(500).json({
-      message: "Unable to load return requests",
-    });
+    const [returnRequests] = await pool.query(
+      `SELECT ReturnRequestID, TransactionItemID, Quantity, Reason,
+              Details, ExpectedRefund, Status, RequestedAt
+       FROM ReturnRequests
+       WHERE Status = 'Requested'
+       ORDER BY RequestedAt, ReturnRequestID`,
+    );
+    res.json(returnRequests);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ message: "Unable to load return requests" });
   }
 });
 
-router.patch("/:returnID/approve", async (req, res) => {
-  const returnID = Number(req.params.returnID);
-
-  if (!Number.isInteger(returnID) || returnID <= 0) {
-    return res.status(400).json({
-      message: "Invalid return ID",
-    });
+router.patch("/:returnRequestId/approve", async (req, res) => {
+  const returnRequestId = Number(req.params.returnRequestId);
+  if (!Number.isInteger(returnRequestId) || returnRequestId <= 0) {
+    return res.status(400).json({ message: "Invalid request ID" });
   }
 
+  let connection;
   try {
-    const results = await pool.query(
-      `SELECT r.TransactionItemID, r.QuantityReturned,
-              ti.Quantity, ti.UnitPrice
-       FROM ProductReturns AS r
-       JOIN TransactionItems AS ti
-         ON r.TransactionItemID = ti.TransactionItemID
-       WHERE r.ReturnID = ?
-         AND r.Status = 'Pending'`,
-      [returnID],
-    );
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
 
-    if (results[0].length === 0) {
-      return res.status(400).json({
-        message: "Pending return request not found",
-      });
+    const [requestRows] = await connection.query(
+      `SELECT ReturnRequestID, TransactionItemID, Quantity
+       FROM ReturnRequests
+       WHERE ReturnRequestID = ? AND Status = 'Requested'
+       FOR UPDATE`,
+      [returnRequestId],
+    );
+    const returnRequest = requestRows[0];
+    if (!returnRequest) {
+      await connection.rollback();
+      return res
+        .status(400)
+        .json({
+          message: "Request has already been reviewed or does not exist",
+        });
     }
 
-    const request = results[0][0];
+    // Lock the purchased item so two approvals cannot exceed its quantity.
+    const [itemRows] = await connection.query(
+      `SELECT Quantity, UnitPrice FROM TransactionItems
+       WHERE TransactionItemID = ? FOR UPDATE`,
+      [returnRequest.TransactionItemID],
+    );
+    const orderItem = itemRows[0];
+    if (!orderItem) {
+      await connection.rollback();
+      return res.status(404).json({ message: "Purchased item not found" });
+    }
 
-    const previousResults = await pool.query(
-      `SELECT QuantityReturned
+    const [returnRows] = await connection.query(
+      `SELECT COALESCE(SUM(QuantityReturned), 0) AS returnedQuantity
        FROM ProductReturns
-       WHERE TransactionItemID = ?
-         AND Status = 'Approved'`,
-      [request.TransactionItemID],
+       WHERE TransactionItemID = ? AND Status = 'Approved'`,
+      [returnRequest.TransactionItemID],
+    );
+    const requestedQuantity = Number(returnRequest.Quantity);
+    const returnedQuantity = Number(returnRows[0].returnedQuantity);
+    if (
+      requestedQuantity <= 0 ||
+      requestedQuantity + returnedQuantity > Number(orderItem.Quantity)
+    ) {
+      await connection.rollback();
+      return res
+        .status(400)
+        .json({ message: "Return quantity exceeds the purchased quantity" });
+    }
+
+    const refundTotal =
+      (Math.round(Number(orderItem.UnitPrice) * 100) * requestedQuantity) / 100;
+    const [savedReturn] = await connection.query(
+      `INSERT INTO ProductReturns
+       (TransactionItemID, QuantityReturned, RefundTotal, ReturnDate, Disposable, Status, Reason)
+       SELECT TransactionItemID, Quantity, ?, NOW(), 0, 'Approved', Reason
+       FROM ReturnRequests WHERE ReturnRequestID = ?`,
+      [refundTotal, returnRequestId],
+    );
+    await connection.query(
+      `UPDATE ReturnRequests
+       SET Status = 'Approved', ReturnID = ?, TableUpdateTime = NOW()
+       WHERE ReturnRequestID = ?`,
+      [savedReturn.insertId, returnRequestId],
     );
 
-    let totalReturned = Number(request.QuantityReturned);
-
-    for (const previousReturn of previousResults[0]) {
-      totalReturned += Number(previousReturn.QuantityReturned);
-    }
-
-    if (request.QuantityReturned <= 0 || totalReturned > request.Quantity) {
-      return res.status(400).json({
-        message: "Return quantity exceeds the purchased quantity",
-      });
-    }
-
-    const refund = request.QuantityReturned * Number(request.UnitPrice);
-
-    const updateResults = await pool.query(
-      `UPDATE ProductReturns
-       SET Status = 'Approved',
-           RefundTotal = ?,
-           TableUpdateTime = NOW()
-       WHERE ReturnID = ?
-         AND Status = 'Pending'`,
-      [refund, returnID],
-    );
-
-    if (updateResults[0].affectedRows === 0) {
-      return res.status(400).json({
-        message: "Request has already been reviewed",
-      });
-    }
-
-    res.json({
-      message: "Return request approved",
-    });
-  } catch (err) {
-    console.log(err.message);
+    await connection.commit();
+    res.json({ message: "Return request approved" });
+  } catch (error) {
+    if (connection) await connection.rollback();
+    console.error(error.message);
     res.status(500).json({
-      message: "Unable to approve return request",
+      message:
+        error.sqlState === "45000"
+          ? error.sqlMessage
+          : "Unable to approve return request",
     });
+  } finally {
+    if (connection) connection.release();
   }
 });
 
-router.patch("/:returnID/decline", async (req, res) => {
-  const returnID = Number(req.params.returnID);
-
-  if (!Number.isInteger(returnID) || returnID <= 0) {
-    return res.status(400).json({
-      message: "Invalid return ID",
-    });
+router.patch("/:returnRequestId/decline", async (req, res) => {
+  const returnRequestId = Number(req.params.returnRequestId);
+  if (!Number.isInteger(returnRequestId) || returnRequestId <= 0) {
+    return res.status(400).json({ message: "Invalid request ID" });
   }
-
   try {
-    const results = await pool.query(
-      `UPDATE ProductReturns
-       SET Status = 'Declined',
-           TableUpdateTime = NOW()
-       WHERE ReturnID = ?
-         AND Status = 'Pending'`,
-      [returnID],
+    const [result] = await pool.query(
+      `UPDATE ReturnRequests
+       SET Status = 'Rejected', TableUpdateTime = NOW()
+       WHERE ReturnRequestID = ? AND Status = 'Requested'`,
+      [returnRequestId],
     );
-
-    if (results[0].affectedRows === 0) {
-      return res.status(400).json({
-        message: "Pending return request not found",
-      });
+    if (!result.affectedRows) {
+      return res
+        .status(400)
+        .json({
+          message: "Request has already been reviewed or does not exist",
+        });
     }
-
-    res.json({
-      message: "Return request declined",
-    });
-  } catch (err) {
-    console.log(err.message);
-    res.status(500).json({
-      message: "Unable to decline return request",
-    });
+    res.json({ message: "Return request rejected" });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ message: "Unable to reject return request" });
   }
 });
 

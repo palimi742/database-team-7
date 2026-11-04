@@ -1,30 +1,30 @@
-import "./ProductModal.css";
-import { useState } from "react"
+import "../../css/products/ProductModal.css";
+import { useState } from "react";
 
 function DeleteProductModal({ product, onClose, onSaved }) {
-    const [deleting, setDeleting] = useState(false)
-    const [error, setError] = useState("")
-    
-    async function handleDelete(){
-        setError("")
-        setDeleting(true)
+  const [deleting, setDeleting] = useState(false);
+  const [error, setError] = useState("");
 
-        try{
-            const res = await fetch(`/api/products/${product.InventoryID}/delete`,
-                {method: "PATCH"}
-            )
-            const data = await res.json()
-            if(!res.ok){
-                throw new Error(data.message)
-            }
-            await onSaved()
-            onClose()
-        }catch(err){
-            setError(err.message)
-        }finally{
-            setDeleting(false)
-        }
+  async function handleDelete() {
+    setError("");
+    setDeleting(true);
+
+    try {
+      const res = await fetch(`/api/products/${product.InventoryID}/delete`, {
+        method: "PATCH",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message);
+      }
+      await onSaved();
+      onClose();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setDeleting(false);
     }
+  }
   return (
     <div className="modal-overlay">
       <div className="product-modal">
@@ -44,4 +44,4 @@ function DeleteProductModal({ product, onClose, onSaved }) {
   );
 }
 
-export default DeleteProductModal
+export default DeleteProductModal;

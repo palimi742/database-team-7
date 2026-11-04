@@ -1,4 +1,5 @@
 import { Navigate, Outlet } from "react-router-dom";
+import "../../css/manager/ManagerTheme.css";
 
 function ProtectedManagerRoute() {
   let employee = null;
@@ -16,7 +17,11 @@ function ProtectedManagerRoute() {
   ) {
     return <Navigate to="/manager/login" replace />;
   }
-  return <Outlet />;
+  return (
+    <div className="manager-theme">
+      <Outlet />
+    </div>
+  );
 }
 
 export default ProtectedManagerRoute;

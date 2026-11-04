@@ -1,64 +1,64 @@
-.login-container{
+.login-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 100vh;
-  gap: 20px;
-  background-color:#c5dbc5;
+  gap: 1.111rem;
+  background-color: #c5dbc5;
 }
 
-.login-card{
+.login-card {
   background-color: white;
-  padding: 30px;
-  border-radius: 12px;
+  padding: 1.667rem;
+  border-radius: 0.667rem;
   box-shadow: 0 6px 12px rgba(30, 30, 30, 0.1);
   text-align: center;
 }
 
-.login-card input{
+.login-card input {
   box-sizing: border-box;
   width: 100%;
-  padding: 4px;
+  padding: 0.222rem;
   border: 1.5px solid #144012;
-  border-radius: 6px;
-  font-size: 15px;
-  margin-bottom: 3.5px;
+  border-radius: 0.333rem;
+  font-size: 0.833rem;
+  margin-bottom: 0.194rem;
 }
 
 .signin-btn {
   background-color: #245522;
-  color:rgb(255, 255, 255);
-  width: 100px;
-  height: 30px;
+  color: rgb(255, 255, 255);
+  width: 5.556rem;
+  height: 1.667rem;
   padding: 0;
   margin-top: 0;
   border: none;
-  border-radius: 6px;
+  border-radius: 0.333rem;
   cursor: pointer;
 }
 
-.signin-btn:hover{
+.signin-btn:hover {
   background-color: #1c331c;
 }
 
-.login-card h1{
-  font-size: 28px;
-  color: #496B52;
+.login-card h1 {
+  font-size: 1.556rem;
+  color: #496b52;
 }
 
-.login-card h2{
-  font-size: 18px;
+.login-card h2 {
+  font-size: 1rem;
   color: black;
 }
 
-.login-card p{
-  font-size: 15px;
+.login-card p {
+  font-size: 0.833rem;
   color: #747c7a;
 }
 
-.login-card h3{
-  font-size: 15px;
+.login-card h3 {
+  font-size: 0.833rem;
   color: #114d0e;
 }
 
@@ -81,31 +81,31 @@
 }
 
 .category-section {
-  margin: 32px 0;
+  margin: 1.778rem 0;
 }
 
 .category-section h2 {
   color: #315b40;
-  font-size: 22px;
+  font-size: 1.222rem;
   font-weight: 600;
-  margin-bottom: 16px;
+  margin-bottom: 0.889rem;
 }
 
 .category-buttons {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 0.667rem;
   align-items: center;
   justify-content: center;
 }
 
 .category-btn {
-  padding: 11px 20px;
+  padding: 0.611rem 1.111rem;
   border: 1px solid #d7dfd1;
-  border-radius: 999px;
+  border-radius: 55.5rem;
   background-color: #ffffff;
   color: #496b52;
-  font-size: 17px;
+  font-size: 0.944rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -114,7 +114,7 @@
 .category-btn:hover {
   background-color: #e7eee2;
   border-color: #8ba58a;
-  transform: translateY(-2px);
+  transform: translateY(-0.111rem);
 }
 
 .category-btn.active {
@@ -133,15 +133,17 @@
   width: 100%;
   max-width: 520px;
   box-sizing: border-box;
-  padding: 14px 20px;
+  padding: 0.778rem 1.111rem;
   border: 1px solid #d7dfd1;
-  border-radius: 999px;
+  border-radius: 55.5rem;
   background-color: #ffffff;
   color: #315b40;
-  font-size: 18px;
+  font-size: 1rem;
   outline: none;
   box-shadow: 0 3px 10px rgba(49, 91, 64, 0.06);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .search-input::placeholder {
@@ -156,13 +158,13 @@
 .checkout-button {
   display: block;
   width: 100%;
-  margin-top: 18px;
-  padding: 15px 20px;
+  margin-top: 1rem;
+  padding: 0.833rem 1.111rem;
   background-color: #496b52;
   color: white;
   border: none;
-  border-radius: 12px;
-  font-size: 16px;
+  border-radius: 0.667rem;
+  font-size: 0.889rem;
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s ease;
@@ -175,17 +177,17 @@
 /* FreshMart Rewards Page */
 .loyalty-container {
   max-width: 900px;
-  margin: 40px auto;
-  padding: 32px;
+  margin: 2.222rem auto;
+  padding: 1.778rem;
   color: #315b40;
   background-color: #fafafa;
-  border-radius: 20px;
+  border-radius: 1.111rem;
 }
 
 .loyalty-container > h1 {
-  margin: 0 0 10px;
+  margin: 0 0 0.556rem;
   color: #315b40;
-  font-size: 32px;
+  font-size: 1.778rem;
   text-align: center;
 }
 
@@ -196,46 +198,46 @@
 }
 
 .rewards-dashboard {
-  margin-top: 28px;
-  padding: 30px;
+  margin-top: 1.556rem;
+  padding: 1.667rem;
   background-color: #ffffff;
   border: 1px solid #e1e8dc;
-  border-radius: 20px;
+  border-radius: 1.111rem;
   box-shadow: 0 6px 18px rgba(45, 75, 51, 0.08);
 }
 
 .rewards-dashboard h2 {
-  margin: 0 0 24px;
+  margin: 0 0 1.333rem;
   color: #315b40;
-  font-size: 24px;
+  font-size: 1.333rem;
 }
 
 .rewards-dashboard h3 {
-  margin: 0 0 20px;
-  padding: 24px;
+  margin: 0 0 1.111rem;
+  padding: 1.333rem;
   background-color: #e5ecdf;
-  border-radius: 16px;
+  border-radius: 0.889rem;
   color: #315b40;
-  font-size: 26px;
+  font-size: 1.444rem;
 }
 
 .rewards-dashboard p {
-  margin: 14px 0;
-  padding-bottom: 14px;
+  margin: 0.778rem 0;
+  padding-bottom: 0.778rem;
   color: #647365;
   border-bottom: 1px solid #e8ede3;
-  font-size: 15px;
+  font-size: 0.833rem;
 }
 
 .loyalty-container button {
   display: block;
-  margin: 28px auto 0;
-  padding: 14px 26px;
+  margin: 1.556rem auto 0;
+  padding: 0.778rem 1.444rem;
   background-color: #496b52;
   color: white;
   border: none;
-  border-radius: 12px;
-  font-size: 16px;
+  border-radius: 0.667rem;
+  font-size: 0.889rem;
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s ease;
@@ -258,26 +260,26 @@
   width: 100%;
   max-width: 1120px;
   margin: 0 auto;
-  padding: 32px 24px 48px;
+  padding: 1.778rem 1.333rem 2.667rem;
 }
 
 .browse-container > h1 {
-  margin: 0 0 8px;
-  font-size: 36px;
+  margin: 0 0 0.444rem;
+  font-size: 2rem;
 }
 
 .browse-container > p {
-  margin-bottom: 28px;
+  margin-bottom: 1.556rem;
 }
 
 .browse-container .search-input {
   display: block;
-  margin: 32px auto 0;
-  font-size: 18px;
+  margin: 1.778rem auto 0;
+  font-size: 1rem;
 }
 
 @media (max-width: 550px) {
   .browse-container {
-    padding: 24px 16px;
+    padding: 1.333rem 0.889rem;
   }
 }

@@ -2,8 +2,8 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../../components/layout/Navbar";
 import PasswordInput from "../../components/auth/PasswordInput";
-import "./CustomerLogin.css";
-import "./StaffLogin.css";
+import "../../css/auth/CustomerLogin.css";
+import "../../css/auth/StaffLogin.css";
 
 function StaffLogin({ loginType = "employee" }) {
   const [error, setError] = useState("");
@@ -44,16 +44,30 @@ function StaffLogin({ loginType = "employee" }) {
       <main>
         <form className="login-form staff-login-form" onSubmit={handleLogin}>
           <h1>{loginType === "admin" ? "Manager Login" : "Employee Login"}</h1>
-          <p className="staff-login-description">Sign in with your staff account.</p>
+          <p className="staff-login-description">
+            Sign in with your staff account.
+          </p>
           <label htmlFor="username">Username</label>
-          <input id="username" name="username" placeholder="Enter your username" autoComplete="username" required />
+          <input
+            id="username"
+            name="username"
+            placeholder="Enter your username"
+            autoComplete="username"
+            required
+          />
           <label htmlFor="password">Password</label>
           <PasswordInput autoComplete="current-password" />
-          {error && <p className="staff-login-error" role="alert">{error}</p>}
+          {error && (
+            <p className="staff-login-error" role="alert">
+              {error}
+            </p>
+          )}
           <button className="login-btn" type="submit" disabled={loading}>
             {loading ? "Signing in..." : "Sign In"}
           </button>
-          <p className="staff-login-back"><Link to="/customer-login">Back to customer login</Link></p>
+          <p className="staff-login-back">
+            <Link to="/customer-login">Back to customer login</Link>
+          </p>
         </form>
       </main>
     </>

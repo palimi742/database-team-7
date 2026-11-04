@@ -1,10 +1,10 @@
 import "../../css/App.css";
-import "./Product.css";
+import "../../css/customer/Product.css";
 import CartPanel from "../../components/cart/CartPanel";
 import { useState, useEffect } from "react";
 import Navbar from "../../components/layout/Navbar";
 import { useShop } from "../../context/ShopContext.jsx";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
 function Browse() {
   const {
@@ -19,6 +19,7 @@ function Browse() {
   } = useShop();
 
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
 
   const cart = sharedCart.items.map((item) => ({
@@ -31,7 +32,9 @@ function Browse() {
   const [products, setProducts] = useState([]);
   const [seasonalProducts, setSeasonalProducts] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState(searchParams.get("category") || "All");
+  const [selectedCategory, setSelectedCategory] = useState(
+    searchParams.get("category") || "All",
+  );
   const [search, setSearch] = useState("");
   const [error, setError] = useState("");
 
@@ -143,6 +146,9 @@ function Browse() {
 
       <div className="browse-container">
         <h1>Hello!</h1>
+        {location.state?.orderMessage && (
+          <p className="order-success">{location.state.orderMessage}</p>
+        )}
         <p>Find everything you need for your groceries</p>
 
         <input
@@ -193,11 +199,11 @@ function Browse() {
               const discount = getDiscount(product);
               const regularPrice = Number(product.Price);
               const salePrice = Math.max(regularPrice - discount, 0);
-  
+
               return (
                 <div className="product-card" key={product.InventoryID}>
                   <h3>{product.InventoryName}</h3>
-  
+
                   {discount > 0 ? (
                     <>
                       <p>
@@ -209,7 +215,7 @@ function Browse() {
                   ) : (
                     <p>${regularPrice.toFixed(2)}</p>
                   )}
-  
+
                   <button
                     onClick={() => addToCart(product)}
                     disabled={!cartID || updating}

@@ -1,0 +1,90 @@
+.manager-theme {
+  min-height: 100vh;
+  background: #202020;
+  color: #fff;
+  color-scheme: dark;
+  --code-bg: #181818;
+  --text-h: #fff;
+  --border: #444;
+}
+
+.manager-theme h1,
+.manager-theme h2,
+.manager-theme h3,
+.manager-theme h4,
+.manager-theme a {
+  color: #fff;
+}
+
+.manager-theme button {
+  background: #fff;
+  color: #000;
+  border: 1px solid #fff;
+  border-radius: 0.25rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.manager-theme button:hover {
+  background: #ddd;
+}
+
+.manager-theme button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.manager-theme input,
+.manager-theme select,
+.manager-theme textarea {
+  background: #333;
+  color: #fff;
+  border: 1px solid #666;
+  border-radius: 0.25rem;
+}
+
+.manager-theme th {
+  background: #333;
+  color: #fff;
+}
+
+.manager-theme td {
+  border-bottom: 1px solid #444;
+}
+
+.manager-theme .sales-summary-card,
+.manager-theme .promotion-editor {
+  background: #292929;
+  border-color: #444;
+}
+
+.manager-theme .manager-sidebar {
+  background: #292929;
+  color: #fff;
+  border-color: #444;
+}
+
+.manager-theme .manager-sidebar a {
+  color: #fff;
+}
+
+.manager-theme .manager-logout {
+  background: transparent;
+  color: #fff;
+  border: none;
+}
+
+.manager-theme .manager-logout:hover {
+  background: #333;
+}
+
+.manager-theme .product-modal {
+  background: #292929;
+  color: #fff;
+  border: 1px solid #444;
+}
+
+.manager-theme [role="alert"],
+.manager-theme [role="status"] {
+  color: #fff;
+}

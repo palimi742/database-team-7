@@ -1,14 +1,14 @@
 #cart {
   display: flex;
   flex-direction: column;
-  max-height: calc(100dvh - 48px);
+  max-height: calc(100dvh - 2.667rem);
   box-sizing: border-box;
   width: 100%;
-  padding: 24px;
+  padding: 1.333rem;
   background: white;
   color: #263b2b;
   border: 1px solid #d7dfd1;
-  border-radius: 12px;
+  border-radius: 0.667rem;
   text-align: left;
 }
 
@@ -30,45 +30,45 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
+  gap: 0.889rem;
 }
 
 #cart .cart-panel-header {
-  padding-bottom: 16px;
+  padding-bottom: 0.889rem;
   border-bottom: 1px solid #d7dfd1;
 }
 
 #cart h2 {
   margin: 0;
-  font-size: 24px;
+  font-size: 1.333rem;
   color: #315b40;
 }
 
 #cart h3 {
-  margin: 0 0 8px;
-  font-size: 16px;
+  margin: 0 0 0.444rem;
+  font-size: 0.889rem;
 }
 
 #cart p,
 #cart .cart-panel-header span {
   color: #647365;
-  font-size: 14px;
+  font-size: 0.778rem;
 }
 
 #cart .cart-panel-item,
 #cart .cart-empty {
-  padding: 20px 0;
+  padding: 1.111rem 0;
   border-bottom: 1px solid #d7dfd1;
 }
 
 #cart button {
-  padding: 8px 12px;
+  padding: 0.444rem 0.667rem;
   background: #496b52;
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 0.333rem;
   font: inherit;
-  font-size: 14px;
+  font-size: 0.778rem;
   cursor: pointer;
 }
 
@@ -80,8 +80,8 @@
 #cart .cart-quantity {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin: 12px 0;
+  gap: 0.667rem;
+  margin: 0.667rem 0;
 }
 
 #cart .cart-line-total {
@@ -89,31 +89,31 @@
 }
 
 #cart .cart-panel-footer {
-  padding-top: 20px;
+  padding-top: 1.111rem;
 }
 
 #cart .cart-subtotal {
-  font-size: 18px;
+  font-size: 1rem;
   font-weight: bold;
 }
 
 #cart .cart-note {
-  margin: 12px 0;
+  margin: 0.667rem 0;
 }
 
 #cart .cart-review-button {
   width: 100%;
-  padding: 12px;
+  padding: 0.667rem;
 }
 
 #cart .cart-text-button {
   display: block;
-  padding: 4px 0;
+  padding: 0.222rem 0;
   background: transparent;
   color: #496b52;
   text-decoration: underline;
 }
 
 #cart .cart-empty-button {
-  margin: 12px auto 0;
+  margin: 0.667rem auto 0;
 }

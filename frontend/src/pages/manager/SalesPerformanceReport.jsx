@@ -1,6 +1,6 @@
 import ManagerSidebar from "../../components/layout/ManagerSidebar";
-import "./ManagerDashboard.css";
-import "./SalesPerformanceReport.css";
+import "../../css/manager/ManagerDashboard.css";
+import "../../css/manager/SalesPerformanceReport.css";
 import { useState, useEffect } from "react";
 
 function SalesPerformanceReport() {

@@ -1,0 +1,30 @@
+.category-options {
+  display: flex;
+  justify-content: center;
+  margin-top: 2em;
+  flex-wrap: wrap;
+  gap: 0.667rem;
+}
+
+.category-button {
+  color: #503d26;
+  background-color: #a3b18a;
+  font-weight: bold;
+  border: none;
+  padding: 1em 1.5em;
+  border-radius: 0.278rem;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+.category-button:hover {
+  background-color: #588157;
+}
+.category-button.active {
+  background-color: #3a5a40;
+  color: white;
+}
+
+.home-search {
+  margin: 1.778rem 0.889rem 0;
+}

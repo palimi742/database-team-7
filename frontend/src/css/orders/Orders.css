@@ -1,0 +1,143 @@
+.orders-page {
+  min-height: 100vh;
+  background: #fafafa;
+  color: #263b2b;
+}
+
+.orders-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 1.778rem 1.333rem;
+  text-align: left;
+}
+
+.orders-container h1 {
+  margin: 0 0 1.333rem;
+  color: #315b40;
+  font-size: 2rem;
+}
+
+.order-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.333rem;
+  margin-bottom: 0.889rem;
+  padding: 1.333rem;
+  background: white;
+  border: 1px solid #d7dfd1;
+  border-radius: 0.667rem;
+}
+
+.order-card h2 {
+  margin: 0 0 0.444rem;
+  color: #315b40;
+  font-size: 1.111rem;
+}
+
+.order-card p {
+  margin: 0.333rem 0;
+  color: #647365;
+  font-size: 0.833rem;
+}
+
+.order-status {
+  display: inline-block;
+  margin-top: 0.444rem;
+  padding: 0.333rem 0.667rem;
+  background: #edf2e9;
+  color: #315b40;
+  border-radius: 0.333rem;
+  font-size: 0.778rem;
+}
+
+.order-card-actions {
+  text-align: right;
+}
+
+.order-card-actions strong {
+  display: block;
+  margin-bottom: 0.667rem;
+  font-size: 1.111rem;
+}
+
+.order-card-actions button {
+  padding: 0.556rem 1.111rem;
+  background: #496b52;
+  color: white;
+  border: none;
+  border-radius: 0.444rem;
+  font: inherit;
+  font-size: 0.833rem;
+  cursor: pointer;
+}
+
+.order-card-actions button:hover {
+  background: #315b40;
+}
+
+.orders-message {
+  padding: 1.333rem;
+  background: white;
+  border: 1px solid #d7dfd1;
+  border-radius: 0.667rem;
+  color: #647365;
+}
+
+.orders-error {
+  margin-bottom: 1.111rem;
+  color: #a12b2b;
+}
+
+@media (max-width: 600px) {
+  .orders-container {
+    padding: 1.333rem 0.889rem;
+  }
+
+  .order-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .order-card-actions {
+    width: 100%;
+    text-align: left;
+  }
+
+  .order-card-actions button {
+    width: 100%;
+  }
+}
+
+.orders-heading {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.111rem;
+  margin-bottom: 1.333rem;
+}
+
+.orders-heading h1 {
+  margin: 0;
+}
+
+.order-tabs {
+  display: flex;
+  gap: 0.444rem;
+}
+
+.order-tabs button {
+  padding: 0.333rem 0.667rem;
+  background: white;
+  color: #496b52;
+  border: 1px solid #d7dfd1;
+  border-radius: 0.333rem;
+  font: inherit;
+  font-size: 0.778rem;
+  cursor: pointer;
+}
+
+.order-tabs button.active {
+  background: #496b52;
+  color: white;
+}

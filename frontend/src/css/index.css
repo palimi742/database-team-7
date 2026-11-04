@@ -1,7 +1,7 @@
 /* Global page defaults. Component styles live in their own CSS files. */
 :root {
   font-family: system-ui, "Segoe UI", Roboto, sans-serif;
-  font-size: 18px;
+  font-size: 112.5%;
   line-height: 1.45;
   color: #263b2b;
   background-color: #fafafa;
@@ -26,14 +26,14 @@ h2 {
 }
 
 h1 {
-  font-size: 56px;
-  margin: 32px 0;
+  font-size: 3.111rem;
+  margin: 1.778rem 0;
 }
 
 h2 {
-  font-size: 24px;
+  font-size: 1.333rem;
   line-height: 1.18;
-  margin: 0 0 8px;
+  margin: 0 0 0.444rem;
 }
 
 p {
@@ -42,15 +42,15 @@ p {
 
 @media (max-width: 1024px) {
   :root {
-    font-size: 16px;
+    font-size: 100%;
   }
 
   h1 {
-    font-size: 36px;
-    margin: 20px 0;
+    font-size: 2rem;
+    margin: 1.111rem 0;
   }
 
   h2 {
-    font-size: 20px;
+    font-size: 1.111rem;
   }
 }

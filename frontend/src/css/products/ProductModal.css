@@ -1,0 +1,38 @@
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.product-modal {
+  background-color: #1c1d24;
+  color: #f3f4f6;
+  padding: 1.333rem;
+  border-radius: 0.444rem;
+  width: 22.222rem;
+  max-width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.product-modal form > div {
+  margin-bottom: 0.667rem;
+}
+
+.product-modal label {
+  display: block;
+  margin-bottom: 0.222rem;
+}
+
+.product-modal input,
+.product-modal select {
+  width: 100%;
+  padding: 0.444rem;
+  box-sizing: border-box;
+}

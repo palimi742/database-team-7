@@ -1,5 +1,5 @@
 import express from "express";
-import crypto from "node:crypto";
+import { readCustomerSession } from "../../auth/customerSession.js";
 
 export default function (pool) {
   const router = express.Router();
@@ -10,16 +10,8 @@ export default function (pool) {
 
   //return logged-in person's CustomerID, or null.
   async function getCustomerId(req) {
-    const id = req.session?.customerId ?? req.user?.customerId ?? null;
-    if (id != null) return Number(id);
-    return null;
+    return readCustomerSession(req);
   }
-
-  // security signs cart ids so carts can't be guessed.
-  const CART_SECRET =
-    process.env.CART_SECRET ||
-    (process.env.NODE_ENV === "production" ? null : "dev-only-cart-secret");
-  if (!CART_SECRET) throw new Error("Set the CART_SECRET environment variable");
 
   // the EmployeeID that online orders are assigned to at first.
   const FULFILLMENT_EMPLOYEE_ID = null;
@@ -30,27 +22,6 @@ export default function (pool) {
   const FREE_DELIVERY_OVER = 50; // free delivery at or above this subtotal
   const POINTS_PER_DOLLAR = 1;
   const RETURN_WINDOW_DAYS = 14;
-
-  // Signed cart tokens
-  const sign = (id) =>
-    crypto
-      .createHmac("sha256", CART_SECRET)
-      .update(String(id))
-      .digest("hex")
-      .slice(0, 32);
-  const makeCartToken = (id) => `${id}.${sign(id)}`;
-  function readCartToken(token) {
-    const [id, sig] = String(token).split(".");
-    if (!/^\d+$/.test(id || "") || !sig) return null;
-    const expected = Buffer.from(sign(id));
-    const given = Buffer.from(sig);
-    if (
-      expected.length !== given.length ||
-      !crypto.timingSafeEqual(expected, given)
-    )
-      return null;
-    return Number(id);
-  }
 
   router.use(
     ah(async (req, res, next) => {
@@ -65,17 +36,21 @@ export default function (pool) {
     next();
   }
 
-  // Every route with:cartId checks the signed token and that the cart exists
-  router.param("cartId", async (req, res, next, token) => {
+  // Every cart route requires a login and a cart owned by that customer.
+  router.param("cartId", async (req, res, next, cartId) => {
     try {
-      const id = readCartToken(token);
-      if (!id) return res.status(404).json({ error: "Cart not found." });
+      if (!req.customerId)
+        return res.status(401).json({ error: "Please log in." });
+      const id = Number(cartId);
+      if (!/^[1-9]\d*$/.test(cartId) || !Number.isSafeInteger(id)) {
+        return res.status(404).json({ error: "Cart not found." });
+      }
       const [[cart]] = await pool.query(
-        "SELECT CartID FROM Cart WHERE CartID = ?",
-        [id],
+        "SELECT CartID, CustomerID FROM Cart WHERE CartID = ? AND CustomerID = ?",
+        [id, req.customerId],
       );
       if (!cart) return res.status(404).json({ error: "Cart not found." });
-      req.cart = { id: cart.CartID };
+      req.cart = { id: cart.CartID, customerId: cart.CustomerID };
       next();
     } catch (err) {
       next(err);
@@ -180,19 +155,14 @@ export default function (pool) {
   // Cart
   router.post(
     "/cart",
+    requireLogin,
     ah(async (req, res) => {
-      const customerID = Number(req.body.customerID);
-      if (!Number.isInteger(customerID) || customerID <= 0) {
-        return res
-          .status(400)
-          .json({ error: "Please sign in before opening a cart." });
-      }
       const [result] = await pool.query(
         `INSERT INTO Cart (CustomerID) VALUES (?)
          ON DUPLICATE KEY UPDATE CartID = LAST_INSERT_ID(CartID)`,
-        [customerID],
+        [req.customerId],
       );
-      res.json({ cartId: makeCartToken(result.insertId) });
+      res.json({ cartId: result.insertId });
     }),
   );
 
@@ -307,6 +277,25 @@ export default function (pool) {
     }),
   );
 
+  // Customer contact details for the authenticated customer’s cart.
+  router.get(
+    "/cart/:cartId/contact",
+    ah(async (req, res) => {
+      const [[customer]] = await pool.query(
+        `SELECT c.CustomerID AS id, c.FirstName AS firstName,
+                c.LastName AS lastName, c.PhoneNumber AS phone,
+                c.CustomerAddress AS address
+         FROM Cart ca
+         JOIN Customer c ON c.CustomerID = ca.CustomerID
+         WHERE ca.CartID = ?`,
+        [req.cart.id],
+      );
+      if (!customer)
+        return res.status(404).json({ error: "Customer not found." });
+      res.json(customer);
+    }),
+  );
+
   // Checkout summary
   router.get(
     "/cart/:cartId/summary",
@@ -321,14 +310,16 @@ export default function (pool) {
   router.post(
     "/cart/:cartId/checkout",
     requireLogin,
+    (req, res, next) => {
+      if (Number(req.cart.customerId) !== req.customerId) {
+        return res
+          .status(403)
+          .json({ error: "This cart belongs to another customer." });
+      }
+      next();
+    },
     ah(async (req, res) => {
-      const {
-        fulfillmentType,
-        deliveryAddress,
-        pickupTime,
-        vehicleInfo,
-        paymentMethod,
-      } = req.body;
+      const { fulfillmentType, deliveryAddress, paymentMethod } = req.body;
       if (!["delivery", "curbside"].includes(fulfillmentType)) {
         return res
           .status(400)
@@ -338,19 +329,9 @@ export default function (pool) {
       if (isDelivery && !deliveryAddress?.trim()) {
         return res.status(400).json({ error: "Enter a delivery address." });
       }
-      if (!isDelivery && !pickupTime?.trim()) {
-        return res.status(400).json({ error: "Choose a pickup time." });
-      }
-
-      // OrderFulfillment only has one text column
       const addressText = isDelivery
         ? deliveryAddress.trim().slice(0, 150)
-        : (
-            `Pickup: ${pickupTime.trim()}` +
-            (vehicleInfo?.trim()
-              ? ` | Vehicle: ${vehicleInfo.trim().slice(0, 60)}`
-              : "")
-          ).slice(0, 150);
+        : null;
 
       const conn = await pool.getConnection();
       try {
@@ -458,7 +439,7 @@ export default function (pool) {
 
   // Order history
   router.get(
-    "/orders",
+    "/my-orders",
     requireLogin,
     ah(async (req, res) => {
       const [rows] = await pool.query(
@@ -476,59 +457,76 @@ export default function (pool) {
     }),
   );
 
-  // One order: receipt, items, returns
+  // Order details, purchased items, and completed returns.
   router.get(
-    "/orders/:orderId",
+    "/my-orders/:orderId",
     requireLogin,
     ah(async (req, res) => {
-      const [[order]] = await pool.query(
-        `SELECT t.TransactionID AS id,
-              DATE_FORMAT(t.TransactionDate, '%Y-%m-%d') AS orderDate,
-              t.TransactionMethod AS paymentMethod, t.TotalPrice AS total,
-              t.PointsEarned AS points,
-              (SELECT COALESCE(SUM(x.UnitPrice * x.Quantity), 0)
-                 FROM TransactionItems x WHERE x.TransactionID = t.TransactionID) AS subtotal,
-              c.FirstName AS firstName, c.LastName AS lastName, c.PhoneNumber AS phone,
-              d.DeliveryName AS fulfillmentType, f.DeliveryAddress AS deliveryAddress,
-              ${STATUS_SQL} AS status
-       FROM Transactions t
-       JOIN Customer c ON c.CustomerID = t.CustomerID
-       LEFT JOIN OrderFulfillment f ON f.TransactionID = t.TransactionID
-       LEFT JOIN DeliveryType d ON d.DeliveryID = f.DeliveryID
-       WHERE t.TransactionID = ? AND t.CustomerID = ?`,
+      const [orderRows] = await pool.query(
+        `SELECT purchase.TransactionID AS id,
+                DATE_FORMAT(purchase.TransactionDate, '%Y-%m-%d') AS orderDate,
+                purchase.TransactionMethod AS paymentMethod,
+                purchase.TotalPrice AS total, purchase.PointsEarned AS points,
+                (SELECT COALESCE(SUM(orderItem.UnitPrice * orderItem.Quantity), 0)
+                 FROM TransactionItems AS orderItem
+                 WHERE orderItem.TransactionID = purchase.TransactionID) AS subtotal,
+                customer.FirstName AS firstName, customer.LastName AS lastName,
+                customer.PhoneNumber AS phone,
+                deliveryType.DeliveryName AS fulfillmentType,
+                fulfillment.DeliveryAddress AS deliveryAddress,
+                CASE
+                  WHEN fulfillment.FulfillmentID IS NULL THEN 'Completed'
+                  WHEN fulfillment.FulfillmentTime IS NOT NULL THEN 'Completed'
+                  WHEN fulfillment.ReadyStatus = 1 THEN 'Ready'
+                  ELSE 'Preparing'
+                END AS status
+         FROM Transactions AS purchase
+         JOIN Customer AS customer ON customer.CustomerID = purchase.CustomerID
+         LEFT JOIN OrderFulfillment AS fulfillment
+           ON fulfillment.TransactionID = purchase.TransactionID
+         LEFT JOIN DeliveryType AS deliveryType
+           ON deliveryType.DeliveryID = fulfillment.DeliveryID
+         WHERE purchase.TransactionID = ? AND purchase.CustomerID = ?`,
         [req.params.orderId, req.customerId],
       );
+      const order = orderRows[0];
       if (!order) return res.status(404).json({ error: "Order not found." });
 
-      const [items] = await pool.query(
-        `SELECT ti.TransactionItemID AS id, i.InventoryName AS name,
-              ti.Quantity AS quantity, ti.UnitPrice AS unitPrice,
-              CAST(${returnedQtySql("ti.TransactionItemID")} AS SIGNED) AS returnedQty
-       FROM TransactionItems ti
-       JOIN Inventory i ON i.InventoryID = ti.InventoryID
-       WHERE ti.TransactionID = ?`,
+      const [orderItems] = await pool.query(
+        `SELECT orderItem.TransactionItemID AS id,
+                product.InventoryName AS name, orderItem.Quantity AS quantity,
+                orderItem.UnitPrice AS unitPrice,
+                CAST(${returnedQtySql("orderItem.TransactionItemID")} AS SIGNED) AS returnedQty
+         FROM TransactionItems AS orderItem
+         JOIN Inventory AS product ON product.InventoryID = orderItem.InventoryID
+         WHERE orderItem.TransactionID = ?`,
         [order.id],
       );
-      const [returns] = await pool.query(
-        `SELECT rr.ReturnRequestID AS id, rr.Quantity AS quantity, rr.ExpectedRefund AS refundTotal,
-              rr.Reason AS reason, rr.Status AS status, i.InventoryName AS name
-       FROM ReturnRequests rr
-       JOIN TransactionItems ti ON ti.TransactionItemID = rr.TransactionItemID
-       JOIN Inventory i ON i.InventoryID = ti.InventoryID
-       WHERE ti.TransactionID = ?
-       ORDER BY rr.ReturnRequestID DESC`,
+      const [returnRequests] = await pool.query(
+        `SELECT returnRequest.ReturnRequestID AS id,
+                returnRequest.Quantity AS quantity,
+                returnRequest.ExpectedRefund AS refundTotal,
+                returnRequest.Reason AS reason,
+                returnRequest.Status AS status,
+                product.InventoryName AS name
+         FROM ReturnRequests AS returnRequest
+         JOIN TransactionItems AS orderItem
+           ON orderItem.TransactionItemID = returnRequest.TransactionItemID
+         JOIN Inventory AS product ON product.InventoryID = orderItem.InventoryID
+         WHERE orderItem.TransactionID = ?
+         ORDER BY returnRequest.ReturnRequestID DESC`,
         [order.id],
       );
 
-      const feesAndTax = Math.max(
+      const deliveryFee = Math.max(
         0,
         Math.round((Number(order.total) - Number(order.subtotal)) * 100) / 100,
       );
       res.json({
         ...order,
-        feesAndTax,
-        items,
-        returns,
+        deliveryFee,
+        items: orderItems,
+        returns: returnRequests,
         returnWindowDays: RETURN_WINDOW_DAYS,
       });
     }),
@@ -536,7 +534,7 @@ export default function (pool) {
 
   // Return requests
   router.post(
-    "/orders/:orderId/returns",
+    "/my-orders/:orderId/returns",
     requireLogin,
     ah(async (req, res) => {
       const { transactionItemId, quantity, reason, details } = req.body;

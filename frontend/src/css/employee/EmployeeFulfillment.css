@@ -1,7 +1,6 @@
-
 .employee-page {
   min-height: 100vh;
-  padding: 30px 20px;
+  padding: 1.667rem 1.111rem;
   background: #f4f8f3;
   color: #183d24;
   font-family: Arial, sans-serif;
@@ -14,12 +13,12 @@
 }
 
 .employee-header {
-  margin-bottom: 25px;
+  margin-bottom: 1.389rem;
 }
 
 .employee-header h1 {
-  font-size: 30px;
-  margin-bottom: 8px;
+  font-size: 1.667rem;
+  margin-bottom: 0.444rem;
 }
 
 .employee-header p {
@@ -28,32 +27,32 @@
 
 .employee-panel {
   background: white;
-  padding: 25px;
-  border-radius: 12px;
-  margin-bottom: 25px;
+  padding: 1.389rem;
+  border-radius: 0.667rem;
+  margin-bottom: 1.389rem;
   border: 1px solid #d7e5d7;
 }
 
 .employee-search {
   display: flex;
-  gap: 12px;
+  gap: 0.667rem;
   align-items: center;
   flex-wrap: wrap;
 }
 
 .employee-search input {
-  padding: 11px;
-  width: 180px;
+  padding: 0.611rem;
+  width: 10rem;
   border: 1px solid #b8ccb8;
-  border-radius: 6px;
+  border-radius: 0.333rem;
 }
 
 .employee-page button {
   background: #24733a;
   color: white;
   border: none;
-  border-radius: 7px;
-  padding: 11px 16px;
+  border-radius: 0.389rem;
+  padding: 0.611rem 0.889rem;
   cursor: pointer;
 }
 
@@ -81,34 +80,34 @@
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 0.667rem;
 }
 
 .employee-toolbar select {
-  padding: 10px;
-  margin-right: 10px;
-  border-radius: 6px;
+  padding: 0.556rem;
+  margin-right: 0.556rem;
+  border-radius: 0.333rem;
   border: 1px solid #b8ccb8;
 }
 
 .employee-order-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
-  gap: 18px;
-  margin-top: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(16.111rem, 1fr));
+  gap: 1rem;
+  margin-top: 1.111rem;
 }
 
 .employee-order {
   background: #fbfdfb;
   border: 1px solid #d9e5d9;
-  border-radius: 10px;
-  padding: 20px;
+  border-radius: 0.556rem;
+  padding: 1.111rem;
 }
 
 .employee-order-top {
   display: flex;
   justify-content: space-between;
-  gap: 10px;
+  gap: 0.556rem;
   align-items: flex-start;
 }
 
@@ -119,23 +118,23 @@
 .employee-status {
   background: #e0efe1;
   color: #206038;
-  border-radius: 20px;
-  padding: 7px 11px;
-  font-size: 13px;
+  border-radius: 1.111rem;
+  padding: 0.389rem 0.611rem;
+  font-size: 0.722rem;
 }
 
 .employee-items {
-  margin: 18px 0;
+  margin: 1rem 0;
   border-top: 1px solid #e1e9e2;
-  padding-top: 12px;
+  padding-top: 0.667rem;
 }
 
 .employee-items ul {
-  padding-left: 20px;
+  padding-left: 1.111rem;
 }
 
 .employee-items li {
-  margin-bottom: 6px;
+  margin-bottom: 0.333rem;
 }
 
 @media (max-width: 600px) {
@@ -145,7 +144,6 @@
   }
 
   .employee-page {
-    padding: 15px;
+    padding: 0.833rem;
   }
 }
-
