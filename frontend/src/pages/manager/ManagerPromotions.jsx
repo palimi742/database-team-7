@@ -25,6 +25,11 @@ function ManagerPromotions() {
   const [deleting, setDeleting] = useState(null);
   const [filter, setFilter] = useState("All");
 
+  const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
   // Load both offer lists and the categories used by the form.
   async function loadPromotions() {
     setError("");
@@ -45,6 +50,7 @@ function ManagerPromotions() {
 
       setOffers({ coupons: data[0], sales: data[1] });
       setCategories(data[2]);
+      setPage(1);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -78,6 +84,7 @@ function ManagerPromotions() {
 
   function selectType(value) {
     setType(value);
+    setPage(1);
     setEditor(null);
     setDeleting(null);
     setError("");
@@ -188,9 +195,50 @@ function ManagerPromotions() {
   }
 
   const coupon = type === "coupons";
-  const rows = offers[type].filter(
-    (offer) => filter === "All" || getOfferStatus(offer) === filter,
-  );
+  const searchInput = search.trim().toLowerCase();
+  const rows = offers[type].filter((offer) => {
+    const name = offer.CouponName || `${offer.CategoryName} sale`;
+    const matchesSearch = name.toLowerCase().includes(searchInput);
+    const matchesCategory = categoryFilter === "all" || String(offer.CategoryID) === categoryFilter;
+    const matchesStatus = filter === "All" || getOfferStatus(offer) === filter;
+    return matchesSearch && matchesCategory && matchesStatus;
+  });
+  const totalPages = Math.max(1, Math.ceil(rows.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const startIndex = (currentPage - 1) * pageSize;
+  const visibleRows = rows.slice(startIndex, startIndex + pageSize);
+
+  function formatDate(value) {
+    return new Date(value).toLocaleString(undefined, {
+      month: "short", day: "numeric", year: "numeric",
+      hour: "numeric", minute: "2-digit",
+    });
+  }
+
+  function renderPagination(position) {
+    return (
+      <div className="promotion-pagination">
+        <label>
+          Offers per page{" "}
+          <select value={pageSize} onChange={(event) => {
+            setPageSize(Number(event.target.value));
+            setPage(1);
+          }}>
+            <option value={10}>10</option>
+            <option value={25}>25</option>
+          </select>
+        </label>
+        <span aria-live="polite">
+          Showing {rows.length ? startIndex + 1 : 0}–{Math.min(startIndex + pageSize, rows.length)} of {rows.length} offers
+        </span>
+        <nav aria-label={`Offer pages ${position}`}>
+          <button disabled={currentPage === 1} onClick={() => setPage(currentPage - 1)}>Previous</button>
+          <span>Page {currentPage} of {totalPages}</span>
+          <button disabled={currentPage === totalPages} onClick={() => setPage(currentPage + 1)}>Next</button>
+        </nav>
+      </div>
+    );
+  }
   return (
     <div>
       <ManagerSidebar />
@@ -200,11 +248,12 @@ function ManagerPromotions() {
           Create category offers with dollar discounts. Times use your local
           time zone.
         </p>
-        <div className="promotion-toolbar" aria-label="Promotion type">
+        <div className="promotion-toolbar promotion-tabs" aria-label="Promotion type">
           {["coupons", "sales"].map((value) => (
             <button
               key={value}
-              disabled={saving || type === value}
+              disabled={saving}
+              aria-pressed={type === value}
               onClick={() => selectType(value)}
             >
               {value === "coupons" ? "Coupons" : "Seasonal Sales"}
@@ -223,20 +272,38 @@ function ManagerPromotions() {
               >
                 Add {coupon ? "Coupon" : "Sale"}
               </button>
+              <button disabled={saving} onClick={loadPromotions}>
+                Refresh
+              </button>
+            </div>
+            <div className="promotion-toolbar promotion-filters">
+              <label>
+                Search offers
+                <input type="search" placeholder="Search by offer name" value={search}
+                  onChange={(event) => { setSearch(event.target.value); setPage(1); }} />
+              </label>
+              <label>
+                Category
+                <select value={categoryFilter} onChange={(event) => {
+                  setCategoryFilter(event.target.value); setPage(1);
+                }}>
+                  <option value="all">All categories</option>
+                  {categories.map((category) => (
+                    <option key={category.CategoryID} value={category.CategoryID}>{category.CategoryName}</option>
+                  ))}
+                </select>
+              </label>
               <label>
                 Status{" "}
                 <select
                   value={filter}
-                  onChange={(event) => setFilter(event.target.value)}
+                  onChange={(event) => { setFilter(event.target.value); setPage(1); }}
                 >
                   {["All", "Active", "Scheduled", "Expired"].map((value) => (
                     <option key={value}>{value}</option>
                   ))}
                 </select>
               </label>
-              <button disabled={saving} onClick={loadPromotions}>
-                Refresh
-              </button>
             </div>
             {!categories.length && (
               <p>Add categories before creating offers.</p>
@@ -340,6 +407,7 @@ function ManagerPromotions() {
                 </button>
               </div>
             )}
+            {renderPagination("top")}
             <div className="promotion-table">
               <table>
                 <thead>
@@ -354,15 +422,16 @@ function ManagerPromotions() {
                   </tr>
                 </thead>
                 <tbody>
-                  {rows.map((offer) => (
+                  {visibleRows.map((offer) => (
                     <tr key={offer.id}>
                       {coupon && <td>{offer.CouponName}</td>}
                       <td>{offer.CategoryName}</td>
                       <td>${Number(offer.DiscountAmount).toFixed(2)} off</td>
-                      <td>{new Date(offer.startsAt).toLocaleString()}</td>
-                      <td>{new Date(offer.endsAt).toLocaleString()}</td>
+                      <td>{formatDate(offer.startsAt)}</td>
+                      <td>{formatDate(offer.endsAt)}</td>
                       <td>{getOfferStatus(offer)}</td>
                       <td>
+                        <div className="promotion-actions">
                         <button
                           disabled={saving}
                           onClick={() => openEditor(offer)}
@@ -375,20 +444,21 @@ function ManagerPromotions() {
                         >
                           Delete
                         </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
                   {!rows.length && (
                     <tr>
                       <td colSpan={coupon ? 7 : 6}>
-                        No {filter === "All" ? "" : `${filter.toLowerCase()} `}
-                        {coupon ? "coupons" : "sales"} to display.
+                        No {coupon ? "coupons" : "sales"} match your search or filters.
                       </td>
                     </tr>
                   )}
                 </tbody>
               </table>
             </div>
+            {renderPagination("bottom")}
           </>
         )}
       </main>

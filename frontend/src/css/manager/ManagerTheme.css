@@ -1,11 +1,13 @@
+html:has(.manager-theme),
+body:has(.manager-theme){
+  background-color: #202020;
+}
+
 .manager-theme {
+  display: flow-root;
   min-height: 100vh;
   background: #202020;
   color: #fff;
-  color-scheme: dark;
-  --code-bg: #181818;
-  --text-h: #fff;
-  --border: #444;
 }
 
 .manager-theme h1,

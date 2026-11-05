@@ -12,9 +12,17 @@ router.get('/summary', async (req, res) => {
         const minPoints = req.query.minPoints;
 
         const [rows] = await pool.query(
-            `SELECT *
-             FROM report_loyalty_summary
-             WHERE TotalPointsEarned >= ?`,
+            `SELECT summary.*,
+                    COALESCE(savings.couponSavings, 0) AS couponSavings
+             FROM report_loyalty_summary AS summary
+             LEFT JOIN (
+                 SELECT used.CustomerID, SUM(coupon.DiscountAmount) AS couponSavings
+                 FROM UsedCoupons AS used
+                 JOIN Coupons AS coupon ON coupon.CouponID = used.CouponID
+                 WHERE used.Used = TRUE
+                 GROUP BY used.CustomerID
+             ) AS savings ON savings.CustomerID = summary.CustomerID
+             WHERE summary.TotalPointsEarned >= ?`,
             [minPoints || 0]
         );
 

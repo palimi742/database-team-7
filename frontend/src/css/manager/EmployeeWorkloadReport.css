@@ -1,23 +1,97 @@
-.employee-workload-report .sales-report-form {
-  margin-top: 1rem;
+.employee-workload-report h1 {
+  margin: 0 0 0.75rem;
+  font-size: 2rem;
 }
-.employee-workload-report .sales-summary-card {
-  border-color: var(--border);
+
+.employee-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 1.5rem 0;
 }
-.employee-workload-report .employee-report-table {
+
+.employee-summary-card {
+  flex: 1 1 10rem;
+  padding: 1rem;
+  border: 0.0625rem solid #555;
+  border-radius: 0.5rem;
+  background: #292929;
+}
+
+.employee-summary-card h2 {
+  margin: 0 0 0.75rem;
+  font-size: 0.95rem;
+}
+
+.employee-summary-card p {
+  color: #33ff77;
+  font-size: 1.75rem;
+  font-weight: 600;
+}
+
+.employee-report-section {
+  margin-top: 2rem;
+}
+
+.employee-report-section h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.3rem;
+}
+
+.employee-report-note {
+  margin-bottom: 0.75rem;
+  color: #bbb;
+  font-size: 0.9rem;
+}
+
+.employee-hire-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.employee-hire-filters label {
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+.employee-hire-filters input {
+  padding: 0.5em;
+  font: inherit;
+  color-scheme: dark;
+}
+
+.employee-workload-report .employee-hire-filters button {
+  margin: 0;
+  padding: 0.5em 1em;
+}
+
+.employee-report-table {
   overflow-x: auto;
-  margin-bottom: 1.5rem;
+  border: 0.0625rem solid #444;
+  border-radius: 0.5rem;
 }
-.employee-workload-report table {
+
+.employee-report-table table {
   width: 100%;
 }
-.employee-workload-report th {
-  background: var(--code-bg);
-  color: var(--text-h);
-}
+
+.employee-workload-report th,
 .employee-workload-report td {
-  border-bottom: 1px solid var(--border);
+  padding: 0.65em 0.85em;
+  font-size: 0.9rem;
 }
+
+.employee-workload-report th {
+  background: #333;
+}
+
+.employee-workload-report td {
+  border-bottom: 0.0625rem solid #444;
+}
+
 .employee-workload-report [role="alert"] {
-  color: #dc6666;
+  color: #ff8a8a;
 }

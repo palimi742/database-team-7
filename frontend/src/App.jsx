@@ -1,5 +1,5 @@
 import "./css/App.css";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import Login from "./pages/auth/Login";
 import StaffLogin from "./pages/auth/StaffLogin";
 import EmployeeDashboard from "./pages/employee/EmployeeDashboard";
@@ -31,6 +31,12 @@ import Receipt from "./pages/customer/receipt";
 import ReturnRequest from "./pages/customer/return_request";
 
 function App() {
+  const { pathname } = useLocation();
+  const isManagerPage =
+    pathname === "/manager" ||
+    pathname.startsWith("/manager/") ||
+    pathname === "/manager-coupon-sales";
+
   return (
     <>
       <div className="app-content">
@@ -121,7 +127,7 @@ function App() {
           <Route path="/return-request" element={<ReturnRequest />} />
         </Routes>
       </div>
-      <Footer />
+      {!isManagerPage && <Footer />}
     </>
   );
 }

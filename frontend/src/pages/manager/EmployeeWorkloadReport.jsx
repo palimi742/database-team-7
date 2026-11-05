@@ -2,7 +2,6 @@ import { managerFetch } from "../../api.js";
 import { useEffect, useState } from "react";
 import ManagerSidebar from "../../components/layout/ManagerSidebar";
 import "../../css/manager/ManagerDashboard.css";
-import "../../css/manager/SalesPerformanceReport.css";
 import "../../css/manager/EmployeeWorkloadReport.css";
 
 function dateInput(date) {
@@ -19,6 +18,12 @@ function dateInput(date) {
   return year + "-" + month + "-" + day;
 }
 
+function formatHireDate(value) {
+  if (!value) return "";
+  const parts = value.split("-");
+  return parts[1] + "/" + parts[2] + "/" + parts[0];
+}
+
 function EmployeeTable({ employees, empty }) {
   return (
     <div className="employee-report-table">
@@ -29,7 +34,7 @@ function EmployeeTable({ employees, empty }) {
             <th>Role</th>
             <th>Hire date</th>
             <th>Pay rate</th>
-            <th>Scheduled hours / week</th>
+            <th>Hours / week</th>
           </tr>
         </thead>
         <tbody>
@@ -39,7 +44,7 @@ function EmployeeTable({ employees, empty }) {
                 {employee.FirstName} {employee.LastName}
               </td>
               <td>{employee.EmployeeRole}</td>
-              <td>{employee.EmployeeHireDate}</td>
+              <td>{formatHireDate(employee.EmployeeHireDate)}</td>
               <td>${Number(employee.EmployeePay).toFixed(2)}</td>
               <td>{Number(employee.WeeklyHours).toFixed(2)}</td>
             </tr>
@@ -96,8 +101,31 @@ export default function EmployeeWorkloadReport() {
           Employee counts and pay cover all employees. Recent hires default to
           the last 30 days.
         </p>
+        {error && <p role="alert">{error}</p>}
+        {loading && <p role="status">Loading employee report...</p>}
+        {report && (
+          <div className="employee-summary">
+            {[
+              ["Employees", report.employeeCount],
+              ["Average pay rate", "$" + Number(report.averageSalary).toFixed(2)],
+              ["Highest pay rate", "$" + Number(report.highestSalary).toFixed(2)],
+              ["Scheduled hours / week", Number(report.weeklyHours).toFixed(2)],
+              ["Recent hires", report.recentHires.length],
+            ].map(([label, value]) => (
+              <div className="employee-summary-card" key={label}>
+                <h2>{label}</h2>
+                <p>{value}</p>
+              </div>
+            ))}
+          </div>
+        )}
+        <section className="employee-report-section" aria-labelledby="recent-hires-title">
+          <h2 id="recent-hires-title">Recent hires</h2>
+          <p className="employee-report-note">
+            Hire-date filters apply only to Recent hires and its summary count.
+          </p>
         <form
-          className="sales-report-form"
+          className="employee-hire-filters"
           onSubmit={(event) => {
             event.preventDefault();
             load(dates);
@@ -133,52 +161,27 @@ export default function EmployeeWorkloadReport() {
             {loading ? "Loading..." : "Run report"}
           </button>
         </form>
-        {error && <p role="alert">{error}</p>}
-        {loading && <p role="status">Loading employee report...</p>}
+          {!loading && !error && report && (
+            <>
+              <p className="employee-report-note">
+                Hired from {formatHireDate(report.hiredSince)} through {formatHireDate(report.asOf)}
+              </p>
+              <EmployeeTable
+                employees={report.recentHires}
+                empty="No employees hired in this date range."
+              />
+            </>
+          )}
+        </section>
         {!loading && !error && report && (
-          <>
-            <div className="sales-summary">
-              {[
-                ["Employees", report.employeeCount],
-                [
-                  "Average salary / pay rate",
-                  "$" + Number(report.averageSalary).toFixed(2),
-                ],
-                [
-                  "Highest salary / pay rate",
-                  "$" + Number(report.highestSalary).toFixed(2),
-                ],
-                [
-                  "Scheduled hours / week",
-                  Number(report.weeklyHours).toFixed(2),
-                ],
-                ["Recent hires", report.recentHires.length],
-              ].map(([label, value]) => (
-                <div className="sales-summary-card" key={label}>
-                  <h2>{label}</h2>
-                  <p>{value}</p>
-                </div>
-              ))}
-            </div>
-            <p>
-              Pay uses the stored EmployeePay rate; no annual salary conversion
-              is applied. Hours come from weekly work schedules, including
-              overnight shifts. Actual hours worked are unavailable because
-              time-clock records are not stored.
+          <section className="employee-report-section" aria-labelledby="all-employees-title">
+            <h2 id="all-employees-title">All employees and weekly hours</h2>
+            <p className="employee-report-note">
+              Pay reflects stored pay rates. Hours reflect weekly schedules,
+              including overnight shifts, rather than actual hours worked.
             </p>
-            <h2>
-              Recently hired: {report.hiredSince} through {report.asOf}
-            </h2>
-            <EmployeeTable
-              employees={report.recentHires}
-              empty="No employees hired in this date range."
-            />
-            <h2>All employees and weekly hours</h2>
-            <EmployeeTable
-              employees={report.employees}
-              empty="No employees to display."
-            />
-          </>
+            <EmployeeTable employees={report.employees} empty="No employees to display." />
+          </section>
         )}
       </main>
     </div>

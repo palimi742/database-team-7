@@ -1,0 +1,107 @@
+.loyalty-chart {
+  height: 18rem;
+  min-width: 0;
+}
+
+.customer-loyalty-report h1 {
+  margin: 0 0 1rem;
+  font-size: 2rem;
+}
+
+.customer-loyalty-report h2 {
+  margin: 1.5rem 0 1rem;
+  font-size: 1.3rem;
+}
+
+.customer-loyalty-report .report-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.report-filters label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.customer-loyalty-report .report-filters input,
+.customer-loyalty-report .report-filters select {
+  box-sizing: border-box;
+  padding: 0.5em;
+  font: inherit;
+  color-scheme: dark;
+}
+
+.customer-loyalty-report .report-filters button {
+  margin: 0;
+  padding: 0.5em 1em;
+}
+
+/* Summary cards */
+.loyalty-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.loyalty-summary .report-summary-card {
+  flex: 1 1 12rem;
+  padding: 1rem;
+  background: #292929;
+  border: 0.0625rem solid #444;
+  border-radius: 0.5rem;
+}
+
+.report-summary-card h3 {
+  margin: 0 0 0.75rem;
+  font-size: 0.95rem;
+}
+
+.report-summary-card p {
+  margin: 0;
+  color: #03f00f;
+  font-size: 1.75rem;
+  font-weight: 600;
+}
+
+.loyalty-top-customers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.loyalty-top-customers > div {
+  flex: 1 1 24rem;
+  min-width: 0;
+}
+
+/* Tables */
+.loyalty-table {
+  overflow-x: auto;
+}
+
+.loyalty-table table {
+  width: 100%;
+}
+
+.customer-loyalty-report th,
+.customer-loyalty-report td {
+  padding: 0.65em 0.85em;
+  font-size: 0.9rem;
+}
+
+.customer-loyalty-report th {
+  background: #292929;
+}
+
+.customer-loyalty-report td {
+  border-bottom: 0.0625rem solid #383838;
+}
+.loyalty-savings-note {
+  margin-bottom: 0.75rem;
+  color: #bbb;
+  font-size: 0.9rem;
+}
