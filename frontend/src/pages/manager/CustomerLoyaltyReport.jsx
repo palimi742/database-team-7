@@ -17,18 +17,18 @@ function CustomerLoyaltyReport() {
   const [minPoints, setMinPoints] = useState("0");
   const [joinedAfter, setJoinedAfter] = useState("");
   const [joinedBefore, setJoinedBefore] = useState("");
-  const [appliedMinPoints, setAppliedMinPoints] = useState("0");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [appliedJoinedAfter, setAppliedJoinedAfter] = useState("");
   const [appliedJoinedBefore, setAppliedJoinedBefore] = useState("");
 
   const filteredCustomers = summary.filter((customer) => {
-    const joinedDate = new Date(customer.DateJoined);
+    const joinedDate = String(customer.DateJoined || "").slice(0, 10);
 
-    if (joinedAfter && joinedDate < new Date(joinedAfter)) {
+    if (appliedJoinedAfter && joinedDate < appliedJoinedAfter) {
       return false;
     }
-
-    if (joinedBefore && joinedDate > new Date(joinedBefore)) {
+    if (appliedJoinedBefore && joinedDate > appliedJoinedBefore) {
       return false;
     }
 
@@ -49,18 +49,35 @@ function CustomerLoyaltyReport() {
     .slice(0, 5);
 
   async function loadSummary() {
+    setError("");
+    if (joinedAfter && joinedBefore && joinedAfter > joinedBefore) {
+      setError("Joined after must be on or before Joined before.");
+      return;
+    }
+    if (!Number.isSafeInteger(Number(minPoints)) || Number(minPoints) < 0) {
+      setError("Minimum points must be a whole number of zero or more.");
+      return;
+    }
+    setLoading(true);
     try {
       const res = await managerFetch(
         `/api/reports/loyalty/summary?minPoints=${minPoints}`,
       );
       const data = await res.json();
 
-      setAppliedMinPoints(minPoints);
+      if (!res.ok) {
+        throw new Error(data.message || "Unable to load loyalty report.");
+      }
+      if (!Array.isArray(data)) {
+        throw new Error("Unable to load loyalty report. Please try again.");
+      }
       setAppliedJoinedAfter(joinedAfter);
       setAppliedJoinedBefore(joinedBefore);
       setSummary(data);
     } catch (err) {
-      console.error("Error loading loyalty summary:", err);
+      setError(err.message || "Unable to load loyalty report.");
+    } finally {
+      setLoading(false);
     }
   }
   useEffect(() => {
@@ -74,13 +91,17 @@ function CustomerLoyaltyReport() {
         <h1>Customer Loyalty and Rewards Report</h1>
         <h2>Loyalty Program Overview</h2>
 
-        <div className="report-filters">
+        <form className="report-filters" onSubmit={(event) => {
+          event.preventDefault();
+          loadSummary();
+        }}>
           <label htmlFor="minPoints">
             Minimum Points Earned
             <input
               id="minPoints"
               type="number"
               min="0"
+              disabled={loading}
               value={minPoints}
               onChange={(e) => setMinPoints(e.target.value)}
             />
@@ -90,6 +111,7 @@ function CustomerLoyaltyReport() {
             Joined after:
             <input
               type="date"
+              disabled={loading}
               value={joinedAfter}
               onChange={(e) => setJoinedAfter(e.target.value)}
             />
@@ -99,6 +121,7 @@ function CustomerLoyaltyReport() {
             Joined before:
             <input
               type="date"
+              disabled={loading}
               value={joinedBefore}
               onChange={(e) => setJoinedBefore(e.target.value)}
             />
@@ -106,9 +129,15 @@ function CustomerLoyaltyReport() {
 
 
 
-          <button onClick={loadSummary}>Generate Report</button>
-        </div>
+          <button type="submit" disabled={loading}>
+            {loading ? "Loading..." : "Generate Report"}
+          </button>
+        </form>
+        {error && <p role="alert">{error}</p>}
+        {loading && <p role="status">Loading loyalty report...</p>}
 
+        {!loading && !error && (
+        <>
         <div className="loyalty-summary">
           <div className="report-summary-card">
             <h3>Total Loyalty Members</h3>
@@ -234,6 +263,8 @@ function CustomerLoyaltyReport() {
             </tbody>
           </table>
         </div>
+        </>
+        )}
       </div>
     </div>
   );

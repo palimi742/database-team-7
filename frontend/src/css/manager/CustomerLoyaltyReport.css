@@ -105,3 +105,12 @@
   color: #bbb;
   font-size: 0.9rem;
 }
+
+.manager-main-dashboard.customer-loyalty-report [role="alert"] {
+  margin: 1rem 0;
+  color: #ff8a8a;
+}
+
+.customer-loyalty-report [role="status"] {
+  margin: 1rem 0;
+}

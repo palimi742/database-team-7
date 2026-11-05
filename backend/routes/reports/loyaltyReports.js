@@ -10,7 +10,10 @@ router.get('/test', (req, res) => {
 
 router.get('/summary', async (req, res) => {
     try {
-        const minPoints = req.query.minPoints;
+        const minPoints = Number(req.query.minPoints ?? 0);
+        if (!Number.isSafeInteger(minPoints) || minPoints < 0) {
+            return res.status(400).json({ message: 'Minimum points must be a whole number of zero or more.' });
+        }
 
         const [rows] = await pool.query(
             `SELECT summary.*,
