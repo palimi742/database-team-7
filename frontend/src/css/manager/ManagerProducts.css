@@ -1,0 +1,104 @@
+.product-search {
+  width: 100%;
+  max-width: 28rem;
+  margin: 0.5rem 0 1.5rem;
+}
+
+.product-search label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.product-search input {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0.75em 1em;
+  border: 0.0625rem solid #666;
+  border-radius: 0.5rem;
+  background: #2c2c2c;
+  color: #fff;
+  font: inherit;
+}
+
+.product-search input::placeholder {
+  color: #bbb;
+}
+
+.product-search input:focus-visible {
+  outline: 0.125rem solid #a8cfb5;
+  outline-offset: 0.125rem;
+}
+
+.product-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.product-filters label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.manager-main-dashboard .product-filters select {
+  max-width: 100%;
+  padding: 0.65em 1em;
+  border: 0.0625rem solid #666;
+  border-radius: 0.5rem;
+  background: #2c2c2c;
+  color: #fff;
+  font: inherit;
+}
+
+.product-filters select:focus-visible {
+  outline: 0.125rem solid #a8cfb5;
+  outline-offset: 0.125rem;
+}
+
+.product-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.65rem 0;
+  font-size: 0.75rem;
+  line-height: 1.2;
+}
+
+.product-pagination nav {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.manager-main-dashboard .product-pagination button {
+  box-sizing: border-box;
+  width: 6em;
+  height: 2em;
+  border: 0.0625rem solid transparent;
+  margin: 0;
+  padding: 0.25em 0.45em;
+  border-radius: 0.25rem;
+  font: inherit;
+}
+
+.manager-main-dashboard .product-pagination button:disabled {
+  background: #e6e6e6;
+  color: #555;
+  opacity: 1;
+  cursor: not-allowed;
+}
+
+.manager-main-dashboard .product-pagination select {
+  padding: 0.2em 0.35em;
+  border: 0.0625rem solid #666;
+  border-radius: 0.5rem;
+  background: #2c2c2c;
+  color: #fff;
+  font: inherit;
+}

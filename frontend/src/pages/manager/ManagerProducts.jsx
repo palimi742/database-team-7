@@ -5,14 +5,20 @@ import DeleteProductModal from "../../components/products/DeleteProductModal";
 import InsertProductModal from "../../components/products/InsertProductModal";
 import EditProductModal from "../../components/products/EditProductModal";
 import "../../css/manager/ManagerDashboard.css";
+import "../../css/manager/ManagerProducts.css";
 
 function ManagerProducts() {
   const [error, setError] = useState("");
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const [search, setSearch] = useState("");
   const [activeModal, setActiveModal] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("active");
+
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   async function loadProducts() {
     setError("");
@@ -24,6 +30,7 @@ function ManagerProducts() {
         throw new Error("failed to load products");
       }
       setProducts(data);
+      setPage(1);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -34,9 +41,12 @@ function ManagerProducts() {
   async function restoreProduct(product) {
     setError("");
     try {
-      const res = await managerFetch(`/api/products/${product.InventoryID}/restore`, {
-        method: "PATCH",
-      });
+      const res = await managerFetch(
+        `/api/products/${product.InventoryID}/restore`,
+        {
+          method: "PATCH",
+        },
+      );
       const data = await res.json();
 
       if (!res.ok) {
@@ -61,6 +71,87 @@ function ManagerProducts() {
     setSelectedProduct(null);
   }
 
+  const categories = [];
+
+  for (const product of products) {
+    const alreadyAdded = categories.some(
+      (category) => category.id === String(product.CategoryID),
+    );
+
+    if (!alreadyAdded) {
+      categories.push({
+        id: String(product.CategoryID),
+        name: product.CategoryName,
+      });
+    }
+  }
+
+  const searchInput = search.trim().toLowerCase();
+  const filteredProducts = products.filter((product) => {
+    const matchesSearch =
+      product.InventoryName.toLowerCase().includes(searchInput) ||
+      product.SKU.toLowerCase().includes(searchInput);
+
+    const matchesCategory =
+      categoryFilter === "all" ||
+      String(product.CategoryID) === categoryFilter;
+
+    const isActive = Number(product.IsActive) === 1;
+
+    const matchesStatus =
+      statusFilter === "all" ||
+      (statusFilter === "active" && isActive) ||
+      (statusFilter === "inactive" && !isActive);
+
+    return matchesSearch && matchesCategory && matchesStatus;
+  });
+
+  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const startIndex = (currentPage - 1) * pageSize;
+  const visibleProducts = filteredProducts.slice(startIndex, startIndex + pageSize);
+
+  function renderPagination(position) {
+    return (
+          <div className="product-pagination">
+            <label htmlFor={`products-per-page-${position}`}>
+              Products per page{" "}
+              <select
+                id={`products-per-page-${position}`}
+                value={pageSize}
+                onChange={(event) => {
+                  setPageSize(Number(event.target.value));
+                  setPage(1);
+                }}
+              >
+                <option value={10}>10</option>
+                <option value={25}>25</option>
+              </select>
+            </label>
+            <span aria-live="polite">
+              Showing {filteredProducts.length === 0 ? 0 : startIndex + 1}–{Math.min(startIndex + pageSize, filteredProducts.length)} of {filteredProducts.length} products
+            </span>
+            <nav aria-label={`Product pages ${position}`}>
+              <button
+                type="button"
+                disabled={currentPage === 1}
+                onClick={() => setPage(currentPage - 1)}
+              >
+                Previous
+              </button>
+              <span>Page {currentPage} of {totalPages}</span>
+              <button
+                type="button"
+                disabled={currentPage === totalPages}
+                onClick={() => setPage(currentPage + 1)}
+              >
+                Next
+              </button>
+            </nav>
+          </div>
+    );
+  }
+
   return (
     <div>
       <ManagerSidebar />
@@ -69,11 +160,51 @@ function ManagerProducts() {
         <button type="button" onClick={() => openModal("insert")}>
           Add Product
         </button>
-
+        <div className="product-search">
+          <label htmlFor="product-search">Search Product</label>
+          <input
+            id="product-search"
+            type="search"
+            placeholder="Search by name or SKU"
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+          />
+        </div>
+        <div className="product-filters">
+          <div>
+            <label htmlFor="product-category">Category</label>
+            <select
+              id="product-category"
+              value={categoryFilter}
+              onChange={(event) => { setCategoryFilter(event.target.value); setPage(1); }}
+            >
+              <option value="all">All categories</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label htmlFor="product-status">Status</label>
+            <select
+              id="product-status"
+              value={statusFilter}
+              onChange={(event) => { setStatusFilter(event.target.value); setPage(1); }}
+            >
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+              <option value="all">All</option>
+            </select>
+          </div>
+        </div>
         {loading && <p>Loading products...</p>}
         {error && <p role="alert">{error}</p>}
 
         {!loading && !error && (
+          <>
+          {renderPagination("top")}
           <table>
             <thead>
               <tr>
@@ -85,7 +216,7 @@ function ManagerProducts() {
               </tr>
             </thead>
             <tbody>
-              {products.map((product) => (
+              {visibleProducts.map((product) => (
                 <tr key={product.InventoryID}>
                   <td>{product.SKU}</td>
                   <td>{product.InventoryName}</td>
@@ -117,13 +248,15 @@ function ManagerProducts() {
                 </tr>
               ))}
 
-              {products.length === 0 && (
+              {filteredProducts.length === 0 && (
                 <tr>
-                  <td colSpan={5}>No products to display</td>
+                  <td colSpan={5}>No products match your search or filters.</td>
                 </tr>
               )}
             </tbody>
           </table>
+          {renderPagination("bottom")}
+          </>
         )}
         {activeModal === "delete" && (
           <DeleteProductModal
