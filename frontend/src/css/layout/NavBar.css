@@ -25,6 +25,7 @@
   gap: 0.3em;
   justify-self: start;
   font-size: 1.2rem;
+  white-space: nowrap;
 }
 
 .receipt-svg {
@@ -88,7 +89,7 @@
   cursor: pointer;
 }
 
-@media (max-width: 700px) {
+@media (max-width: 1000px) {
   .navbar {
     grid-template-columns: 1fr 1fr;
     gap: 0.75em;
@@ -112,7 +113,7 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 4em;
+  gap: 0.75em;
   min-width: 0;
 }
 
@@ -120,6 +121,7 @@
   padding: 0.4em;
   border-radius: 0.35em;
   font-size: 1.2rem;
+  white-space: nowrap;
 }
 
 .savings-link:hover {

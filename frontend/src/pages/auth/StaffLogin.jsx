@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import Navbar from "../../components/layout/Navbar";
 import PasswordInput from "../../components/auth/PasswordInput";
 import "../../css/auth/CustomerLogin.css";
@@ -9,6 +9,23 @@ function StaffLogin({ loginType = "employee" }) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const notice = searchParams.get("notice");
+  const showNotice = loginType === "admin" &&
+    ["manager-required", "signin-required"].includes(notice);
+  const noticeDialog = useRef(null);
+
+  useEffect(() => {
+    if (showNotice && noticeDialog.current && !noticeDialog.current.open) {
+      noticeDialog.current.showModal();
+    }
+  }, [showNotice]);
+
+  function dismissNotice() {
+    const params = new URLSearchParams(searchParams);
+    params.delete("notice");
+    setSearchParams(params, { replace: true });
+  }
 
   async function handleLogin(event) {
     event.preventDefault();
@@ -41,6 +58,21 @@ function StaffLogin({ loginType = "employee" }) {
   return (
     <>
       <Navbar />
+      {showNotice && (
+        <dialog ref={noticeDialog} className="staff-access-dialog"
+          aria-labelledby="staff-access-title" aria-describedby="staff-access-description"
+          onCancel={event => { event.preventDefault(); dismissNotice(); }}>
+          <h2 id="staff-access-title">
+            {notice === "manager-required" ? "Manager access required" : "Sign in required"}
+          </h2>
+          <p id="staff-access-description">
+            {notice === "manager-required"
+              ? "Please sign in with an active manager account to view this information."
+              : "You’re signed out or your session has expired. Please sign in to continue."}
+          </p>
+          <button type="button" autoFocus onClick={dismissNotice}>Continue to sign in</button>
+        </dialog>
+      )}
       <main>
         <form className="login-form staff-login-form" onSubmit={handleLogin}>
           <h1>{loginType === "admin" ? "Manager Login" : "Employee Login"}</h1>

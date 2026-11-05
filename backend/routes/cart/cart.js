@@ -1,5 +1,5 @@
 import express from "express";
-import { readCustomerSession } from "../../auth/customerSession.js";
+import { activeCustomerId } from "../../auth/requireCustomer.js";
 
 export default function (pool) {
   const router = express.Router();
@@ -9,8 +9,8 @@ export default function (pool) {
     Promise.resolve(fn(req, res, next)).catch(next);
 
   //return logged-in person's CustomerID, or null.
-  async function getCustomerId(req) {
-    return readCustomerSession(req);
+  async function getCustomerId(req, res) {
+    return activeCustomerId(req, res, pool);
   }
 
   // the EmployeeID that online orders are assigned to at first.
@@ -25,7 +25,8 @@ export default function (pool) {
 
   router.use(
     ah(async (req, res, next) => {
-      req.customerId = await getCustomerId(req);
+      req.customerId = await getCustomerId(req, res);
+      res.set("Cache-Control", "no-store");
       next();
     }),
   );

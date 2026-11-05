@@ -1,3 +1,4 @@
+import { managerFetch } from "../../api.js";
 import { useEffect, useState } from "react";
 import {
   ResponsiveContainer,
@@ -51,7 +52,7 @@ function CustomerLoyaltyReport() {
 
   async function loadSummary() {
     try {
-      const res = await fetch(
+      const res = await managerFetch(
         `/api/reports/loyalty/summary?minPoints=${minPoints}`,
       );
       const data = await res.json();
@@ -67,7 +68,7 @@ function CustomerLoyaltyReport() {
   }
   async function loadLocations() {
     try {
-      const res = await fetch("/api/reports/loyalty/locations");
+      const res = await managerFetch("/api/reports/loyalty/locations");
       const data = await res.json();
       setLocations(data);
     } catch (err) {

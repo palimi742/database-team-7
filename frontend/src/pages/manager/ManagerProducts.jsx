@@ -1,3 +1,4 @@
+import { managerFetch } from "../../api.js";
 import { useEffect, useState } from "react";
 import ManagerSidebar from "../../components/layout/ManagerSidebar";
 import DeleteProductModal from "../../components/products/DeleteProductModal";
@@ -16,7 +17,7 @@ function ManagerProducts() {
   async function loadProducts() {
     setError("");
     try {
-      const res = await fetch("/api/products");
+      const res = await managerFetch("/api/products");
       const data = await res.json();
 
       if (!res.ok) {
@@ -33,7 +34,7 @@ function ManagerProducts() {
   async function restoreProduct(product) {
     setError("");
     try {
-      const res = await fetch(`/api/products/${product.InventoryID}/restore`, {
+      const res = await managerFetch(`/api/products/${product.InventoryID}/restore`, {
         method: "PATCH",
       });
       const data = await res.json();

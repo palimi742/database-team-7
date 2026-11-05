@@ -1,3 +1,4 @@
+import { managerFetch } from "../../api.js";
 import { useEffect, useState } from "react";
 import ManagerSidebar from "../../components/layout/ManagerSidebar";
 import "../../css/manager/ManagerDashboard.css";
@@ -30,9 +31,9 @@ function ManagerPromotions() {
     setLoading(true);
     try {
       const responses = await Promise.all([
-        fetch("/api/manager/promotions/coupons"),
-        fetch("/api/manager/promotions/sales"),
-        fetch("/api/categories"),
+        managerFetch("/api/manager/promotions/coupons"),
+        managerFetch("/api/manager/promotions/sales"),
+        managerFetch("/api/categories"),
       ]);
       const data = await Promise.all(responses.map((res) => res.json()));
 
@@ -132,7 +133,7 @@ function ManagerPromotions() {
         method = "PUT";
       }
 
-      const res = await fetch(url, {
+      const res = await managerFetch(url, {
         method,
         headers: {
           "Content-Type": "application/json",
@@ -164,7 +165,7 @@ function ManagerPromotions() {
     setError("");
     setNotice("");
     try {
-      const res = await fetch(
+      const res = await managerFetch(
         `/api/manager/promotions/${type}/${deleting.id}`,
         {
           method: "DELETE",

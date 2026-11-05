@@ -2,7 +2,7 @@ import express from "express";
 import employeeLoginRoutes from "./routes/auth/employeeLogin.js";
 import employeeFulfillmentRoutes from "./routes/employees/employeeFulfillment.js";
 //add
-import returnRoutes from "./routes/returns.js"
+import returnRoutes from "./routes/returns.js";
 import customerRoutes from "./routes/auth/customers.js";
 import productRoutes from "./routes/products/products.js";
 import loyaltyRoutes from "./routes/loyalty.js";
@@ -23,18 +23,30 @@ import loyaltyReportRoutes from "./routes/reports/loyaltyReports.js";
 import inventoryReportRoutes from "./routes/reports/inventoryReports.js";
 import managePromotionRoutes from "./routes/promotions/managePromotions.js";
 import employeeWorkloadRoutes from "./routes/reports/employeeWorkload.js";
+import requireManager from "./routes/auth/requireManager.js";
 const app = express();
 
 app.use(express.json());
+app.use("/api/manager", requireManager);
+app.use("/api/reports", requireManager);
+app.use("/api/employees/unassigned", requireManager);
+app.use("/api/returns", requireManager);
+app.get("/api/manager/session", (req, res) => {
+  res.json({ employee: req.employee });
+});
 app.use("/api/manager/reports/employee-workload", employeeWorkloadRoutes);
 app.use("/api/manager/promotions", managePromotionRoutes);
 app.use("/api/employees", employeeLoginRoutes);
 app.use("/api/employee/fulfillment", employeeFulfillmentRoutes);
 //add
-app.use("/api/returns", returnRoutes)
+app.use("/api/returns", returnRoutes);
 app.use("/api/manager/orders", manageOrderRoutes);
 app.use("/api/customers", customerRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/products", (req, res, next) => {
+  if (["GET", "HEAD", "OPTIONS"].includes(req.method)) return next();
+  return requireManager(req, res, next);
+});
 app.use("/api/products", saveProductRoutes);
 app.use("/api/products", editProductRoutes);
 app.use("/api/products", deleteProductRoutes);

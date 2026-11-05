@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import pool from '../../db.js';
 
+import requireCustomer from "../../auth/requireCustomer.js";
+
 const router = Router();
 
 router.get('/', async (req, res) => {
@@ -25,9 +27,12 @@ router.get('/', async (req, res) => {
     }
 });
 
-router.get('/clipped/:customerID', async (req, res) => {
+router.get(['/clipped', '/clipped/:customerID'], requireCustomer, async (req, res) => {
     try {
-        const { customerID } = req.params;
+        const customerID = req.customerId;
+        if (req.params.customerID && req.params.customerID !== String(customerID)) {
+            return res.status(403).json({ message: 'You can only access your own coupons.' });
+        }
         const [rows] = await pool.query(
              `SELECT
                  c.CouponID,
@@ -54,12 +59,13 @@ router.get('/clipped/:customerID', async (req, res) => {
 
 
 
-router.post('/clip', async (req, res) => {
+router.post('/clip', requireCustomer, async (req, res) => {
 try{
-    const {customerID, couponID} = req.body;
-    if (!customerID || !couponID) {
+    const customerID = req.customerId;
+    const { couponID } = req.body || {};
+    if (!couponID) {
     return res.status(400).json({
-        message: 'Customer ID and coupon ID are required.'
+        message: 'Coupon ID is required.'
     });
 }
     const [existing] = await pool.query(

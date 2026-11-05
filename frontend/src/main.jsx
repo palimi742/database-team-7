@@ -4,13 +4,16 @@ import { BrowserRouter } from "react-router-dom";
 import "./css/index.css";
 import App from "./App.jsx";
 import { ShopProvider } from "./context/ShopContext.jsx";
+import CustomerSessionCheck from "./components/auth/CustomerSessionCheck.jsx";
 
 createRoot(document.getElementById("root")).render(
   <BrowserRouter>
     <StrictMode>
-      <ShopProvider>
-        <App />
-      </ShopProvider>
+      <CustomerSessionCheck>
+        <ShopProvider>
+          <App />
+        </ShopProvider>
+      </CustomerSessionCheck>
     </StrictMode>
   </BrowserRouter>,
 );

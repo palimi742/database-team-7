@@ -54,3 +54,37 @@
   background: #fbe9eb;
   border-color: #b74751;
 }
+
+.account-deactivate-section {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #ddd;
+}
+.account-deactivate-section p,
+.account-deactivate-dialog p { line-height: 1.6; }
+.account-page .account-deactivate-button {
+  background: #b42318;
+  color: #fff;
+}
+.account-deactivate-section .account-deactivate-button {
+  margin-top: 1rem;
+}
+.account-page .account-deactivate-button:hover { background: #912018; }
+.account-deactivate-dialog {
+  box-sizing: border-box;
+  width: min(30rem, calc(100vw - 3rem));
+  padding: 1.75rem;
+  border: 1px solid #ddd;
+  border-radius: 0.75rem;
+  background: #fff;
+  color: #263b2b;
+}
+.account-deactivate-dialog::backdrop { background: rgb(0 0 0 / 65%); }
+.account-deactivate-dialog h2 { margin-top: 0; }
+.account-deactivate-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 1.25rem;
+  margin-top: 2rem;
+}

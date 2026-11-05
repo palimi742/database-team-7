@@ -1,3 +1,4 @@
+import { managerFetch } from "../../api.js";
 import ManagerSidebar from "../../components/layout/ManagerSidebar";
 import "../../css/manager/ManagerDashboard.css";
 import "../../css/manager/SalesPerformanceReport.css";
@@ -83,7 +84,7 @@ function SalesPerformanceReport() {
     const startDate = formatDate(weekStart);
     const endDate = formatDate(weekEnd);
     try {
-      const res = await fetch(
+      const res = await managerFetch(
         `/api/manager/reports/sales-performance?startDate=${startDate}&endDate=${endDate}`,
       );
       const data = await res.json();

@@ -1,5 +1,11 @@
 export const LOGIN_URL = "/customer-login";
 
+export async function logoutStaff() {
+  await api("/api/employees/logout", "POST");
+  localStorage.removeItem("employee");
+  localStorage.removeItem("manager");
+}
+
 export async function api(url, method = "GET", body) {
   const response = await fetch(url, {
     method,
@@ -58,4 +64,15 @@ export function formatPhone(phoneNumber) {
   if (localNumber.length !== 10) return phoneNumber || "";
   const formattedNumber = `${localNumber.slice(0, 3)} ${localNumber.slice(3, 6)} ${localNumber.slice(6)}`;
   return hasCountryCode ? `+1 ${formattedNumber}` : formattedNumber;
+}
+
+// Manager pages share one access-denied notice, even for concurrent requests.
+export async function managerFetch(url, options) {
+  const response = await fetch(url, options);
+  if (response.status === 401 || response.status === 403) {
+    window.dispatchEvent(new CustomEvent("manager-access-denied", {
+      detail: response.status,
+    }));
+  }
+  return response;
 }

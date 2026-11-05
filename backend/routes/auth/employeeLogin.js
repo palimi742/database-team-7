@@ -1,5 +1,6 @@
 import { Router } from "express";
 import pool from "../../db.js";
+import { createStaffSession, clearStaffSession } from "../../auth/staffSession.js";
 
 const router = Router();
 
@@ -28,11 +29,19 @@ router.post("/login", async (req, res) => {
     if (loginType === "employee" && isManager) {
       return res.status(403).json({ message: "Please use Manager Login for this account." });
     }
+
+    createStaffSession(res, employees[0].EmployeeID);
     res.json({ message: "Signed in successfully.", employee: employees[0] });
   } catch (err) {
     console.error("Staff login failed:", err.message);
     res.status(500).json({ message: "Unable to sign in. Please try again." });
   }
+});
+
+router.post("/logout", (req, res) => {
+  res.set("Cache-Control", "no-store");
+  clearStaffSession(res);
+  res.json({ message: "Signed out successfully." });
 });
 
 export default router;

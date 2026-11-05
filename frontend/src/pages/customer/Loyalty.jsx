@@ -9,7 +9,7 @@ function Loyalty() {
   const [loyalty, setLoyalty] = useState(null);
   useEffect(() => {
     if (!customer) return;
-    fetch(`/api/loyalty/${customer.CustomerID}`)
+    fetch("/api/loyalty")
       .then(async (response) => {
         const data = await response.json();
         if (!response.ok)
@@ -31,9 +31,7 @@ function Loyalty() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          customerId: customer.CustomerID,
-        }),
+        body: JSON.stringify({}),
       });
 
       const data = await response.json();

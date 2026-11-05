@@ -1,10 +1,16 @@
 import { Router } from 'express';
 import pool from '../db.js';
 
-const router = Router();
+import requireCustomer from "../auth/requireCustomer.js";
 
-router.get('/:customerId', async(req, res) => {
-    const customerId = req.params.customerId;
+const router = Router();
+router.use(requireCustomer);
+
+router.get(['/', '/:customerId'], async(req, res) => {
+    const customerId = req.customerId;
+    if (req.params.customerId && req.params.customerId !== String(customerId)) {
+        return res.status(403).json({ message: 'You can only access your own rewards.' });
+    }
 
     const [rows] = await pool.query(
        'SELECT * from LoyaltyProgram WHERE CustomerID = ?',
@@ -23,12 +29,7 @@ router.get('/:customerId', async(req, res) => {
 
 router.post('/join', async(req,res) => {
     try{
-    const {customerId} = req.body;
-    if (!customerId) {
-    return res.status(400).json({
-        message: 'Customer ID is required'
-    });
-    }
+    const customerId = req.customerId;
     const[rows] = await pool.query(
         'SELECT LoyaltyProgramID FROM LoyaltyProgram WHERE CustomerID = ?',
         [customerId]

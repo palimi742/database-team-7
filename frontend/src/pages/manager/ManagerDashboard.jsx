@@ -1,3 +1,4 @@
+import { managerFetch } from "../../api.js";
 import { useEffect, useState } from "react";
 import ManagerSidebar from "../../components/layout/ManagerSidebar";
 import "../../css/manager/ManagerDashboard.css";
@@ -13,7 +14,7 @@ function ManagerDashboard() {
   async function loadEmployees() {
     setEmployeeError("");
     try {
-      const res = await fetch("/api/employees/unassigned");
+      const res = await managerFetch("/api/employees/unassigned");
       const data = await res.json();
 
       if (!res.ok) {
@@ -35,7 +36,7 @@ function ManagerDashboard() {
   async function loadOrders() {
     setOrderError("");
     try {
-      const res = await fetch("/api/manager/orders");
+      const res = await managerFetch("/api/manager/orders");
       const data = await res.json();
 
       if (!res.ok) {
@@ -115,7 +116,7 @@ function ManagerDashboard() {
     }
 
     try {
-      const res = await fetch(`/api/manager/orders/${orderID}/assign`, {
+      const res = await managerFetch(`/api/manager/orders/${orderID}/assign`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

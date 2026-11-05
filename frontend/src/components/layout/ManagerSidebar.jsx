@@ -1,12 +1,23 @@
 import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { logoutStaff } from "../../api.js";
 import "../../css/layout/ManagerSidebar.css";
 
 function ManagerSidebar() {
   const navigate = useNavigate();
-  function handleLogout() {
-    localStorage.removeItem("employee");
-    localStorage.removeItem("manager");
-    navigate("/manager/login", { replace: true });
+  const [signingOut, setSigningOut] = useState(false);
+  const [error, setError] = useState("");
+  async function handleLogout() {
+    setSigningOut(true);
+    setError("");
+    try {
+      await logoutStaff();
+      navigate("/manager/login", { replace: true });
+    } catch {
+      setError("Unable to sign out. Please try again.");
+    } finally {
+      setSigningOut(false);
+    }
   }
   return (
     <div className="manager-sidebar">
@@ -42,8 +53,9 @@ function ManagerSidebar() {
           </Link>
         </li>
       </ul>
-      <button className="manager-logout" type="button" onClick={handleLogout}>
-        Logout
+      {error && <p role="alert">{error}</p>}
+      <button className="manager-logout" type="button" onClick={handleLogout} disabled={signingOut}>
+        {signingOut ? "Signing out…" : "Logout"}
       </button>
     </div>
   );

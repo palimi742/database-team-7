@@ -88,3 +88,24 @@
 .manager-theme [role="status"] {
   color: #fff;
 }
+
+.manager-session-dialog {
+  width: min(28rem, calc(100vw - 3rem));
+  box-sizing: border-box;
+  padding: 1.75rem;
+  border: 1px solid #555;
+  border-radius: 0.75rem;
+  background: #292929;
+  color: #fff;
+}
+
+.manager-session-dialog::backdrop {
+  background: rgb(0 0 0 / 70%);
+}
+
+.manager-session-dialog h2 { margin-top: 0; }
+.manager-session-dialog p { line-height: 1.6; }
+.manager-session-dialog button {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+}

@@ -1,3 +1,4 @@
+import { managerFetch } from "../../api.js";
 import { useEffect, useState } from "react";
 import ManagerSidebar from "../../components/layout/ManagerSidebar";
 import "../../css/manager/ManagerDashboard.css";
@@ -67,7 +68,7 @@ export default function EmployeeWorkloadReport() {
     setLoading(true);
     setError("");
     try {
-      const response = await fetch(
+      const response = await managerFetch(
         `/api/manager/reports/employee-workload?${new URLSearchParams(filters)}`,
       );
       const data = await response.json();

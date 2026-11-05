@@ -3,19 +3,14 @@ import pool from "../../db.js";
 import {
   createCustomerSession,
   clearCustomerSession,
-  readCustomerSession,
 } from "../../auth/customerSession.js";
+
+import requireCustomer from "../../auth/requireCustomer.js";
 
 const router = Router();
 
 // Identity comes from the verified cookie, never a customer ID in the form.
-router.use("/profile", (req, res, next) => {
-  req.customerId = readCustomerSession(req);
-  if (!req.customerId) {
-    return res.status(401).json({ message: "Please sign in." });
-  }
-  next();
-});
+router.use("/profile", requireCustomer);
 
 router.get("/profile", async (req, res) => {
   const [rows] = await pool.query(
@@ -25,6 +20,17 @@ router.get("/profile", async (req, res) => {
   );
   if (!rows.length) return res.status(404).json({ message: "Customer not found." });
   res.json(rows[0]);
+});
+
+router.post("/profile/deactivate", async (req, res) => {
+  await pool.query(
+    `UPDATE CustomerAccounts SET AccountStatus = 'Inactive'
+     WHERE CustomerID = ?`,
+    [req.customerId],
+  );
+  clearCustomerSession(res);
+  res.set("Cache-Control", "no-store");
+  res.json({ message: "Your account is now inactive." });
 });
 
 router.put("/profile", async (req, res) => {
@@ -132,20 +138,29 @@ router.post("/login", async (req, res) => {
     }
 
     const [rows] = await pool.query(
-      "SELECT ca.CustomerID, ca.Username, c.FirstName, c.LastName FROM CustomerAccounts AS ca JOIN Customer AS c ON ca.CustomerID = c.CustomerID WHERE ca.Username = ? AND ca.Password = ? AND ca.AccountStatus = 'Active'",
+      "SELECT ca.CustomerID, ca.Username, ca.AccountStatus, c.FirstName, c.LastName FROM CustomerAccounts AS ca JOIN Customer AS c ON ca.CustomerID = c.CustomerID WHERE ca.Username = ? AND ca.Password = ?",
       [username, password],
     );
 
     if (rows.length == 0) {
       return res.status(401).json({
-        message: "No such user is found",
+        message: "Invalid username or password.",
       });
     }
 
-    createCustomerSession(res, rows[0].CustomerID);
+    if (rows[0].AccountStatus !== "Active") {
+      clearCustomerSession(res);
+      return res.status(403).json({
+        code: "ACCOUNT_INACTIVE",
+        message: "Your account is marked as inactive. Please contact FreshMart for assistance.",
+      });
+    }
+
+    const { AccountStatus, ...customer } = rows[0];
+    createCustomerSession(res, customer.CustomerID);
     return res.status(200).json({
       message: "Logged in succesfully",
-      customer: rows[0],
+      customer,
     });
   } catch (error) {
     console.error("Login Failed", error.message);

@@ -40,7 +40,7 @@ function Savings() {
         }
 
         const response = await fetch(
-          `/api/coupons/clipped/${customer.CustomerID}`,
+          "/api/coupons/clipped",
         );
         const data = await response.json();
 
@@ -73,7 +73,6 @@ function Savings() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          customerID: customer.CustomerID,
           couponID: couponID,
         }),
       });

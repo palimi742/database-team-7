@@ -1,3 +1,4 @@
+import { managerFetch } from "../../api.js";
 import { useEffect, useState } from "react";
 import ManagerSidebar from "../../components/layout/ManagerSidebar";
 import "../../css/manager/ManagerDashboard.css";
@@ -11,7 +12,7 @@ function ManagerReturns() {
   async function loadRequests() {
     setLoading(true);
     try {
-      const res = await fetch("/api/returns");
+      const res = await managerFetch("/api/returns");
       const data = await res.json();
 
       if (!res.ok) {
@@ -34,7 +35,7 @@ function ManagerReturns() {
     setError("");
     setSaving(true);
     try {
-      const res = await fetch(`/api/returns/${returnRequestId}/${decision}`, {
+      const res = await managerFetch(`/api/returns/${returnRequestId}/${decision}`, {
         method: "PATCH",
       });
       const data = await res.json();
