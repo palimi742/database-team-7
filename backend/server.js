@@ -42,6 +42,7 @@ app.use("/api/employee/fulfillment", employeeFulfillmentRoutes);
 app.use("/api/returns", returnRoutes);
 app.use("/api/manager/orders", manageOrderRoutes);
 app.use("/api/customers", customerRoutes);
+app.use("/api/manager/products", productRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/products", (req, res, next) => {
   if (["GET", "HEAD", "OPTIONS"].includes(req.method)) return next();

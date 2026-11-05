@@ -6,6 +6,7 @@ function InsertProductModal({ onClose, onSaved }) {
   const [categoryError, setCategoryError] = useState("");
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
+  const [fieldError, setFieldError] = useState(null);
 
   useEffect(() => {
     async function loadCategories() {
@@ -29,6 +30,7 @@ function InsertProductModal({ onClose, onSaved }) {
     const formData = new FormData(e.currentTarget);
     const product = Object.fromEntries(formData);
     setSaveError("");
+    setFieldError(null);
     setSaving(true);
 
     try {
@@ -42,6 +44,9 @@ function InsertProductModal({ onClose, onSaved }) {
       const data = await res.json();
 
       if (!res.ok) {
+        if (["sku", "name"].includes(data.field)) {
+          setFieldError({ field: data.field, message: data.message });
+        }
         throw new Error(data.message || "Unable to add product");
       }
 
@@ -58,14 +63,36 @@ function InsertProductModal({ onClose, onSaved }) {
     <div className="modal-overlay">
       <div className="product-modal">
         <h2>Add Product</h2>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} inert={saveError ? true : undefined}>
           <div>
             <label htmlFor="insert-sku">SKU</label>
-            <input id="insert-sku" name="sku" required />
+            <input
+              id="insert-sku"
+              name="sku"
+              required
+              aria-invalid={fieldError?.field === "sku"}
+              aria-describedby={fieldError?.field === "sku" ? "insert-sku-error" : undefined}
+            />
+            {fieldError?.field === "sku" && (
+              <p id="insert-sku-error" className="product-field-error">
+                {fieldError.message}
+              </p>
+            )}
           </div>
           <div>
             <label htmlFor="insert-name">Name</label>
-            <input id="insert-name" name="name" required />
+            <input
+              id="insert-name"
+              name="name"
+              required
+              aria-invalid={fieldError?.field === "name"}
+              aria-describedby={fieldError?.field === "name" ? "insert-name-error" : undefined}
+            />
+            {fieldError?.field === "name" && (
+              <p id="insert-name-error" className="product-field-error">
+                {fieldError.message}
+              </p>
+            )}
           </div>
           <div>
             <label htmlFor="insert-category">Category</label>
@@ -110,7 +137,6 @@ function InsertProductModal({ onClose, onSaved }) {
               required
             />
           </div>
-          {saveError && <p>{saveError}</p>}
 
           <button type="button" onClick={onClose} disabled={saving}>
             Cancel
@@ -119,6 +145,25 @@ function InsertProductModal({ onClose, onSaved }) {
             {saving ? "Saving..." : "Add Product"}
           </button>
         </form>
+          {saveError && (
+            <div className="product-error-modal">
+              <div className="product-error-text" role="alert">
+                <h2 className="product-error-title">
+                  Product could not be added
+                </h2>
+                <p className="product-error-message">{saveError}</p>
+                <button
+                  type="button"
+                  autoFocus
+                  onClick={() => {
+                    setSaveError("");
+                  }}
+                >
+                  Back to form
+                </button>
+              </div>
+            </div>
+          )}
       </div>
     </div>
   );

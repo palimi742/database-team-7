@@ -36,3 +36,53 @@
   padding: 0.444rem;
   box-sizing: border-box;
 }
+
+.product-error-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.product-error-text {
+  width: 100%;
+  max-width: 24rem;
+  padding: 1.5rem;
+  box-sizing: border-box;
+  border: 0.0625rem solid #666;
+  border-radius: 0.5rem;
+  background: #1c1d24;
+  color: #f3f4f6;
+}
+
+.product-error-title {
+  margin: 0 0 0.75rem;
+  font-size: 1.25rem;
+}
+
+.product-error-message {
+  margin: 0 0 1.25rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.product-error-text button {
+  padding: 0.6em 1em;
+  border: none;
+  border-radius: 0.3rem;
+  background: #f3f4f6;
+  color: #1c1d24;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.product-field-error {
+  margin: 0.35rem 0 0;
+  color: #ff8a8a;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}

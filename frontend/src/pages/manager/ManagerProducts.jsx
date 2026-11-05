@@ -17,7 +17,7 @@ function ManagerProducts() {
   async function loadProducts() {
     setError("");
     try {
-      const res = await managerFetch("/api/products");
+      const res = await managerFetch("/api/manager/products");
       const data = await res.json();
 
       if (!res.ok) {

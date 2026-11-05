@@ -21,6 +21,8 @@ router.get("/", async (req, res) => {
         Inventory.SKU,
         Inventory.InventoryName,
         Inventory.Price,
+        Inventory.StockQuantity,
+        Inventory.ReorderThreshold,
         Inventory.IsActive,
         Inventory.CategoryID,
         Category.CategoryName
@@ -30,9 +32,10 @@ router.get("/", async (req, res) => {
     `;
 
     const values = [];
+    sql += req.employee ? " WHERE 1 = 1" : " WHERE Inventory.IsActive = TRUE";
 
     if (categoryID !== undefined) {
-      sql += " WHERE Inventory.CategoryID = ?";
+      sql += " AND Inventory.CategoryID = ?";
       values.push(categoryID);
     }
 

@@ -101,7 +101,7 @@ export default function (pool) {
   async function getCartItems(db, cartId, forUpdate = false) {
     const [rows] = await db.query(
       `SELECT i.InventoryID AS productId, i.InventoryName AS name, i.Price AS price,
-              i.StockQuantity AS stock, cd.Quantity AS quantity,
+              i.StockQuantity AS stock, i.IsActive AS isActive, cd.Quantity AS quantity,
               i.Price * cd.Quantity AS lineTotal
        FROM CartDetail cd
        JOIN Inventory i ON i.InventoryID = cd.InventoryID
@@ -147,6 +147,7 @@ export default function (pool) {
               i.StockQuantity AS stock, c.CategoryName AS category
        FROM Inventory i
        JOIN Category c ON c.CategoryID = i.CategoryID
+       WHERE i.IsActive = TRUE
        ORDER BY c.CategoryName, i.InventoryName`,
       );
       res.json(rows);
@@ -197,7 +198,7 @@ export default function (pool) {
          FROM Inventory i
          LEFT JOIN CartDetail cd
            ON cd.InventoryID = i.InventoryID AND cd.CartID = ?
-         WHERE i.InventoryID = ?`,
+         WHERE i.InventoryID = ? AND i.IsActive = TRUE`,
         [req.cart.id, productId],
       );
       if (!product)
@@ -239,7 +240,7 @@ export default function (pool) {
         return res.json(await cartResponse(req.cart.id));
       }
       const [[product]] = await pool.query(
-        "SELECT StockQuantity FROM Inventory WHERE InventoryID = ?",
+        "SELECT StockQuantity FROM Inventory WHERE InventoryID = ? AND IsActive = TRUE",
         [req.params.productId],
       );
       if (!product)
@@ -342,6 +343,13 @@ export default function (pool) {
         if (items.length === 0) {
           await conn.rollback();
           return res.status(400).json({ error: "Your cart is empty." });
+        }
+        const unavailable = items.find((i) => !Number(i.isActive));
+        if (unavailable) {
+          await conn.rollback();
+          return res.status(400).json({
+            error: `"${unavailable.name}" is no longer available. Remove it from your cart to continue.`,
+          });
         }
         const short = items.find((i) => i.quantity > i.stock);
         if (short) {
