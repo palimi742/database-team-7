@@ -166,6 +166,10 @@ function CustomerLoyaltyReport() {
         </div>
 
         <h2>Loyalty Member Details</h2>
+        <p className="loyalty-savings-note">
+          Loyalty savings = points redeemed ÷ {summary[0]?.pointsPerRewardDollar || 50}.
+          Older sample redemptions are valued at this rate.
+        </p>
         <div className="loyalty-table">
           <table>
             <thead>
@@ -173,7 +177,8 @@ function CustomerLoyaltyReport() {
                 <th>Customer</th>
                 <th>Purchases</th>
                 <th>Total Spending</th>
-                <th>Estimated Coupon Savings</th>
+                <th>Average per Purchase</th>
+                <th>Loyalty Savings Used</th>
                 <th>Current Points</th>
                 <th>Points Earned</th>
                 <th>Points Redeemed</th>
@@ -185,50 +190,46 @@ function CustomerLoyaltyReport() {
                   <td>{customer.FirstName} {customer.LastName}</td>
                   <td>{customer.PurchaseCount}</td>
                   <td>${Number(customer.totalSpending || 0).toFixed(2)}</td>
-                  <td>${Number(customer.couponSavings || 0).toFixed(2)}</td>
+                  <td>{Number(customer.PurchaseCount) > 0
+                    ? "$" + (Number(customer.totalSpending || 0) / Number(customer.PurchaseCount)).toFixed(2)
+                    : "—"}</td>
+                  <td>${Number(customer.loyaltySavings || 0).toFixed(2)}</td>
                   <td>{customer.CurrentPoints}</td>
                   <td>{customer.TotalPointsEarned}</td>
                   <td>{customer.TotalPointsRedeemed}</td>
                 </tr>
               ))}
               {!filteredCustomers.length && (
-                <tr><td colSpan={7}>No members match these filters.</td></tr>
+                <tr><td colSpan={8}>No members match these filters.</td></tr>
               )}
             </tbody>
           </table>
         </div>
 
-        <h2>Customer Spending and Savings</h2>
+        <h2>Customer Coupon Usage</h2>
         <p className="loyalty-savings-note">
-          Estimated coupon savings add the current discount value of each coupon marked used.
-          Historical discount amounts, seasonal-sale savings, and reward savings are not recorded,
-          so this is not total lifetime savings. Editing coupon discounts can change this estimate.
+          Estimated coupon savings use the current discount values of coupons marked used.
+          Loyalty rewards and seasonal-sale savings are excluded.
         </p>
         <div className="loyalty-table">
           <table>
             <thead>
               <tr>
                 <th>Customer</th>
-                <th>Total Spent</th>
+                <th>Coupons Used</th>
                 <th>Estimated Coupon Savings</th>
-                <th>Average per Purchase</th>
               </tr>
             </thead>
             <tbody>
-              {customersBySpending.map((customer) => {
-                const spent = Number(customer.totalSpending || 0);
-                const purchases = Number(customer.PurchaseCount || 0);
-                return (
-                  <tr key={customer.CustomerID}>
-                    <td>{customer.FirstName} {customer.LastName}</td>
-                    <td>${spent.toFixed(2)}</td>
-                    <td>${Number(customer.couponSavings || 0).toFixed(2)}</td>
-                    <td>{purchases > 0 ? "$" + (spent / purchases).toFixed(2) : "—"}</td>
-                  </tr>
-                );
-              })}
+              {customersBySpending.map((customer) => (
+                <tr key={customer.CustomerID}>
+                  <td>{customer.FirstName} {customer.LastName}</td>
+                  <td>{Number(customer.couponsUsed || 0)}</td>
+                  <td>${Number(customer.couponSavings || 0).toFixed(2)}</td>
+                </tr>
+              ))}
               {!filteredCustomers.length && (
-                <tr><td colSpan={4}>No members match these filters.</td></tr>
+                <tr><td colSpan={3}>No members match these filters.</td></tr>
               )}
             </tbody>
           </table>

@@ -31,6 +31,12 @@ export default function OrderSummary({ summary, type }) {
               Free delivery on orders of $50 or more. Delivery is $5.99 below $50.
             </p>
           )}
+          {summary.loyaltyDiscount > 0 && (
+            <div className="cart-row">
+              <span>Loyalty savings</span>
+              <span>−{money(summary.loyaltyDiscount)}</span>
+            </div>
+          )}
           <div className="cart-row total">
             <span>Total</span>
             <span>{money(summary.total)}</span>

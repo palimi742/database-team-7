@@ -23,6 +23,8 @@ export default function Checkout() {
   const [contactError, setContactError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const submittingRef = useRef(false);
+  const [redeemPoints, setRedeemPoints] = useState(false);
+  const [pointsToRedeem, setPointsToRedeem] = useState(50);
 
   useEffect(() => {
     setContact(null);
@@ -59,9 +61,24 @@ export default function Checkout() {
     };
   }, [cartId, type]);
 
+  const maximumPoints = summary?.rewards?.pointsUsed || 0;
+  const selectedPoints = Number(pointsToRedeem);
+  const validPoints = Number.isSafeInteger(selectedPoints) &&
+    selectedPoints >= 50 && selectedPoints <= maximumPoints && selectedPoints % 50 === 0;
+  const rewardDiscount = redeemPoints && validPoints ? selectedPoints / 50 : 0;
+  const displayedSummary = summary ? {
+    ...summary,
+    loyaltyDiscount: rewardDiscount,
+    total: Math.round((summary.total - rewardDiscount) * 100) / 100,
+  } : null;
+
   async function submit(e) {
     e.preventDefault();
     if (submittingRef.current || !cartId || !summary?.items.length) return;
+    if (redeemPoints && !validPoints) {
+      setError(`Enter points in multiples of 50, up to ${maximumPoints}.`);
+      return;
+    }
     submittingRef.current = true;
     setSubmitting(true);
     setError("");
@@ -70,6 +87,8 @@ export default function Checkout() {
       const { orderId } = await api(`/api/cart/${cartId}/checkout`, "POST", {
         fulfillmentType: type,
         deliveryAddress: type === "delivery" ? address : null,
+        redeemPoints,
+        pointsToRedeem: redeemPoints ? selectedPoints : 0,
       });
       setCheckoutInfo(null);
       setSummary(null);
@@ -169,6 +188,67 @@ export default function Checkout() {
                   </p>
                 )}
 
+                {summary && !summary.rewards && (
+                  <p className="note">Rewards information is unavailable. Refresh checkout after restarting the backend.</p>
+                )}
+                {summary?.rewards && !summary.rewards.isMember && (
+                  <p className="note"><a href="/loyalty">Join Freshmart Rewards</a> to earn and redeem points.</p>
+                )}
+                {summary?.rewards?.isMember && (
+                  <div className="checkout-rewards">
+                    <h3>Loyalty rewards</h3>
+                    <p>You have {summary.rewards.currentPoints} points.</p>
+                    {summary.rewards.pointsUsed > 0 ? (
+                      <label className="checkout-rewards-choice">
+                        <input
+                          type="checkbox"
+                          checked={redeemPoints}
+                          onChange={(event) =>
+                            setRedeemPoints(event.target.checked)
+                          }
+                        />
+                        <span>
+                          Redeem loyalty points
+                        </span>
+                      </label>
+                    ) : (
+                      <p>Redeem rewards in groups of 50 points for $1 off.</p>
+                    )}
+                    {redeemPoints && maximumPoints > 0 && (
+                      <>
+                        <label htmlFor="points-to-redeem">
+                          Points to use
+                          <input
+                            id="points-to-redeem"
+                            type="number"
+                            min="50"
+                            max={maximumPoints}
+                            step="50"
+                            required
+                            value={pointsToRedeem}
+                            aria-describedby="points-help"
+                            aria-invalid={!validPoints}
+                            onChange={(event) => setPointsToRedeem(event.target.value)}
+                          />
+                        </label>
+                        <p id="points-help" className="checkout-rewards-help">
+                          50 points = $1 off. You can use up to {maximumPoints.toLocaleString()} points
+                          for ${(maximumPoints / 50).toFixed(2)} off this order.
+                          Enter points in multiples of 50. Delivery fees are excluded.
+                        </p>
+                        {validPoints ? (
+                          <p className="checkout-rewards-savings" aria-live="polite">
+                            You’re using {selectedPoints.toLocaleString()} points to save ${rewardDiscount.toFixed(2)}.
+                            You’ll keep {(summary.rewards.currentPoints - selectedPoints).toLocaleString()} existing points.
+                          </p>
+                        ) : (
+                          <p className="error">Enter a multiple of 50 between 50 and {maximumPoints}.</p>
+                        )}
+                      </>
+                    )}
+                  </div>
+                )}
+
                 {error && <p className="error">{error}</p>}
                 <button
                   type="submit"
@@ -192,7 +272,7 @@ export default function Checkout() {
             </form>
           </div>
 
-          <OrderSummary summary={summary} type={type} />
+          <OrderSummary summary={displayedSummary} type={type} />
         </div>
       </div>
     </div>

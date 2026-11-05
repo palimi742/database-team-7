@@ -1,5 +1,6 @@
 import express from "express";
 import { activeCustomerId } from "../../auth/requireCustomer.js";
+import { calculateRedemption } from "../../rewards/redeemPoints.js";
 
 export default function (pool) {
   const router = express.Router();
@@ -304,7 +305,26 @@ export default function (pool) {
     ah(async (req, res) => {
       const type = req.query.type === "curbside" ? "curbside" : "delivery";
       const items = await getCartItems(pool, req.cart.id);
-      res.json({ items, ...calcTotals(items, type) });
+      const totals = calcTotals(items, type);
+
+      const [members] = await pool.query(
+        `SELECT CurrentPoints FROM LoyaltyProgram WHERE CustomerID = ?`,
+        [req.customerId],
+      );
+      const currentPoints = Number(members[0]?.CurrentPoints || 0);
+
+      const redemption = calculateRedemption(currentPoints, totals.subtotal);
+
+      res.json({
+        items,
+        ...totals,
+        rewards: {
+          isMember: members.length > 0,
+          currentPoints,
+          discount: redemption.discount,
+          pointsUsed: redemption.pointsUsed,
+        },
+      });
     }),
   );
 
@@ -321,7 +341,7 @@ export default function (pool) {
       next();
     },
     ah(async (req, res) => {
-      const { fulfillmentType, deliveryAddress, paymentMethod } = req.body;
+      const { fulfillmentType, deliveryAddress, paymentMethod, redeemPoints, pointsToRedeem } = req.body;
       if (!["delivery", "curbside"].includes(fulfillmentType)) {
         return res
           .status(400)
@@ -386,6 +406,33 @@ export default function (pool) {
         }
 
         const t = calcTotals(items, fulfillmentType);
+        const [members] = await conn.query(
+          `SELECT CurrentPoints FROM LoyaltyProgram
+           WHERE CustomerID = ? FOR UPDATE`,
+          [req.customerId],
+        );
+
+        let pointsUsed = 0;
+        let loyaltyDiscount = 0;
+        if (redeemPoints === true) {
+          const currentPoints = Number(members[0]?.CurrentPoints || 0);
+          let redemption;
+          try {
+            redemption = calculateRedemption(currentPoints, t.subtotal, pointsToRedeem ?? null);
+          } catch (err) {
+            await conn.rollback();
+            return res.status(400).json({ error: err.message });
+          }
+          if (redemption.pointsUsed === 0) {
+            await conn.rollback();
+            return res.status(400).json({
+              error: "No reward is available for this order. Uncheck Redeem points and try again.",
+            });
+          }
+          pointsUsed = redemption.pointsUsed;
+          loyaltyDiscount = redemption.discount;
+          t.total = Math.round((t.total - loyaltyDiscount) * 100) / 100;
+        }
 
         const [sale] = await conn.query(
           `INSERT INTO Transactions
@@ -419,13 +466,15 @@ export default function (pool) {
           );
         }
 
-        // Add points if this customer is in the loyalty program
+        // Earn and redeem points only when the order transaction succeeds.
         await conn.query(
           `UPDATE LoyaltyProgram
-         SET CurrentPoints = CurrentPoints + ?, TotalPointsEarned = TotalPointsEarned + ?,
+         SET CurrentPoints = CurrentPoints - ? + ?,
+             TotalPointsEarned = TotalPointsEarned + ?,
+             TotalPointsRedeemed = TotalPointsRedeemed + ?,
              LastActivityDate = NOW()
          WHERE CustomerID = ?`,
-          [t.points, t.points, req.customerId],
+          [pointsUsed, t.points, t.points, pointsUsed, req.customerId],
         );
 
         await conn.query("DELETE FROM CartDetail WHERE CartID = ?", [
