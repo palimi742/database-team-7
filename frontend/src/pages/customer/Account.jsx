@@ -7,6 +7,8 @@ import "../../css/customer/Account.css";
 
 export default function Account() {
   const [customer, setCustomer] = useState(null);
+  const [loyalty, setLoyalty] = useState(null);
+  const [loyaltyError, setLoyaltyError] = useState("");
   const [message, setMessage] = useState("");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -20,6 +22,9 @@ export default function Account() {
     api("/api/customers/profile")
       .then(data => { if (active) setCustomer(data); })
       .catch(error => { if (active) setMessage(error.message); });
+    api("/api/loyalty")
+      .then(data => { if (active) setLoyalty(data); })
+      .catch(() => { if (active) setLoyaltyError("Unable to load your points. Please refresh to try again."); });
     return () => { active = false; };
   }, []);
 
@@ -74,7 +79,20 @@ export default function Account() {
         {!customer ? (
           <div><Link to="/customer-login">Sign in</Link> to manage your account.</div>
         ) : (
-          <form onSubmit={save}>
+          <div className="account-layout">
+          <section className="account-rewards" aria-labelledby="account-rewards-title">
+            <h2 id="account-rewards-title">FreshMart Rewards</h2>
+            {loyaltyError ? <p role="alert">{loyaltyError}</p> : !loyalty ? (
+              <p role="status">Loading your points…</p>
+            ) : loyalty.isEnrolled ? (
+              <>
+                <p className="account-points">{Number(loyalty.currentPoints).toLocaleString()} <span>points available</span></p>
+                <p>Earn points when you shop. Redeem 50 points for $1 off at checkout.</p>
+              </>
+            ) : <p>Your account includes FreshMart Rewards. Your points balance is temporarily unavailable.</p>}
+          </section>
+          <form className="account-details" onSubmit={save}>
+            <h2>Contact details</h2>
             <div className="account-field">
               <label htmlFor="first-name">First name</label>
               <input id="first-name" name="FirstName" value={customer.FirstName} onChange={change} maxLength={100} autoComplete="given-name" required />
@@ -101,6 +119,7 @@ export default function Account() {
               </button>
             </section>
           </form>
+          </div>
         )}
         <dialog ref={deactivateDialog} className="account-deactivate-dialog"
           aria-labelledby="deactivate-title" aria-describedby="deactivate-description"

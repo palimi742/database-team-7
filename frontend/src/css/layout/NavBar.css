@@ -129,3 +129,15 @@
 .savings-link:hover {
   background-color: #28442c;
 }
+
+.account-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+}
+
+.account-svg {
+  width: 1.4em;
+  height: 1.4em;
+  flex-shrink: 0;
+}

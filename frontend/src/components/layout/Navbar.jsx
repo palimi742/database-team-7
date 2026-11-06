@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import shoppingCartSVG from "../../assets/shopping-cart.svg";
+import accountSVG from "../../assets/account_circle.svg";
 import receiptSVG from "../../assets/receipt.svg";
 import "../../css/layout/NavBar.css";
 
@@ -47,7 +48,7 @@ function NavBar() {
       <div className="navbar-right">
         {customer ? (
           <>
-            <Link to="/account" className="login-link">My Account</Link>
+            <Link to="/account" className="login-link account-link"><img className="account-svg" src={accountSVG} alt="" />My Account</Link>
             <button
               className="login-link logout-button"
               type="button"
