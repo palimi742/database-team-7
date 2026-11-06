@@ -49,6 +49,16 @@ export function money(value) {
   }).format(Number(value));
 }
 
+export function returnStatus(value) {
+  const statuses = {
+    Requested: { label: "Pending", tone: "pending", message: "Waiting for store review." },
+    Pending: { label: "Pending", tone: "pending", message: "Waiting for store review." },
+    Approved: { label: "Approved", tone: "approved", message: "Your return request has been approved." },
+    Rejected: { label: "Rejected", tone: "rejected", message: "Your return request was not approved." },
+  };
+  return statuses[value] || { label: "Status unavailable", tone: "unknown", message: "Please check again later." };
+}
+
 export function fmtDate(value) {
   if (!value) return "";
   const date = new Date(

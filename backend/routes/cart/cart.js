@@ -483,10 +483,44 @@ export default function (pool) {
   );
 
   // Order history
+  async function sendPage(req, res, countSql, selectSql, values) {
+    const requestedPage = req.query.page ?? "1";
+    if (typeof requestedPage !== "string" || !/^[1-9]\d*$/.test(requestedPage) ||
+        !Number.isSafeInteger(Number(requestedPage))) {
+      return res.status(400).json({ error: "Choose a valid page." });
+    }
+    const pageSize = 10;
+    const [[count]] = await pool.query(countSql, values);
+    const total = Number(count.total);
+    const totalPages = Math.max(1, Math.ceil(total / pageSize));
+    const page = Math.min(Number(requestedPage), totalPages);
+    const [items] = await pool.query(selectSql, [...values, pageSize, (page - 1) * pageSize]);
+    res.json({ items, page, pageSize, total, totalPages });
+  }
+
   router.get(
     "/my-orders",
     requireLogin,
     ah(async (req, res) => {
+      if (req.query.page !== undefined) {
+        const status = req.query.status ?? "not-completed";
+        if (!["completed", "not-completed"].includes(status)) {
+          return res.status(400).json({ error: "Choose a valid order status." });
+        }
+        const fromSql = `FROM Transactions t
+          LEFT JOIN OrderFulfillment f ON f.TransactionID = t.TransactionID
+          LEFT JOIN DeliveryType d ON d.DeliveryID = f.DeliveryID
+          WHERE t.CustomerID = ? AND ${status === "completed"
+            ? "(f.FulfillmentID IS NULL OR f.FulfillmentTime IS NOT NULL)"
+            : "(f.FulfillmentID IS NOT NULL AND f.FulfillmentTime IS NULL)"}`;
+        return sendPage(req, res,
+          `SELECT COUNT(*) AS total ${fromSql}`,
+          `SELECT t.TransactionID AS id, t.TotalPrice AS total,
+            DATE_FORMAT(t.TransactionDate, '%Y-%m-%d') AS orderDate,
+            d.DeliveryName AS fulfillmentType, ${STATUS_SQL} AS status
+            ${fromSql} ORDER BY t.TransactionID DESC LIMIT ? OFFSET ?`,
+          [req.customerId]);
+      }
       const [rows] = await pool.query(
         `SELECT t.TransactionID AS id, t.TotalPrice AS total,
               DATE_FORMAT(t.TransactionDate, '%Y-%m-%d') AS orderDate,
@@ -499,6 +533,26 @@ export default function (pool) {
         [req.customerId],
       );
       res.json(rows);
+    }),
+  );
+
+  router.get(
+    "/my-returns",
+    requireLogin,
+    ah(async (req, res) => {
+      const fromSql = `FROM ReturnRequests r
+        JOIN TransactionItems ti ON ti.TransactionItemID = r.TransactionItemID
+        JOIN Transactions t ON t.TransactionID = ti.TransactionID
+        JOIN Inventory i ON i.InventoryID = ti.InventoryID
+        WHERE t.CustomerID = ?`;
+      return sendPage(req, res,
+        `SELECT COUNT(*) AS total ${fromSql}`,
+        `SELECT r.ReturnRequestID AS id, t.TransactionID AS orderId,
+          r.Quantity AS quantity, r.Reason AS reason, r.Status AS status,
+          DATE_FORMAT(r.RequestedAt, '%Y-%m-%d') AS requestedDate,
+          i.InventoryName AS name ${fromSql}
+          ORDER BY r.RequestedAt DESC, r.ReturnRequestID DESC LIMIT ? OFFSET ?`,
+        [req.customerId]);
     }),
   );
 
@@ -552,6 +606,7 @@ export default function (pool) {
       );
       const [returnRequests] = await pool.query(
         `SELECT returnRequest.ReturnRequestID AS id,
+                returnRequest.TransactionItemID AS itemId,
                 returnRequest.Quantity AS quantity,
                 returnRequest.ExpectedRefund AS refundTotal,
                 returnRequest.Reason AS reason,

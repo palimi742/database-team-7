@@ -1,5 +1,6 @@
-import { money, fmtDate, formatPhone } from "../../api";
+import { money, fmtDate, formatPhone, returnStatus } from "../../api";
 import { useNavigate } from "react-router-dom";
+import "../../css/orders/Orders.css";
 
 export default function ReceiptView({ order }) {
   const navigate = useNavigate();
@@ -32,6 +33,16 @@ export default function ReceiptView({ order }) {
         <div className="cart-row" key={orderItem.id}>
           <span>
             {orderItem.name} x {orderItem.quantity}
+            <span className="item-return-statuses">
+              {(order.returns || []).filter((request) => Number(request.itemId) === Number(orderItem.id)).map((request) => {
+                const status = returnStatus(request.status);
+                return (
+                  <span className={`return-status return-status-${status.tone}`} key={request.id}>
+                    Return {status.label.toLowerCase()} · {request.quantity} {Number(request.quantity) === 1 ? "item" : "items"}
+                  </span>
+                );
+              })}
+            </span>
           </span>
           <div className="order-item-actions">
             <span>{money(orderItem.unitPrice * orderItem.quantity)}</span>

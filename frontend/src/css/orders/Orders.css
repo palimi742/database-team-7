@@ -123,6 +123,7 @@
 
 .order-tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.444rem;
 }
 
@@ -141,3 +142,62 @@
   background: #496b52;
   color: white;
 }
+
+.return-status {
+  display: inline-block;
+  padding: 0.35rem 0.65rem;
+  border-radius: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: #edf0f2;
+  color: #39434b;
+}
+
+.return-status-pending { background: #fff3cd; color: #765600; }
+.return-status-approved { background: #dcefe2; color: #225b35; }
+.return-status-rejected { background: #fce2e2; color: #922b2b; }
+
+.item-return-statuses {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+
+.item-return-statuses:empty { display: none; }
+
+.orders-count { color: #647365; font-size: 0.875rem; }
+
+.orders-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.orders-list-header .orders-count { margin: 0; }
+.orders-list-header .orders-pagination { margin-left: auto; padding: 0; }
+
+.orders-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1rem 0;
+}
+
+.orders-pagination button {
+  padding: 0.55rem 1rem;
+  border: 1px solid #d7dfd1;
+  border-radius: 0.4rem;
+  background: white;
+  color: #315b40;
+  font: inherit;
+  cursor: pointer;
+}
+
+.orders-pagination button:hover:not(:disabled) { background: #edf2e9; }
+.orders-pagination button:disabled { opacity: 0.45; cursor: not-allowed; }

@@ -37,6 +37,9 @@ function NavBar() {
         <Link to="/savings" className="savings-link">
           Savings
         </Link>
+        <Link to="/my-orders?tab=returns&page=1" className="savings-link">
+          Returns
+        </Link>
       </div>
       <Link className="home-link" to="/browse">
         FreshMart

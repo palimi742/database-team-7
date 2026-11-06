@@ -138,3 +138,16 @@
 .order-details-card .order-receipt-address {
   margin: 0.375rem 0 0;
 }
+
+.return-requests-heading,
+.return-request-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.return-requests-heading h2 { margin: 0; font-size: 1.25rem; }
+.return-request-detail { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e1e8dc; }
+.return-request-heading h3 { margin: 0; font-size: 1rem; }

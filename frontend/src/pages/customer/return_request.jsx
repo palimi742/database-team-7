@@ -56,7 +56,7 @@ export default function ReturnRequest() {
         details,
       });
       navigate(`/my-orders/${orderId}`, {
-        state: { message: "Return request submitted." },
+        state: { message: "Return request submitted. It is pending store review." },
       });
     } catch (err) {
       setError(err.message);
