@@ -14,7 +14,7 @@ router.use("/profile", requireCustomer);
 
 router.get("/profile", async (req, res) => {
   const [rows] = await pool.query(
-    `SELECT FirstName, LastName, PhoneNumber, CustomerAddress
+    `SELECT CustomerID, FirstName, LastName, PhoneNumber, CustomerAddress
      FROM Customer WHERE CustomerID = ?`,
     [req.customerId],
   );

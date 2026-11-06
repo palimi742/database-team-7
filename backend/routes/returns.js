@@ -5,11 +5,14 @@ const router = Router();
 router.get("/", async (req, res) => {
   try {
     const [returnRequests] = await pool.query(
-      `SELECT ReturnRequestID, TransactionItemID, Quantity, Reason,
-              Details, ExpectedRefund, Status, RequestedAt
-       FROM ReturnRequests
-       WHERE Status = 'Requested'
-       ORDER BY RequestedAt, ReturnRequestID`,
+      `SELECT r.ReturnRequestID, r.TransactionItemID, r.Quantity, r.Reason,
+              r.Details, r.ExpectedRefund, r.Status, r.RequestedAt,
+              i.InventoryName AS ProductName
+       FROM ReturnRequests r
+       JOIN TransactionItems ti ON ti.TransactionItemID = r.TransactionItemID
+       JOIN Inventory i ON i.InventoryID = ti.InventoryID
+       WHERE r.Status = 'Requested'
+       ORDER BY r.RequestedAt, r.ReturnRequestID`,
     );
     res.json(returnRequests);
   } catch (error) {
@@ -22,6 +25,11 @@ router.patch("/:returnRequestId/approve", async (req, res) => {
   const returnRequestId = Number(req.params.returnRequestId);
   if (!Number.isInteger(returnRequestId) || returnRequestId <= 0) {
     return res.status(400).json({ message: "Invalid request ID" });
+  }
+
+  const { disposable } = req.body || {};
+  if (typeof disposable !== "boolean") {
+    return res.status(400).json({ message: "Choose whether the item should be disposed of" });
   }
 
   let connection;
@@ -48,7 +56,7 @@ router.patch("/:returnRequestId/approve", async (req, res) => {
 
     // Lock the purchased item so two approvals cannot exceed its quantity.
     const [itemRows] = await connection.query(
-      `SELECT Quantity, UnitPrice FROM TransactionItems
+      `SELECT InventoryID, Quantity, UnitPrice FROM TransactionItems
        WHERE TransactionItemID = ? FOR UPDATE`,
       [returnRequest.TransactionItemID],
     );
@@ -81,9 +89,9 @@ router.patch("/:returnRequestId/approve", async (req, res) => {
     const [savedReturn] = await connection.query(
       `INSERT INTO ProductReturns
        (TransactionItemID, QuantityReturned, RefundTotal, ReturnDate, Disposable, Status, Reason)
-       SELECT TransactionItemID, Quantity, ?, NOW(), 0, 'Approved', Reason
+       SELECT TransactionItemID, Quantity, ?, NOW(), ?, 'Approved', Reason
        FROM ReturnRequests WHERE ReturnRequestID = ?`,
-      [refundTotal, returnRequestId],
+      [refundTotal, disposable ? 1 : 0, returnRequestId],
     );
     await connection.query(
       `UPDATE ReturnRequests
@@ -91,6 +99,13 @@ router.patch("/:returnRequestId/approve", async (req, res) => {
        WHERE ReturnRequestID = ?`,
       [savedReturn.insertId, returnRequestId],
     );
+
+    if (!disposable) {
+      await connection.query(
+        "UPDATE Inventory SET StockQuantity = StockQuantity + ? WHERE InventoryID = ?",
+        [requestedQuantity, orderItem.InventoryID],
+      );
+    }
 
     await connection.commit();
     res.json({ message: "Return request approved" });

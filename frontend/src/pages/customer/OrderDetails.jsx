@@ -28,7 +28,10 @@ export default function OrderDetails() {
           setError("");
         }
       } catch (err) {
-        if (active) setError(err.message);
+        if (active) {
+          setOrder(null);
+          setError(err.message);
+        }
       } finally {
         loading = false;
       }

@@ -1,34 +1,58 @@
 import { useEffect, useState } from "react";
 
-// Validate saved customer display data before restoring the app after refresh.
+// The signed cookie is shared across tabs; sessionStorage is only display data.
 export default function CustomerSessionCheck({ children }) {
-  const [status, setStatus] = useState(() =>
-    sessionStorage.getItem("customer") ? "checking" : "ready",
-  );
+  const [status, setStatus] = useState("checking");
 
   useEffect(() => {
-    if (!sessionStorage.getItem("customer")) return;
     const controller = new AbortController();
+    let checking = false;
+    let initialized = false;
     async function verify() {
+      if (checking) return;
+      checking = true;
       try {
         const response = await fetch("/api/customers/profile", {
           cache: "no-store",
           signal: controller.signal,
         });
         if (controller.signal.aborted) return;
+        const previous = sessionStorage.getItem("customer");
         if (response.status === 401) {
           sessionStorage.removeItem("customer");
-          // A fresh load also discards profile and cart state held in memory.
-          window.location.replace("/customer-login?notice=session-ended");
+          if (previous) {
+            window.location.replace("/customer-login?notice=session-ended");
+            return;
+          }
+        } else if (response.ok) {
+          const customer = await response.json();
+          if (controller.signal.aborted) return;
+          let previousId = null;
+          try { previousId = JSON.parse(previous)?.CustomerID; } catch { /* Invalid display data. */ }
+          sessionStorage.setItem("customer", JSON.stringify(customer));
+          if (initialized && previousId !== customer.CustomerID) {
+            // Discard cart and order state belonging to the previous identity.
+            window.location.reload();
+            return;
+          }
+        } else {
+          setStatus("error");
           return;
         }
-        setStatus(response.ok ? "ready" : "error");
+        initialized = true;
+        setStatus("ready");
       } catch {
         if (!controller.signal.aborted) setStatus("error");
+      } finally {
+        checking = false;
       }
     }
     void verify();
-    return () => controller.abort();
+    window.addEventListener("focus", verify);
+    return () => {
+      controller.abort();
+      window.removeEventListener("focus", verify);
+    };
   }, []);
 
   if (status === "checking") return <p role="status">Checking your session…</p>;

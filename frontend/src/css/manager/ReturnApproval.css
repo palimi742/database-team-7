@@ -1,0 +1,39 @@
+.return-approval-modal {
+  width: min(28rem, calc(100vw - 2rem));
+  box-sizing: border-box;
+  padding: 1.5rem;
+  border: 1px solid #d7dfd1;
+  border-radius: 10px;
+  background: white;
+  color: #263b2b;
+  text-align: left;
+}
+.return-approval-modal::backdrop { background: rgb(0 0 0 / 45%); }
+dialog.return-approval-modal h2 {
+  margin: 0 0 1rem;
+  color: #263b2b;
+  font-size: 1.35rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.return-approval-modal p { margin: 0 0 1rem; line-height: 1.5; }
+.return-approval-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+dialog.return-approval-modal .return-approval-actions button {
+  padding: 0.75rem;
+  border: 1px solid #496b52;
+  border-radius: 6px;
+  background: #496b52;
+  color: white;
+  cursor: pointer;
+}
+dialog.return-approval-modal .return-approval-actions button:last-child { background: white; color: #315b40; }
+dialog.return-approval-modal .return-approval-actions button:disabled { opacity: 0.5; cursor: not-allowed; }
+.return-approval-error { color: #a12b2b; }
+
+dialog.return-approval-modal .return-approval-actions button {
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+dialog.return-approval-modal .return-approval-actions button:hover { background: #315b40; color: white; }
+dialog.return-approval-modal .return-approval-actions button:focus-visible { outline: 3px solid #8bac91; outline-offset: 3px; }
