@@ -23,7 +23,9 @@ export default function Orders() {
   const page = /^[1-9]\d*$/.test(requestedPage) && Number.isSafeInteger(Number(requestedPage))
     ? Number(requestedPage) : 1;
   const isReturns = tab === "returns";
-  const url = isReturns ? `/api/my-returns?page=${page}` : `/api/my-orders?status=${tab}&page=${page}`;
+  const selectedReturnStatus = searchParams.get("returnStatus");
+  const returnFilter = ["approved", "rejected"].includes(selectedReturnStatus) ? selectedReturnStatus : "pending";
+  const url = isReturns ? `/api/my-returns?status=${returnFilter}&page=${page}` : `/api/my-orders?status=${tab}&page=${page}`;
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const data = result?.url === url ? result.data : null;
@@ -60,7 +62,7 @@ export default function Orders() {
   }, [url]);
 
   function changeView(tab, page = 1) {
-    setSearchParams({ tab, page: String(page) });
+    setSearchParams({ tab, ...(tab === "returns" ? { returnStatus: returnFilter } : {}), page: String(page) });
   }
 
   function viewOrder(id) {
@@ -72,11 +74,16 @@ export default function Orders() {
       <Navbar />
       <div className="orders-container">
         <div className="orders-heading">
-          <h1>My orders</h1>
-          <div className="order-tabs" aria-label="Order views">
-            {[["not-completed", "Not completed"], ["completed", "Completed"], ["returns", "Return requests"]].map(([value, label]) => (
-              <button key={value} className={tab === value ? "active" : ""}
-                aria-pressed={tab === value} onClick={() => changeView(value)}>
+          <h1>{isReturns ? "Return requests" : "My orders"}</h1>
+          <div className="order-tabs" aria-label={isReturns ? "Return status" : "Order views"}>
+            {(isReturns
+              ? [["pending", "Pending"], ["approved", "Approved"], ["rejected", "Rejected"]]
+              : [["not-completed", "Not completed"], ["completed", "Completed"]]).map(([value, label]) => (
+              <button key={value} className={(isReturns ? returnFilter : tab) === value ? "active" : ""}
+                aria-pressed={(isReturns ? returnFilter : tab) === value}
+                onClick={() => isReturns
+                  ? setSearchParams({ tab: "returns", returnStatus: value, page: "1" })
+                  : changeView(value)}>
                 {label}
               </button>
             ))}
@@ -85,7 +92,7 @@ export default function Orders() {
 
         {errorMessage && <p role="alert" className="orders-error">{errorMessage}{data && " Showing the last loaded information."}</p>}
         {!data && !errorMessage && <p role="status" className="orders-message">{isReturns ? "Loading return requests…" : "Loading your orders…"}</p>}
-        {data?.total === 0 && <p className="orders-message">{isReturns ? "You have no return requests yet." : "No orders in this category."}</p>}
+        {data?.total === 0 && <p className="orders-message">{isReturns ? `You have no ${returnFilter} return requests.` : "No orders in this category."}</p>}
         {data?.total > 0 && (
           <div className="orders-list-header">
             <p className="orders-count" role="status">

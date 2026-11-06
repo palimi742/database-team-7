@@ -540,11 +540,16 @@ export default function (pool) {
     "/my-returns",
     requireLogin,
     ah(async (req, res) => {
+      const statuses = { pending: "Requested", approved: "Approved", rejected: "Rejected" };
+      const status = req.query.status;
+      if (status !== undefined && !Object.hasOwn(statuses, status)) {
+        return res.status(400).json({ error: "Choose a valid return status." });
+      }
       const fromSql = `FROM ReturnRequests r
         JOIN TransactionItems ti ON ti.TransactionItemID = r.TransactionItemID
         JOIN Transactions t ON t.TransactionID = ti.TransactionID
         JOIN Inventory i ON i.InventoryID = ti.InventoryID
-        WHERE t.CustomerID = ?`;
+        WHERE t.CustomerID = ?${status !== undefined ? " AND r.Status = ?" : ""}`;
       return sendPage(req, res,
         `SELECT COUNT(*) AS total ${fromSql}`,
         `SELECT r.ReturnRequestID AS id, t.TransactionID AS orderId,
@@ -552,7 +557,7 @@ export default function (pool) {
           DATE_FORMAT(r.RequestedAt, '%Y-%m-%d') AS requestedDate,
           i.InventoryName AS name ${fromSql}
           ORDER BY r.RequestedAt DESC, r.ReturnRequestID DESC LIMIT ? OFFSET ?`,
-        [req.customerId]);
+        status !== undefined ? [req.customerId, statuses[status]] : [req.customerId]);
     }),
   );
 
