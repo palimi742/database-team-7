@@ -1,5 +1,4 @@
 import { asyncHandler as ah, requireLogin } from "./cartMiddleware.js";
-import { returnedQtySql } from "./orderQueries.js";
 import { RETURN_WINDOW_DAYS } from "./cartHelpers.js";
 
 export function registerReturnRoutes(router, pool) {
@@ -29,8 +28,7 @@ export function registerReturnRoutes(router, pool) {
       }
 
       const [[item]] = await pool.query(
-        `SELECT ti.TransactionItemID AS id, ti.Quantity AS quantity, ti.UnitPrice AS unitPrice,
-              CAST(${returnedQtySql("ti.TransactionItemID")} AS SIGNED) AS returned
+        `SELECT ti.TransactionItemID AS id, ti.UnitPrice AS unitPrice
        FROM TransactionItems ti
        WHERE ti.TransactionItemID = ? AND ti.TransactionID = ?`,
         [transactionItemId, order.id],
@@ -38,27 +36,27 @@ export function registerReturnRoutes(router, pool) {
       if (!item)
         return res.status(404).json({ error: "Item not found in this order." });
 
-      const left = item.quantity - Number(item.returned);
-      if (qty > left) {
-        return res
-          .status(400)
-          .json({ error: `You can return at most ${left} of this item.` });
-      }
-
       // Expected refund = item price x quantity
       const refund = (Math.round(Number(item.unitPrice) * 100) * qty) / 100;
 
-      await pool.query(
-        `INSERT INTO ReturnRequests (TransactionItemID, Quantity, Reason, Details, ExpectedRefund)
-       VALUES (?, ?, ?, ?, ?)`,
-        [
-          item.id,
-          qty,
-          String(reason).slice(0, 50),
-          details?.trim().slice(0, 500) || null,
-          refund,
-        ],
-      );
+      try {
+        await pool.query(
+          `INSERT INTO ReturnRequests (TransactionItemID, Quantity, Reason, Details, ExpectedRefund)
+         VALUES (?, ?, ?, ?, ?)`,
+          [
+            item.id,
+            qty,
+            String(reason).slice(0, 50),
+            details?.trim().slice(0, 500) || null,
+            refund,
+          ],
+        );
+      } catch (err) {
+        if (err.code === "ER_SIGNAL_EXCEPTION") {
+          return res.status(400).json({ error: err.sqlMessage });
+        }
+        throw err;
+      }
       res.json({ ok: true });
     }),
   );

@@ -19,7 +19,7 @@ export default function ReturnRequest() {
   const navigate = useNavigate();
   const [order, setOrder] = useState(null);
   const [selectedItemId, setSelectedItemId] = useState(itemId || "");
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState("1");
   const [reason, setReason] = useState(REASONS[0]);
   const [details, setDetails] = useState("");
   const [error, setError] = useState("");
@@ -39,10 +39,6 @@ export default function ReturnRequest() {
   const selectedItem = returnableItems.find(
     (orderItem) => String(orderItem.id) === selectedItemId,
   );
-  const returnableQuantity = selectedItem
-    ? selectedItem.quantity - selectedItem.returnedQty
-    : 0;
-
   async function submit(event) {
     event.preventDefault();
     if (submitting || !selectedItem || order.status !== "Completed") return;
@@ -51,12 +47,14 @@ export default function ReturnRequest() {
     try {
       await api(`/api/my-orders/${orderId}/returns`, "POST", {
         transactionItemId: Number(selectedItemId),
-        quantity,
+        quantity: Number(quantity),
         reason,
         details,
       });
       navigate(`/my-orders/${orderId}`, {
-        state: { message: "Return request submitted. It is pending store review." },
+        state: {
+          message: "Return request submitted. It is pending store review.",
+        },
       });
     } catch (err) {
       setError(err.message);
@@ -92,7 +90,7 @@ export default function ReturnRequest() {
                     disabled={submitting}
                     onChange={(event) => {
                       setSelectedItemId(event.target.value);
-                      setQuantity(1);
+                      setQuantity("1");
                     }}
                   >
                     <option value="">Choose an item</option>
@@ -108,12 +106,11 @@ export default function ReturnRequest() {
                   <input
                     type="number"
                     min="1"
-                    max={returnableQuantity || 1}
                     value={quantity}
                     required
                     disabled={submitting || !selectedItem}
                     onChange={(event) =>
-                      setQuantity(Number(event.target.value))
+                      setQuantity(event.target.value)
                     }
                   />
                 </label>
