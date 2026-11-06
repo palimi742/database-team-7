@@ -116,6 +116,9 @@ CREATE TABLE Transactions (
     TotalPrice DECIMAL(10,2) NOT NULL,
     TransactionDate DATE NOT NULL,
     PointsEarned INT NOT NULL,
+    DeliveryFee DECIMAL(10,2) NULL,
+    LoyaltyDiscount DECIMAL(10,2) NULL,
+    PointsRedeemed INT NULL,
     TableUpdateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (CustomerID)

@@ -436,13 +436,17 @@ export default function (pool) {
 
         const [sale] = await conn.query(
           `INSERT INTO Transactions
-          (CustomerID, TransactionMethod, TotalPrice, TransactionDate, PointsEarned)
-         VALUES (?, ?, ?, CURDATE(), ?)`,
+          (CustomerID, TransactionMethod, TotalPrice, TransactionDate, PointsEarned,
+           DeliveryFee, LoyaltyDiscount, PointsRedeemed)
+         VALUES (?, ?, ?, CURDATE(), ?, ?, ?, ?)`,
           [
             req.customerId,
             isDelivery ? "Pay on delivery" : "Pay at pickup",
             t.total,
             t.points,
+            t.deliveryFee,
+            loyaltyDiscount,
+            pointsUsed,
           ],
         );
         const orderId = sale.insertId;
@@ -525,6 +529,9 @@ export default function (pool) {
                 DATE_FORMAT(purchase.TransactionDate, '%Y-%m-%d') AS orderDate,
                 purchase.TransactionMethod AS paymentMethod,
                 purchase.TotalPrice AS total, purchase.PointsEarned AS points,
+                purchase.DeliveryFee AS savedDeliveryFee,
+                purchase.LoyaltyDiscount AS savedLoyaltyDiscount,
+                purchase.PointsRedeemed AS pointsRedeemed,
                 (SELECT COALESCE(SUM(orderItem.UnitPrice * orderItem.Quantity), 0)
                  FROM TransactionItems AS orderItem
                  WHERE orderItem.TransactionID = purchase.TransactionID) AS subtotal,
@@ -582,7 +589,15 @@ export default function (pool) {
       );
       res.json({
         ...order,
-        deliveryFee,
+        // Older orders did not retain fees or redemption amounts. Preserve their
+        // existing fee calculation and explain any net discount without inventing
+        // a points count or applying today's delivery pricing to past orders.
+        deliveryFee: Number(order.savedDeliveryFee ?? deliveryFee),
+        loyaltyDiscount: Number(order.savedLoyaltyDiscount ?? Math.max(
+          0,
+          Math.round((Number(order.subtotal) - Number(order.total)) * 100) / 100,
+        )),
+        redemptionEstimated: order.savedLoyaltyDiscount == null,
         items: orderItems,
         returns: returnRequests,
         returnWindowDays: RETURN_WINDOW_DAYS,

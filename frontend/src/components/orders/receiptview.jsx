@@ -55,10 +55,25 @@ export default function ReceiptView({ order }) {
         <span>Delivery fee</span>
         <span>{money(order.deliveryFee)}</span>
       </div>
+      {Number(order.loyaltyDiscount) > 0 && (
+        <div className="cart-row">
+          <span>
+            {order.redemptionEstimated ? "Discount" : "Loyalty points redeemed"}
+            {Number(order.pointsRedeemed) > 0 && ` (${order.pointsRedeemed} points)`}
+          </span>
+          <span>−{money(order.loyaltyDiscount)}</span>
+        </div>
+      )}
       <div className="cart-row total">
         <span>Total</span>
         <span>{money(order.total)}</span>
       </div>
+      {order.redemptionEstimated && Number(order.loyaltyDiscount) > 0 && (
+        <p className="note">
+          This older order saved the final total without a points breakdown.
+          The discount is calculated from its saved subtotal and total.
+        </p>
+      )}
       <p>Payment: {order.paymentMethod}</p>
       {order.points > 0 && (
         <p className="note">Points earned: {order.points}</p>
