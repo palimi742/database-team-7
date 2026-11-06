@@ -22,7 +22,7 @@ export default function OrderSummary({ summary, type, onQuantityChange, updating
                   }}
                   onKeyDown={(event) => { if (event.key === "Enter") event.currentTarget.blur(); }}
                 /> : i.quantity}</span>
-                {i.couponName && <small style={{ display: "block" }}>Coupon applied: {i.couponName}</small>}
+                {i.couponName && <span className="coupon-applied">Coupon applied: {i.couponName}</span>}
               </span>
               <span>{money(i.lineTotal)}</span>
             </div>
