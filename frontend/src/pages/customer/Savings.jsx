@@ -8,6 +8,7 @@ function Savings() {
   const navigate = useNavigate();
   const [clipping, setClipping] = useState(null);
   const [coupons, setCoupons] = useState([]);
+  const [couponStatus, setCouponStatus] = useState("loading");
   const [clippedCoupons, setClippedCoupons] = useState([]);
   const [error, setError] = useState("");
 
@@ -22,8 +23,10 @@ function Savings() {
         }
 
         setCoupons(data);
+        setCouponStatus("loaded");
       } catch (err) {
         setError(err.message);
+        setCouponStatus("error");
       }
     }
 
@@ -111,7 +114,9 @@ function Savings() {
         <div className="coupons-container">
           <h2>Available Coupons</h2>
 
-          {coupons.length === 0 ? (
+          {couponStatus === "loading" ? (
+            <p role="status">Loading coupons…</p>
+          ) : couponStatus === "error" ? null : coupons.length === 0 ? (
             <p>No active coupons right now</p>
           ) : (
             <div className="coupon-grid">
