@@ -20,6 +20,7 @@
 }
 
 .orders-link {
+  padding: 0.4em;
   display: flex;
   align-items: center;
   gap: 0.3em;
@@ -66,6 +67,7 @@
   height: 1.6em;
 }
 
+.orders-link:hover,
 .login-link:hover,
 .cart-link:hover {
   background-color: #28442c;
