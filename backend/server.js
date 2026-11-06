@@ -30,7 +30,17 @@ const app = express();
 
 app.use(express.json());
 app.use("/api/manager", requireManager);
-app.use("/api/reports", requireManager);
+app.use("/api/reports", (req, res, next) => {
+  // The stock endpoint checks staff authentication in its own router.
+  if (
+    ["GET", "HEAD"].includes(req.method) &&
+    ["/inventory/stock", "/inventory/stock/"].includes(req.path)
+  ) {
+    return next();
+  }
+
+  return requireManager(req, res, next);
+});
 app.use("/api/employees/unassigned", requireManager);
 app.use("/api/returns", requireManager);
 app.get("/api/manager/session", (req, res) => {
