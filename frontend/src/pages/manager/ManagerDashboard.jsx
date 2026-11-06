@@ -1,5 +1,6 @@
 import { managerFetch } from "../../api.js";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import ManagerSidebar from "../../components/layout/ManagerSidebar";
 import "../../css/manager/ManagerDashboard.css";
 
@@ -150,6 +151,22 @@ function ManagerDashboard() {
       <ManagerSidebar />
       <div className="manager-main-dashboard">
         <h1>Manager Dashboard</h1>
+
+        <Link
+  to="/manager/restock-requests"
+  style={{
+    display: "inline-block",
+    padding: "10px 18px",
+    marginBottom: "20px",
+    backgroundColor: "#2e7d32",
+    color: "#ffffff",
+    borderRadius: "6px",
+    textDecoration: "none",
+    fontWeight: 600,
+  }}
+>
+  Manage Restock Requests
+</Link>
 
         {employeeError && <p>{employeeError}</p>}
         {orderError && <p role="alert">{orderError}</p>}

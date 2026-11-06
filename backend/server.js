@@ -24,11 +24,23 @@ import inventoryReportRoutes from "./routes/reports/inventoryReports.js";
 import managePromotionRoutes from "./routes/promotions/managePromotions.js";
 import employeeWorkloadRoutes from "./routes/reports/employeeWorkload.js";
 import requireManager from "./routes/auth/requireManager.js";
+import restockRequestRoutes from "./routes/employees/restockRequests.js";
+import managerRestockRequestRoutes from "./routes/employees/managerRestockRequests.js";
 const app = express();
 
 app.use(express.json());
 app.use("/api/manager", requireManager);
-app.use("/api/reports", requireManager);
+app.use("/api/reports", (req, res, next) => {
+  // The stock endpoint checks staff authentication in its own router.
+  if (
+    ["GET", "HEAD"].includes(req.method) &&
+    ["/inventory/stock", "/inventory/stock/"].includes(req.path)
+  ) {
+    return next();
+  }
+
+  return requireManager(req, res, next);
+});
 app.use("/api/employees/unassigned", requireManager);
 app.use("/api/returns", requireManager);
 app.get("/api/manager/session", (req, res) => {
@@ -38,6 +50,8 @@ app.use("/api/manager/reports/employee-workload", employeeWorkloadRoutes);
 app.use("/api/manager/promotions", managePromotionRoutes);
 app.use("/api/employees", employeeLoginRoutes);
 app.use("/api/employee/fulfillment", employeeFulfillmentRoutes);
+app.use("/api/employee/restock-requests", restockRequestRoutes);
+app.use("/api/manager/restock-requests", managerRestockRequestRoutes);
 //add
 app.use("/api/returns", returnRoutes);
 app.use("/api/manager/orders", manageOrderRoutes);
