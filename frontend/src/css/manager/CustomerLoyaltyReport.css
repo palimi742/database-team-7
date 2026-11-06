@@ -5,12 +5,12 @@
 
 .customer-loyalty-report h1 {
   margin: 0 0 1rem;
-  font-size: 2rem;
+  font-size: 2.24rem;
 }
 
 .customer-loyalty-report h2 {
   margin: 1.5rem 0 1rem;
-  font-size: 1.3rem;
+  font-size: 1.631rem;
 }
 
 .customer-loyalty-report .report-filters {
@@ -57,13 +57,13 @@
 
 .report-summary-card h3 {
   margin: 0 0 0.75rem;
-  font-size: 0.95rem;
+  font-size: 1.192rem;
 }
 
 .report-summary-card p {
   margin: 0;
   color: #03f00f;
-  font-size: 1.75rem;
+  font-size: 1.96rem;
   font-weight: 600;
 }
 
@@ -90,7 +90,7 @@
 .customer-loyalty-report th,
 .customer-loyalty-report td {
   padding: 0.65em 0.85em;
-  font-size: 0.9rem;
+  font-size: 1.129rem;
 }
 
 .customer-loyalty-report th {
@@ -103,7 +103,7 @@
 .loyalty-savings-note {
   margin-bottom: 0.75rem;
   color: #bbb;
-  font-size: 0.9rem;
+  font-size: 1.129rem;
 }
 
 .manager-main-dashboard.customer-loyalty-report [role="alert"] {

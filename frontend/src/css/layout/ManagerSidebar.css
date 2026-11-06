@@ -23,6 +23,8 @@
 }
 
 .manager-sidebar a {
+  font-size: 1.2rem;
+  line-height: 1.5;
   color: #222;
   text-decoration: none;
 }
@@ -39,7 +41,7 @@
   background-color: #f3f4f6;
   color: #222;
   text-decoration: underline;
-  font-size: 1.1rem;
+  font-size: 1.4rem;
   align-self: center;
   padding: 0.6em;
   border-radius: 0.278rem;

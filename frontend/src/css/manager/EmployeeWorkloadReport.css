@@ -1,6 +1,6 @@
 .employee-workload-report h1 {
   margin: 0 0 0.75rem;
-  font-size: 2rem;
+  font-size: 2.24rem;
 }
 
 .employee-summary {
@@ -20,12 +20,12 @@
 
 .employee-summary-card h2 {
   margin: 0 0 0.75rem;
-  font-size: 0.95rem;
+  font-size: 1.192rem;
 }
 
 .employee-summary-card p {
   color: #33ff77;
-  font-size: 1.75rem;
+  font-size: 1.96rem;
   font-weight: 600;
 }
 
@@ -35,13 +35,13 @@
 
 .employee-report-section h2 {
   margin: 0 0 0.5rem;
-  font-size: 1.3rem;
+  font-size: 1.631rem;
 }
 
 .employee-report-note {
   margin-bottom: 0.75rem;
   color: #bbb;
-  font-size: 0.9rem;
+  font-size: 1.129rem;
 }
 
 .employee-hire-filters {
@@ -81,7 +81,7 @@
 .employee-workload-report th,
 .employee-workload-report td {
   padding: 0.65em 0.85em;
-  font-size: 0.9rem;
+  font-size: 1.129rem;
 }
 
 .employee-workload-report th {
