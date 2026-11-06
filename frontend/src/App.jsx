@@ -10,6 +10,7 @@ import Savings from "./pages/customer/Savings";
 import Loyalty from "./pages/customer/Loyalty";
 import Transactions from "./pages/customer/Transactions";
 import ManagerDashboard from "./pages/manager/ManagerDashboard";
+import ManagerRestockRequests from "./pages/manager/ManagerRestockRequests";
 import ManagerProducts from "./pages/manager/ManagerProducts";
 import EmployeeWorkloadReport from "./pages/manager/EmployeeWorkloadReport";
 import CustomerLoyaltyReport from "./pages/manager/CustomerLoyaltyReport";
@@ -29,6 +30,8 @@ import Orders from "./pages/customer/orders";
 import Payment from "./pages/customer/payment";
 import Receipt from "./pages/customer/receipt";
 import ReturnRequest from "./pages/customer/return_request";
+import EmployeeInventoryReport from "./pages/employee/EmployeeInventoryReport";
+import EmployeeRestockRequests from "./pages/employee/EmployeeRestockRequests";
 
 function App() {
   const { pathname } = useLocation();
@@ -58,6 +61,10 @@ function App() {
             element={<StaffLogin key="employee" loginType="employee" />}
           />
           <Route
+            path="/employee/restock-requests"
+            element={<EmployeeRestockRequests />}
+          />
+          <Route
             path="/admin/login"
             element={<StaffLogin key="admin" loginType="admin" />}
           />
@@ -66,6 +73,9 @@ function App() {
             element={<StaffLogin key="manager" loginType="admin" />}
           />
           <Route path="/employee" element={<EmployeeDashboard />} />
+          <Route path="/employee/inventory"
+          element={<EmployeeInventoryReport />}
+        />
           <Route
             path="/employee/fulfillment"
             element={<EmployeeFulfillment />}
@@ -78,6 +88,10 @@ function App() {
           <Route path="/loyalty" element={<Loyalty />} />
           <Route element={<ProtectedManagerRoute />}>
             <Route path="/manager" element={<ManagerDashboard />} />
+            <Route
+  path="/manager/restock-requests"
+  element={<ManagerRestockRequests />}
+/>
             <Route
               path="/manager/reports/customer-loyalty"
               element={<CustomerLoyaltyReport />}
