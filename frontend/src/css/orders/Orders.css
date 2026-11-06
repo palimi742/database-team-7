@@ -201,3 +201,12 @@
 
 .orders-pagination button:hover:not(:disabled) { background: #edf2e9; }
 .orders-pagination button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.item-return-remaining {
+  display: block;
+  margin-top: 0.5rem;
+  color: #465b4b;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  white-space: normal;
+}

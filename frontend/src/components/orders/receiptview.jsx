@@ -38,21 +38,30 @@ export default function ReceiptView({ order }) {
                 const status = returnStatus(request.status);
                 return (
                   <span className={`return-status return-status-${status.tone}`} key={request.id}>
-                    Return {status.label.toLowerCase()} · {request.quantity} {Number(request.quantity) === 1 ? "item" : "items"}
+                    Return {status.label.toLowerCase()} | {request.quantity} {Number(request.quantity) === 1 ? "item" : "items"}
                   </span>
                 );
               })}
             </span>
+            {isCompleted && Number(orderItem.returnedQty) > 0 && orderItem.quantity > orderItem.returnedQty &&
+              !(order.returns || []).some(request => Number(request.itemId) === Number(orderItem.id) && request.status === "Rejected") && (
+                <span className="item-return-remaining">
+                  {orderItem.quantity} purchased | {orderItem.returnedQty} already requested or approved | {Number(orderItem.quantity) - Number(orderItem.returnedQty)} still eligible to request
+                </span>
+              )}
           </span>
           <div className="order-item-actions">
             <span>{money(orderItem.unitPrice * orderItem.quantity)}</span>
-            {isCompleted && orderItem.quantity > orderItem.returnedQty && (
+            {isCompleted && orderItem.quantity > orderItem.returnedQty &&
+              !(order.returns || []).some(request => Number(request.itemId) === Number(orderItem.id) && request.status === "Rejected") && (
               <button
                 onClick={() =>
                   navigate(`/my-orders/${order.id}/return/${orderItem.id}`)
                 }
               >
-                Request return
+                {Number(orderItem.returnedQty) > 0
+                  ? `Return remaining ${Number(orderItem.quantity) - Number(orderItem.returnedQty)} ${Number(orderItem.quantity) - Number(orderItem.returnedQty) === 1 ? "item" : "items"}`
+                  : "Request return"}
               </button>
             )}
           </div>

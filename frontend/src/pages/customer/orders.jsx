@@ -109,7 +109,7 @@ export default function Orders() {
               <article className="order-card return-request-card" key={entry.id}>
                 <div>
                   <h2>{entry.name} × {entry.quantity}</h2>
-                  <p>Return #{entry.id} · Order #{entry.orderId}</p>
+                  <p>Return #{entry.id} | Order #{entry.orderId}</p>
                   <p>Requested {fmtDate(entry.requestedDate)}</p>
                   <p>Reason: {entry.reason}</p>
                   <span className={`return-status return-status-${status.tone}`}>{status.label}</span>

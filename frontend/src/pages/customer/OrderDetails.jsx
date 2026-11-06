@@ -78,7 +78,7 @@ export default function OrderDetails() {
                       <h3>{request.name} × {request.quantity}</h3>
                       <span className={`return-status return-status-${status.tone}`}>{status.label}</span>
                     </div>
-                    <p>Return #{request.id} · {request.reason}</p>
+                    <p>Return #{request.id} | {request.reason}</p>
                     <p>{status.message}</p>
                   </article>
                 );

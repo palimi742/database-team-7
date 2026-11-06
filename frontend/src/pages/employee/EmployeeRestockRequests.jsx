@@ -162,7 +162,7 @@ export default function EmployeeRestockRequests() {
         <h1>Restock Requests</h1>
         <p>Request stock and track your manager’s decision.</p>
         <Link to="/employee">Back to Employee Dashboard</Link>
-        {" · "}
+        {" | "}
         <Link to="/employee/inventory">Inventory Report</Link>
       </header>
 

@@ -33,7 +33,8 @@ export default function ReturnRequest() {
 
   const returnableItems = order
     ? order.items.filter(
-        (orderItem) => orderItem.quantity > orderItem.returnedQty,
+        (orderItem) => orderItem.quantity > orderItem.returnedQty &&
+          !(order.returns || []).some(request => Number(request.itemId) === Number(orderItem.id) && request.status === "Rejected"),
       )
     : [];
   const selectedItem = returnableItems.find(

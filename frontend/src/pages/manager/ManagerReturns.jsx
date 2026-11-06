@@ -90,7 +90,7 @@ function ManagerReturns() {
         onCancel={(event) => { if (saving) event.preventDefault(); }}>
         <h2 id="return-approval-title">Should this item be disposed of?</h2>
         <p><strong>{selectedRequest?.ProductName}</strong></p>
-        <p>Return request #{selectedRequest?.ReturnRequestID} · Quantity: {selectedRequest?.Quantity}</p>
+        <p>Return request #{selectedRequest?.ReturnRequestID} | Quantity: {selectedRequest?.Quantity}</p>
         <p>Yes approves the return without adding stock. No approves it and puts the quantity back on the shelf.</p>
         {error && <p className="return-approval-error" role="alert">{error}</p>}
         <div className="return-approval-actions">

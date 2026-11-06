@@ -127,8 +127,8 @@ export default function EmployeeInventoryReport() {
         <h2>Products</h2>
 
         <p>
-          Low: 1–20 · Normal: 21–74 · High: 75+
-          · Out of stock: 0
+          Low: 1–20 | Normal: 21–74 | High: 75+
+          | Out of stock: 0
         </p>
 
         <form

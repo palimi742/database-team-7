@@ -21,7 +21,7 @@ test('coupons reduce eligible unit prices, cap at zero, and leave other categori
   assert.equal(calcTotals(items, 'curbside').total, 4);
 });
 
-async function requestReturn(quantity, reserved) {
+async function requestReturn(quantity, reserved, rejected = false) {
   let handler;
   let inserted = false;
   let committed = false;
@@ -31,6 +31,7 @@ async function requestReturn(quantity, reserved) {
     async commit() { committed = true; }, release() { released = true; },
     async query(sql) {
       if (sql.includes('FOR UPDATE')) return [[{id: 2, quantity: 1, unitPrice: 4}]];
+      if (sql.includes("Status = 'Rejected'")) return [rejected ? [{ReturnRequestID: 1}] : []];
       if (sql.includes('AS reserved')) return [[{reserved}]];
       if (sql.includes('OrderFulfillment')) return [[]];
       if (sql.includes('INSERT INTO ReturnRequests')) { inserted = true; return [{}]; }
@@ -55,11 +56,12 @@ test('pending or approved quantities cannot be requested again', async () => {
   assert.equal(result.res.code, 400);
   assert.equal(result.inserted, false);
 });
-test('a rejected request does not reserve quantity and can be resubmitted', async () => {
-  const result = await requestReturn(1, 0);
-  assert.equal(result.res.code, 200);
-  assert.equal(result.inserted, true);
-  assert.equal(result.committed, true);
+test('a rejected request blocks resubmission even with unreturned quantity', async () => {
+  const result = await requestReturn(1, 0, true);
+  assert.equal(result.res.code, 400);
+  assert.match(result.res.body.error, /cannot be resubmitted/);
+  assert.equal(result.inserted, false);
+  assert.equal(result.committed, false);
 });
 
 test('discounted totals and return refunds use the same saved price', async () => {
@@ -71,4 +73,11 @@ test('discounted totals and return refunds use the same saved price', async () =
   assert.equal(items[0].price, 3.74);
   assert.equal(items[0].lineTotal, 11.22);
   assert.equal(calcTotals(items, 'curbside').total, 11.22);
+});
+
+test('an item without a rejected request can still be returned', async () => {
+  const result = await requestReturn(1, 0);
+  assert.equal(result.res.code, 200);
+  assert.equal(result.inserted, true);
+  assert.equal(result.committed, true);
 });

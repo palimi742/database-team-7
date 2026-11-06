@@ -40,6 +40,15 @@ export function registerReturnRoutes(router, pool) {
           await connection.rollback();
           return res.status(404).json({ error: "Item not found in this order." });
         }
+        const [rejectedRequests] = await connection.query(
+          `SELECT ReturnRequestID FROM ReturnRequests
+           WHERE TransactionItemID = ? AND Status = 'Rejected' LIMIT 1`,
+          [item.id],
+        );
+        if (rejectedRequests.length) {
+          await connection.rollback();
+          return res.status(400).json({ error: "This item's return request was rejected and cannot be resubmitted." });
+        }
         const [[availability]] = await connection.query(
           `SELECT ${returnedQtySql("?")} AS reserved`, [item.id, item.id],
         );
