@@ -24,6 +24,8 @@ import inventoryReportRoutes from "./routes/reports/inventoryReports.js";
 import managePromotionRoutes from "./routes/promotions/managePromotions.js";
 import employeeWorkloadRoutes from "./routes/reports/employeeWorkload.js";
 import requireManager from "./routes/auth/requireManager.js";
+import restockRequestRoutes from "./routes/employees/restockRequests.js";
+import managerRestockRequestRoutes from "./routes/employees/managerRestockRequests.js";
 const app = express();
 
 app.use(express.json());
@@ -38,6 +40,8 @@ app.use("/api/manager/reports/employee-workload", employeeWorkloadRoutes);
 app.use("/api/manager/promotions", managePromotionRoutes);
 app.use("/api/employees", employeeLoginRoutes);
 app.use("/api/employee/fulfillment", employeeFulfillmentRoutes);
+app.use("/api/employee/restock-requests", restockRequestRoutes);
+app.use("/api/manager/restock-requests", managerRestockRequestRoutes);
 //add
 app.use("/api/returns", returnRoutes);
 app.use("/api/manager/orders", manageOrderRoutes);
