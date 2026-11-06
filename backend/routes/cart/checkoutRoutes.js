@@ -1,5 +1,5 @@
 import { asyncHandler as ah, requireLogin } from "./cartMiddleware.js";
-import { calcTotals, getCartItems } from "./cartHelpers.js";
+import { calcTotals, getCartItems, applyClippedCoupons } from "./cartHelpers.js";
 import { calculateRedemption } from "../../rewards/redeemPoints.js";
 import { handleDatabaseTriggerError } from "../../errors/databaseCartStockTrigger.js";
 
@@ -28,7 +28,7 @@ export function registerCheckoutRoutes(router, pool) {
     "/cart/:cartId/summary",
     ah(async (req, res) => {
       const type = req.query.type === "curbside" ? "curbside" : "delivery";
-      const items = await getCartItems(pool, req.cart.id);
+      const items = await applyClippedCoupons(pool, req.customerId, await getCartItems(pool, req.cart.id));
       const totals = calcTotals(items, type);
 
       const [members] = await pool.query(
@@ -89,7 +89,9 @@ export function registerCheckoutRoutes(router, pool) {
       try {
         await conn.beginTransaction();
 
-        const items = await getCartItems(conn, req.cart.id, true);
+        // Serialize checkout for this customer's coupons and loyalty balance.
+        await conn.query('SELECT CustomerID FROM Customer WHERE CustomerID = ? FOR UPDATE', [req.customerId]);
+        const items = await applyClippedCoupons(conn, req.customerId, await getCartItems(conn, req.cart.id, true));
         if (items.length === 0) {
           await conn.rollback();
           return res.status(400).json({ error: "Your cart is empty." });

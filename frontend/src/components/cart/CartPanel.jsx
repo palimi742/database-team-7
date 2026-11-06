@@ -1,4 +1,5 @@
 import "../../css/cart/CartPanel.css";
+import "../../css/customer/QuantityInput.css";
 
 function CartPanel({
   items,
@@ -51,7 +52,21 @@ function CartPanel({
                     −
                   </button>
 
-                  <span>{item.Quantity}</span>
+                  <input
+                    className="quantity-input"
+                    key={`${item.InventoryID}-${item.Quantity}`}
+                    aria-label={`Quantity for ${item.InventoryName}`}
+                    type="number" min="0" step="1"
+                    defaultValue={item.Quantity}
+                    disabled={updating || !onQuantityChange}
+                    onBlur={(event) => {
+                      const value = Number(event.target.value);
+                      if (event.target.value.trim() !== "" && Number.isSafeInteger(value) && value >= 0) {
+                        if (value !== Number(item.Quantity)) onQuantityChange(item.InventoryID, value);
+                      } else event.target.value = item.Quantity;
+                    }}
+                    onKeyDown={(event) => { if (event.key === "Enter") event.currentTarget.blur(); }}
+                  />
 
                   <button
                     type="button"

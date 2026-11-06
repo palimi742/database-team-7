@@ -1,6 +1,7 @@
+import "../../css/customer/QuantityInput.css";
 import { money } from "../../api";
 
-export default function OrderSummary({ summary, type }) {
+export default function OrderSummary({ summary, type, onQuantityChange, updating }) {
   return (
     <div id="summary" className="panel">
       <h2>Order Summary</h2>
@@ -9,7 +10,19 @@ export default function OrderSummary({ summary, type }) {
           {summary.items.map((i) => (
             <div className="cart-row" key={i.productId}>
               <span>
-                {i.name} x {i.quantity}
+                {i.name} <span className="summary-quantity">× {onQuantityChange ? <input
+                  key={`${i.productId}-${i.quantity}`}
+                  aria-label={`Quantity for ${i.name}`} type="number" min="0" step="1"
+                  className="quantity-input" defaultValue={i.quantity} disabled={updating}
+                  onBlur={(event) => {
+                    const value = Number(event.target.value);
+                    if (event.target.value.trim() !== "" && Number.isSafeInteger(value) && value >= 0) {
+                      if (value !== Number(i.quantity)) onQuantityChange(i.productId, value);
+                    } else event.target.value = i.quantity;
+                  }}
+                  onKeyDown={(event) => { if (event.key === "Enter") event.currentTarget.blur(); }}
+                /> : i.quantity}</span>
+                {i.couponName && <small style={{ display: "block" }}>Coupon applied: {i.couponName}</small>}
               </span>
               <span>{money(i.lineTotal)}</span>
             </div>

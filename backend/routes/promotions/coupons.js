@@ -43,6 +43,7 @@ router.get(['/clipped', '/clipped/:customerID'], requireCustomer, async (req, re
               JOIN Coupons AS c
                   ON cc.CouponID = c.CouponID
               WHERE cc.CustomerID = ?
+                AND CURRENT_TIMESTAMP BETWEEN c.TimeStart AND c.TimeEnd
               ORDER BY cc.ClippedAt DESC`,
               [customerID]
         );

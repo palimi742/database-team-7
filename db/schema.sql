@@ -272,3 +272,14 @@ ALTER TABLE Employee       ADD CONSTRAINT uq_employee_email UNIQUE (EmailAddress
 
 
 
+
+/* Saved customer coupon clips (also used by checkout). */
+CREATE TABLE IF NOT EXISTS ClippedCoupons (
+    ClippedCouponID INT AUTO_INCREMENT PRIMARY KEY,
+    CustomerID INT NOT NULL,
+    CouponID INT NOT NULL,
+    ClippedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_customer_coupon (CustomerID, CouponID),
+    FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID),
+    FOREIGN KEY (CouponID) REFERENCES Coupons(CouponID)
+);

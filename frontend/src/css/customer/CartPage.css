@@ -209,3 +209,35 @@
     width: 6.667rem;
   }
 }
+
+/* One compact control, with room for directly entered quantities. */
+.cart-page-quantity {
+  overflow: hidden;
+  background: #fff;
+}
+
+.cart-page-quantity .quantity-input {
+  flex: 1;
+  min-width: 0;
+  width: 2.667rem;
+  border: 0;
+  border-radius: 0;
+}
+
+.cart-page-quantity button {
+  flex-shrink: 0;
+}
+
+.cart-page-quantity button:hover:not(:disabled) {
+  background: #edf3ed;
+}
+
+.cart-page-quantity:focus-within {
+  border-color: #496b52;
+  box-shadow: 0 0 0 2px #496b5226;
+}
+
+.cart-page-quantity button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}

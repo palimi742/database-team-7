@@ -79,3 +79,27 @@
 .signup-form a {
   color: #3a5a40;
 }
+
+.signup-error {
+  margin: 0 0 0.5rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid #d5a6a6;
+  border-radius: 0.5rem;
+  background: #fff2f2;
+  color: #8b2020;
+}
+
+.signup-success {
+  text-align: center;
+  padding: 2rem;
+}
+
+.signup-success .signup-btn {
+  color: #fff;
+  text-decoration: none;
+}
+
+.signup-btn:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}

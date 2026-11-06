@@ -1,3 +1,4 @@
+import "../../css/customer/QuantityInput.css";
 import { Link } from "react-router-dom";
 import { money } from "../../api.js";
 import { useShop } from "../../context/ShopContext.jsx";
@@ -63,6 +64,7 @@ export default function CartPage() {
                   </div>
                   <div className="cart-page-quantity">
                     <button
+                      aria-label={`Decrease quantity for ${item.name}`}
                       disabled={updating}
                       onClick={() =>
                         setQuantity(item.productId, Number(item.quantity) - 1)
@@ -70,9 +72,23 @@ export default function CartPage() {
                     >
                       −
                     </button>
-                    <span>{item.quantity}</span>
+                    <input
+                      key={`${item.productId}-${item.quantity}`}
+                      aria-label={`Quantity for ${item.name}`}
+                      className="quantity-input"
+                      type="number" min="0" step="1"
+                      defaultValue={item.quantity} disabled={updating}
+                      onBlur={(event) => {
+                        const value = Number(event.target.value);
+                        if (event.target.value.trim() !== "" && Number.isSafeInteger(value) && value >= 0) {
+                          if (value !== Number(item.quantity)) setQuantity(item.productId, value);
+                        } else event.target.value = item.quantity;
+                      }}
+                      onKeyDown={(event) => { if (event.key === "Enter") event.currentTarget.blur(); }}
+                    />
                     <button
                       disabled={updating}
+                      aria-label={`Increase quantity for ${item.name}`}
                       onClick={() =>
                         setQuantity(item.productId, Number(item.quantity) + 1)
                       }

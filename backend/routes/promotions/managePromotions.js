@@ -168,11 +168,22 @@ router.delete("/coupons/:id", async (req, res) => {
     return res.status(400).json({ message: "Invalid promotion ID" });
   }
   try {
-    const results = await pool.query(`DELETE FROM Coupons WHERE CouponID = ?`, [
-      promotionID,
-    ]);
-    if (results[0].affectedRows === 0) {
-      return res.status(404).json({ message: "Coupon not found" });
+    const connection = await pool.getConnection();
+    try {
+      await connection.beginTransaction();
+      await connection.query('DELETE FROM ClippedCoupons WHERE CouponID = ?', [promotionID]);
+      await connection.query('DELETE FROM UsedCoupons WHERE CouponID = ?', [promotionID]);
+      const [result] = await connection.query('DELETE FROM Coupons WHERE CouponID = ?', [promotionID]);
+      if (!result.affectedRows) {
+        await connection.rollback();
+        return res.status(404).json({ message: "Coupon not found" });
+      }
+      await connection.commit();
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
     }
     res.json({ message: "Coupon deleted" });
   } catch (err) {

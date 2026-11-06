@@ -107,6 +107,12 @@ router.post("/signup", async (req, res) => {
       [customerResult.insertId, username, password],
     );
 
+    await connection.query(
+      `INSERT INTO LoyaltyProgram
+       (CustomerID, CurrentPoints, DateJoined, TotalPointsEarned, TotalPointsRedeemed, LastActivityDate)
+       VALUES (?, 0, NOW(), 0, 0, NOW())`,
+      [customerResult.insertId],
+    );
     await connection.commit();
     transactionStarted = false;
     return res.status(201).json({

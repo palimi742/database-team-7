@@ -24,33 +24,6 @@ function Loyalty() {
       });
   }, [customer]);
 
-  async function joinLoyalty() {
-    try {
-      const response = await fetch("/api/loyalty/join", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({}),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setLoyalty({
-          isEnrolled: true,
-          currentPoints: 0,
-          totalPointsEarned: 0,
-          totalPointsRedeemed: 0,
-        });
-        alert(data.message);
-      } else {
-        alert(data.message);
-      }
-    } catch {
-      setError("Unable to reach the backend.");
-    }
-  }
   return (
     <div className="loyalty-container">
       <h1>Freshmart Rewards</h1>
@@ -72,7 +45,7 @@ function Loyalty() {
       )}
 
       {loyalty && !loyalty.isEnrolled && (
-        <button onClick={joinLoyalty}>Join Loyalty Program</button>
+        <p role="status">Your account includes Freshmart Rewards. Your points balance is temporarily unavailable.</p>
       )}
     </div>
   );

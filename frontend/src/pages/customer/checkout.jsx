@@ -10,7 +10,7 @@ import OrderPlacedModal from "../../components/orders/OrderPlacedModal.jsx";
 
 export default function Checkout() {
   const [placedOrderId, setPlacedOrderId] = useState(null);
-  const { cartId, profile, checkoutInfo, setCheckoutInfo, refreshCart } =
+  const { cartId, cart, setQuantity, updating, profile, checkoutInfo, setCheckoutInfo, refreshCart } =
     useShop();
   const navigate = useNavigate();
 
@@ -62,7 +62,7 @@ export default function Checkout() {
     return () => {
       active = false;
     };
-  }, [cartId, type]);
+  }, [cartId, type, cart]);
 
   const maximumPoints = summary?.rewards?.pointsUsed || 0;
   const selectedPoints = Number(pointsToRedeem);
@@ -104,7 +104,7 @@ export default function Checkout() {
 
   async function submit(e) {
     e.preventDefault();
-    if (submittingRef.current || !cartId || !summary?.items.length) return;
+    if (submittingRef.current || updating || !cartId || !summary?.items.length) return;
     if (redeemPoints && !validPoints) {
       setError(`Enter points in multiples of 50, up to ${maximumPoints}.`);
       return;
@@ -224,10 +224,10 @@ export default function Checkout() {
                 )}
 
                 {summary && !summary.rewards && (
-                  <p className="note">Rewards information is unavailable. Refresh checkout after restarting the backend.</p>
+                  <p className="note">Rewards information is temporarily unavailable. Please refresh checkout.</p>
                 )}
                 {summary?.rewards && !summary.rewards.isMember && (
-                  <p className="note"><a href="/loyalty">Join Freshmart Rewards</a> to earn and redeem points.</p>
+                  <p className="note">Your account includes Freshmart Rewards. Your points balance is temporarily unavailable.</p>
                 )}
                 {summary?.rewards?.isMember && (
                   <div className="checkout-rewards">
@@ -289,7 +289,7 @@ export default function Checkout() {
                 <button
                   type="submit"
                   disabled={
-                    submitting ||
+                    submitting || updating ||
                     stockIssues.length > 0 ||
                     !cartId ||
                     !summary ||
@@ -318,7 +318,7 @@ export default function Checkout() {
                 onBack={() => navigate("/cart")}
               />
             )}
-            <OrderSummary summary={displayedSummary} type={type} />
+            <OrderSummary summary={displayedSummary} type={type} onQuantityChange={setQuantity} updating={updating || submitting} />
           </div>
         </div>
       </div>

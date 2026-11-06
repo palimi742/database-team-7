@@ -128,6 +128,7 @@ export default function Orders() {
                 <p>{fmtDate(entry.orderDate)}</p>
                 <p>{entry.fulfillmentType || "In-store"}</p>
                 <span className="order-status">{entry.status}</span>
+                <p>{Number(entry.returnRequestCount) > 0 ? `${entry.returnRequestCount} return request(s)` : "No return requests"}</p>
               </div>
               <div className="order-card-actions">
                 <strong>{money(entry.total)}</strong>

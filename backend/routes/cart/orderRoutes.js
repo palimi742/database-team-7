@@ -1,5 +1,5 @@
 import { asyncHandler as ah, requireLogin } from "./cartMiddleware.js";
-import { STATUS_SQL, returnedQtySql } from "./orderQueries.js";
+import { STATUS_SQL, returnedQtySql, returnCountSql } from "./orderQueries.js";
 import { RETURN_WINDOW_DAYS } from "./cartHelpers.js";
 import { createPaginator } from "./pagination.js";
 
@@ -22,14 +22,14 @@ export function registerOrderRoutes(router, pool) {
             : "(f.FulfillmentID IS NOT NULL AND f.FulfillmentTime IS NULL)"}`;
         return sendPage(req, res,
           `SELECT COUNT(*) AS total ${fromSql}`,
-          `SELECT t.TransactionID AS id, t.TotalPrice AS total,
+          `SELECT t.TransactionID AS id, t.TotalPrice AS total, ${returnCountSql} AS returnRequestCount,
             DATE_FORMAT(t.TransactionDate, '%Y-%m-%d') AS orderDate,
             d.DeliveryName AS fulfillmentType, ${STATUS_SQL} AS status
             ${fromSql} ORDER BY t.TransactionID DESC LIMIT ? OFFSET ?`,
           [req.customerId]);
       }
       const [rows] = await pool.query(
-        `SELECT t.TransactionID AS id, t.TotalPrice AS total,
+        `SELECT t.TransactionID AS id, t.TotalPrice AS total, ${returnCountSql} AS returnRequestCount,
               DATE_FORMAT(t.TransactionDate, '%Y-%m-%d') AS orderDate,
               d.DeliveryName AS fulfillmentType, ${STATUS_SQL} AS status
        FROM Transactions t

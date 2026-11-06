@@ -1,14 +1,20 @@
 import "../../css/auth/CustomerSignup.css";
 
-import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import Navbar from "../../components/layout/Navbar";
 import PasswordInput from "../../components/auth/PasswordInput";
 
 function CustomerSignup() {
-  const navigate = useNavigate();
+  const [error, setError] = useState("");
+  const [created, setCreated] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   async function handleSubmit(event) {
     event.preventDefault();
+    if (submitting) return;
+    setError("");
+    setSubmitting(true);
     const fields = Object.fromEntries(new FormData(event.currentTarget));
     try {
       const response = await fetch("/api/customers/signup", {
@@ -18,15 +24,14 @@ function CustomerSignup() {
       });
       const data = await response.json();
       if (!response.ok) {
-        alert(data.message || "Unable to submit the form.");
+        setError(data.message || "Unable to create your account. Please try again.");
         return;
       }
-      alert(data.message);
-      navigate("/customer-login");
+      setCreated(true);
     } catch {
-      alert(
-        "Unable to reach the backend. Check that it is running and the database is configured.",
-      );
+      setError("Unable to connect. Please try again in a moment.");
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -34,8 +39,19 @@ function CustomerSignup() {
     <>
       <Navbar />
       <main>
+        {created ? (
+          <section className="signup-form signup-success" aria-labelledby="signup-success-heading">
+            <div role="status">
+              <h1 id="signup-success-heading" className="signup-heading">Your account is ready!</h1>
+              <p>You’re automatically enrolled in Freshmart Rewards with 0 points. Log in to start shopping and earning rewards.</p>
+            </div>
+            <Link className="signup-btn" to="/customer-login">Continue to log in</Link>
+          </section>
+        ) : (
         <form className="signup-form" onSubmit={handleSubmit}>
           <h1 className="signup-heading">Customer Signup</h1>
+
+          {error && <p className="signup-error" role="alert">{error}</p>}
 
           <div className="names-row">
             <div className="name-field">
@@ -99,13 +115,15 @@ function CustomerSignup() {
             required
           ></input>
 
-          <button className="signup-btn" type="submit">
-            Sign up
+          <p>Your account includes free loyalty program membership.</p>
+          <button className="signup-btn" type="submit" disabled={submitting}>
+            {submitting ? "Creating account…" : "Sign up"}
           </button>
           <p>
             Already have an account? <Link to="/customer-login">Log in</Link>
           </p>
         </form>
+        )}
       </main>
     </>
   );

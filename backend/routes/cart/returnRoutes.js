@@ -1,4 +1,5 @@
 import { asyncHandler as ah, requireLogin } from "./cartMiddleware.js";
+import { returnedQtySql } from "./orderQueries.js";
 import { RETURN_WINDOW_DAYS } from "./cartHelpers.js";
 
 export function registerReturnRoutes(router, pool) {
@@ -27,35 +28,49 @@ export function registerReturnRoutes(router, pool) {
         });
       }
 
-      const [[item]] = await pool.query(
-        `SELECT ti.TransactionItemID AS id, ti.UnitPrice AS unitPrice
-       FROM TransactionItems ti
-       WHERE ti.TransactionItemID = ? AND ti.TransactionID = ?`,
-        [transactionItemId, order.id],
-      );
-      if (!item)
-        return res.status(404).json({ error: "Item not found in this order." });
-
-      // Expected refund = item price x quantity
-      const refund = (Math.round(Number(item.unitPrice) * 100) * qty) / 100;
-
+      const connection = await pool.getConnection();
       try {
-        await pool.query(
-          `INSERT INTO ReturnRequests (TransactionItemID, Quantity, Reason, Details, ExpectedRefund)
-         VALUES (?, ?, ?, ?, ?)`,
-          [
-            item.id,
-            qty,
-            String(reason).slice(0, 50),
-            details?.trim().slice(0, 500) || null,
-            refund,
-          ],
+        await connection.beginTransaction();
+        const [[item]] = await connection.query(
+          `SELECT TransactionItemID AS id, UnitPrice AS unitPrice, Quantity AS quantity
+           FROM TransactionItems WHERE TransactionItemID = ? AND TransactionID = ? FOR UPDATE`,
+          [transactionItemId, order.id],
         );
+        if (!item) {
+          await connection.rollback();
+          return res.status(404).json({ error: "Item not found in this order." });
+        }
+        const [[availability]] = await connection.query(
+          `SELECT ${returnedQtySql("?")} AS reserved`, [item.id, item.id],
+        );
+        const remaining = Number(item.quantity) - Number(availability.reserved);
+        if (qty > remaining) {
+          await connection.rollback();
+          return res.status(400).json({ error: `You can return at most ${Math.max(0, remaining)} more item(s).` });
+        }
+        const [[fulfillment]] = await connection.query(
+          `SELECT FulfillmentID FROM OrderFulfillment
+           WHERE TransactionID = ? AND FulfillmentTime IS NULL`, [order.id],
+        );
+        if (fulfillment) {
+          await connection.rollback();
+          return res.status(400).json({ error: "Returns are available after your order is completed." });
+        }
+        const refund = (Math.round(Number(item.unitPrice) * 100) * qty) / 100;
+        await connection.query(
+          `INSERT INTO ReturnRequests (TransactionItemID, Quantity, Reason, Details, ExpectedRefund)
+           VALUES (?, ?, ?, ?, ?)`,
+          [item.id, qty, String(reason).slice(0, 50), String(details || "").trim().slice(0, 500) || null, refund],
+        );
+        await connection.commit();
       } catch (err) {
+        await connection.rollback();
         if (err.code === "ER_SIGNAL_EXCEPTION") {
           return res.status(400).json({ error: err.sqlMessage });
         }
         throw err;
+      } finally {
+        connection.release();
       }
       res.json({ ok: true });
     }),
