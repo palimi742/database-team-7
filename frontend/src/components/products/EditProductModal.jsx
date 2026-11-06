@@ -138,6 +138,7 @@ function EditProductModal({ product, onClose, onSaved }) {
 
           {saveError && <p role="alert">{saveError}</p>}
 
+          <div className="product-modal-actions">
           <button type="button" onClick={onClose} disabled={saving}>
             Cancel
           </button>
@@ -145,6 +146,7 @@ function EditProductModal({ product, onClose, onSaved }) {
           <button type="submit" disabled={saving || !categories}>
             {saving ? "Saving..." : "Save Changes"}
           </button>
+          </div>
         </form>
       </div>
     </div>

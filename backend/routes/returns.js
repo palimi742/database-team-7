@@ -3,16 +3,24 @@ import pool from "../db.js";
 const router = Router();
 
 router.get("/", async (req, res) => {
+  const status = req.query.status ?? "Requested";
+  if (!["Requested", "Approved", "Rejected"].includes(status)) {
+    return res.status(400).json({ message: "Choose Pending, Approved, or Rejected returns" });
+  }
   try {
     const [returnRequests] = await pool.query(
       `SELECT r.ReturnRequestID, r.TransactionItemID, r.Quantity, r.Reason,
               r.Details, r.ExpectedRefund, r.Status, r.RequestedAt,
-              i.InventoryName AS ProductName
+              i.InventoryName AS ProductName, pr.RefundTotal, pr.Disposable,
+              DATE_FORMAT(pr.ReturnDate, '%Y-%m-%d') AS ReturnDate,
+              DATE_FORMAT(r.TableUpdateTime, '%Y-%m-%d') AS ReviewedDate
        FROM ReturnRequests r
        JOIN TransactionItems ti ON ti.TransactionItemID = r.TransactionItemID
        JOIN Inventory i ON i.InventoryID = ti.InventoryID
-       WHERE r.Status = 'Requested'
-       ORDER BY r.RequestedAt, r.ReturnRequestID`,
+       LEFT JOIN ProductReturns pr ON pr.ReturnID = r.ReturnID
+       WHERE r.Status = ?
+       ORDER BY COALESCE(pr.ReturnDate, r.RequestedAt) DESC, r.ReturnRequestID DESC`,
+      [status],
     );
     res.json(returnRequests);
   } catch (error) {

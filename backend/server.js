@@ -15,6 +15,7 @@ import categoryRoutes from "./routes/products/categories.js";
 import saveProductRoutes from "./routes/products/saveProduct.js";
 import editProductRoutes from "./routes/products/editProduct.js";
 import deleteProductRoutes from "./routes/products/deleteProducts.js";
+import restockProductRoutes from "./routes/products/restockProduct.js";
 import restoreProductRoute from "./routes/products/restoreProducts.js";
 import salesPerformanceRoutes from "./routes/reports/salesPerformance.js";
 import createCartRoutes from "./routes/cart/cart.js";
@@ -62,6 +63,7 @@ app.use("/api/products", (req, res, next) => {
   if (["GET", "HEAD", "OPTIONS"].includes(req.method)) return next();
   return requireManager(req, res, next);
 });
+app.use("/api/products", restockProductRoutes);
 app.use("/api/products", saveProductRoutes);
 app.use("/api/products", editProductRoutes);
 app.use("/api/products", deleteProductRoutes);
@@ -76,6 +78,11 @@ app.use("/api/manager/reports/sales-performance", salesPerformanceRoutes);
 app.use("/api/reports/loyalty", loyaltyReportRoutes);
 app.use("/api/reports/inventory", inventoryReportRoutes);
 app.use("/api", createCartRoutes(pool));
+
+// API requests must receive JSON even when an older or incorrect URL is used.
+app.use("/api", (req, res) => {
+  res.status(404).json({ message: "API route not found. Restart the backend if it was recently updated." });
+});
 
 app.use((error, req, res, next) => {
   console.error("API request failed:", error.message);

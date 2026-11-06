@@ -138,12 +138,14 @@ function InsertProductModal({ onClose, onSaved }) {
             />
           </div>
 
-          <button type="button" onClick={onClose} disabled={saving}>
-            Cancel
-          </button>
-          <button type="submit" disabled={saving}>
-            {saving ? "Saving..." : "Add Product"}
-          </button>
+          <div className="product-modal-actions">
+            <button type="button" onClick={onClose} disabled={saving}>
+              Cancel
+            </button>
+            <button type="submit" disabled={saving}>
+              {saving ? "Saving..." : "Add Product"}
+            </button>
+          </div>
         </form>
           {saveError && (
             <div className="product-error-modal">

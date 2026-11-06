@@ -33,12 +33,14 @@ function DeleteProductModal({ product, onClose, onSaved }) {
 
         <p>This product will become inactive.</p>
         {error && <p>{error}</p>}
-        <button type="button" onClick={onClose} disabled={deleting}>
-          Cancel
-        </button>
-        <button type="button" onClick={handleDelete} disabled={deleting}>
-          {deleting ? "Deleting..." : "Delete Product"}
-        </button>
+        <div className="product-modal-actions">
+          <button type="button" onClick={onClose} disabled={deleting}>
+            Cancel
+          </button>
+          <button type="button" onClick={handleDelete} disabled={deleting}>
+            {deleting ? "Deleting..." : "Delete Product"}
+          </button>
+        </div>
       </div>
     </div>
   );
