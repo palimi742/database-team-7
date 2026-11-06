@@ -37,6 +37,7 @@ export async function api(url, method = "GET", body) {
       data?.error || data?.message || "Unable to complete the request.",
     );
     error.status = response.status;
+    error.data = data;
     throw error;
   }
   return data;

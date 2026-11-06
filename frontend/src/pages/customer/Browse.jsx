@@ -196,6 +196,7 @@ function Browse() {
         <div className="browse-shop-layout">
           <div className="product-grid">
             {filteredProducts.map((product) => {
+              const outOfStock = Number(product.StockQuantity) <= 0;
               const discount = getDiscount(product);
               const regularPrice = Number(product.Price);
               const salePrice = Math.max(regularPrice - discount, 0);
@@ -216,11 +217,12 @@ function Browse() {
                     <p>${regularPrice.toFixed(2)}</p>
                   )}
 
+                  {outOfStock && <p className="product-stock-empty">Out of stock</p>}
                   <button
                     onClick={() => addToCart(product)}
-                    disabled={!cartID || updating}
+                    disabled={!cartID || updating || outOfStock}
                   >
-                    Add to cart
+                    {outOfStock ? "Unavailable" : "Add to cart"}
                   </button>
                 </div>
               );

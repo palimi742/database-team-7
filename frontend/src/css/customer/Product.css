@@ -104,3 +104,13 @@
     grid-template-columns: 1fr;
   }
 }
+
+.browse-page .product-card .product-stock-empty {
+  color: #a12b2b;
+  font-weight: 600;
+}
+
+.browse-page .product-card button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

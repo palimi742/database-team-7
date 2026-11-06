@@ -4,6 +4,7 @@ import { api, formatPhone } from "../../api";
 import { useShop } from "../../context/ShopContext.jsx";
 import Navbar from "../../components/layout/Navbar";
 import "../../css/customer/Checkout.css";
+import StockAvailabilityDialog from "../../components/checkout/StockAvailabilityDialog.jsx";
 import OrderSummary from "../../components/checkout/ordersummary.jsx";
 import OrderPlacedModal from "../../components/orders/OrderPlacedModal.jsx";
 
@@ -19,6 +20,8 @@ export default function Checkout() {
   );
   const [summary, setSummary] = useState(null);
   const [error, setError] = useState("");
+  const [stockIssues, setStockIssues] = useState([]);
+  const [stockNotice, setStockNotice] = useState("");
   const [contact, setContact] = useState(null);
   const [contactError, setContactError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -72,6 +75,33 @@ export default function Checkout() {
     total: Math.round((summary.total - rewardDiscount) * 100) / 100,
   } : null;
 
+  async function adjustStock(item) {
+    if (submittingRef.current) return;
+    submittingRef.current = true;
+    setSubmitting(true);
+    setError("");
+    setStockNotice("");
+    try {
+      await api(`/api/cart/${cartId}/items/${item.productId}`,
+        item.available > 0 ? "PUT" : "DELETE",
+        item.available > 0 ? { quantity: item.available } : undefined);
+      const data = await api(`/api/cart/${cartId}/summary?type=${type}`);
+      setSummary(data);
+      setStockIssues((issues) => issues.filter((issue) => issue.productId !== item.productId));
+      setRedeemPoints(false);
+      setStockNotice("Cart updated. Review your new total before placing your order.");
+      await refreshCart();
+    } catch (err) {
+      setError(err.message);
+      if (err.data?.code === "STOCK_UNAVAILABLE") {
+        setStockIssues(err.data.stockIssues || []);
+      }
+    } finally {
+      submittingRef.current = false;
+      setSubmitting(false);
+    }
+  }
+
   async function submit(e) {
     e.preventDefault();
     if (submittingRef.current || !cartId || !summary?.items.length) return;
@@ -82,6 +112,8 @@ export default function Checkout() {
     submittingRef.current = true;
     setSubmitting(true);
     setError("");
+    setStockNotice("");
+    setStockIssues([]);
     setCheckoutInfo({ type, address: type === "delivery" ? address : "" });
     try {
       const { orderId } = await api(`/api/cart/${cartId}/checkout`, "POST", {
@@ -97,6 +129,9 @@ export default function Checkout() {
       setPlacedOrderId(orderId);
     } catch (err) {
       setError(err.message);
+      if (err.data?.code === "STOCK_UNAVAILABLE") {
+        setStockIssues(err.data.stockIssues || []);
+      }
     } finally {
       submittingRef.current = false;
       setSubmitting(false);
@@ -249,17 +284,19 @@ export default function Checkout() {
                   </div>
                 )}
 
-                {error && <p className="error">{error}</p>}
+                {error && <p className="error" role="alert">{error}</p>}
+                {stockNotice && <p role="status">{stockNotice}</p>}
                 <button
                   type="submit"
                   disabled={
                     submitting ||
+                    stockIssues.length > 0 ||
                     !cartId ||
                     !summary ||
                     summary.items.length === 0
                   }
                 >
-                  {submitting ? "Submitting…" : "Checkout"}
+                  {submitting ? "Updating…" : "Place order"}
                 </button>
                 <button
                   type="button"
@@ -272,7 +309,17 @@ export default function Checkout() {
             </form>
           </div>
 
-          <OrderSummary summary={displayedSummary} type={type} />
+          <div className="checkout-summary-column">
+            {stockIssues.length > 0 && (
+              <StockAvailabilityDialog
+                items={stockIssues}
+                updating={submitting}
+                onAdjust={adjustStock}
+                onBack={() => navigate("/cart")}
+              />
+            )}
+            <OrderSummary summary={displayedSummary} type={type} />
+          </div>
         </div>
       </div>
     </div>
