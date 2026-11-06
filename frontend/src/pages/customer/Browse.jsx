@@ -1,5 +1,6 @@
 import "../../css/App.css";
 import "../../css/customer/Product.css";
+import SignInModal from "../../components/auth/SignInModal.jsx";
 import CartPanel from "../../components/cart/CartPanel";
 import { useState, useEffect } from "react";
 import Navbar from "../../components/layout/Navbar";
@@ -9,6 +10,7 @@ import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 function Browse() {
   const {
     cartId: cartID,
+    isSignedIn,
     cart: sharedCart,
     addItem,
     removeItem,
@@ -29,6 +31,7 @@ function Browse() {
     Quantity: item.quantity,
   }));
 
+  const [showSignIn, setShowSignIn] = useState(false);
   const [products, setProducts] = useState([]);
   const [seasonalProducts, setSeasonalProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -129,6 +132,10 @@ function Browse() {
   }
 
   function addToCart(product) {
+    if (!isSignedIn) {
+      setShowSignIn(true);
+      return;
+    }
     return addItem(product.InventoryID);
   }
 
@@ -143,6 +150,7 @@ function Browse() {
   return (
     <div className="browse-page">
       <Navbar />
+      {showSignIn && <SignInModal onClose={() => setShowSignIn(false)} />}
 
       <div className="browse-container">
         <h1>Hello!</h1>
@@ -220,7 +228,7 @@ function Browse() {
                   {outOfStock && <p className="product-stock-empty">Out of stock</p>}
                   <button
                     onClick={() => addToCart(product)}
-                    disabled={!cartID || updating || outOfStock}
+                    disabled={updating || outOfStock || (isSignedIn && !cartID)}
                   >
                     {outOfStock ? "Unavailable" : "Add to cart"}
                   </button>

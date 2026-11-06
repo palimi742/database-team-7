@@ -95,6 +95,7 @@ export function ShopProvider({ children }) {
   return (
     <ShopContext.Provider
       value={{
+        isSignedIn: Boolean(customerID),
         updating,
         cartId,
         cart,

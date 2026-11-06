@@ -1,0 +1,24 @@
+.sign-in-modal {
+  width: min(26rem, calc(100vw - 2rem));
+  box-sizing: border-box;
+  padding: 1.5rem;
+  border: 1px solid #d7dfd1;
+  border-radius: 0.667rem;
+  color: #263b2b;
+  text-align: left;
+}
+.sign-in-modal::backdrop { background: rgb(0 0 0 / 45%); }
+.sign-in-modal h2 { margin-top: 0; color: #315b40; }
+.sign-in-modal p { line-height: 1.5; }
+.sign-in-modal button {
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #496b52;
+  border-radius: 0.444rem;
+  background: #496b52;
+  color: white;
+  font: inherit;
+  cursor: pointer;
+}
+.sign-in-modal button.secondary { margin-top: 0.667rem; background: white; color: #315b40; }
