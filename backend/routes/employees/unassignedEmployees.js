@@ -4,7 +4,7 @@ const router = Router();
 
 router.get("/", async (req, res) => {
   try {
-    // Get regular employees who have no orders marked 'Assigned'.
+    // Regular employees can have up to five unfinished orders.
     const result = await pool.query(`
             SELECT EmployeeID, FirstName, LastName
             FROM employee
@@ -12,7 +12,7 @@ router.get("/", async (req, res) => {
             AND EmployeeID NOT IN (
                 SELECT EmployeeID
                 FROM orderfulfillment
-                WHERE Status = 'Assigned'
+                WHERE FulfillmentTime IS NULL
                     AND EmployeeID IS NOT NULL
                 GROUP BY EmployeeID
                 HAVING COUNT(*) >= 5)`);

@@ -2,140 +2,99 @@ import { Router } from "express";
 import pool from "../../db.js";
 const router = Router();
 
-
 router.get("/", async (req, res) => {
   try {
-    // Get orders with their delivery type and employee name. LEFT JOIN keeps unassigned orders too.
-    const result = await pool.query(`
-        SELECT o.FulfillmentID,
-        o.TransactionID,
-        o.EmployeeID,
-        d.DeliveryName,
-        e.FirstName,
-        e.LastName,
-        o.Status
-        FROM grocery_store.orderfulfillment AS o
-        JOIN grocery_store.deliverytype AS d
-            ON o.DeliveryID = d.DeliveryID
-        LEFT JOIN grocery_store.employee AS e
-            ON o.EmployeeID = e.EmployeeID
-        ORDER BY FulfillmentID
-        `);
-    //Using a LEFT JOIN b/c it keeps all the orders even orders without an assigned employee
-    // A RIGHT JOIN keeps employees and employee's without an order.
-    // We want to manage orders to assign to employees without an order
-    res.json(result[0]);
+    const [orders] = await pool.query(`
+      SELECT o.FulfillmentID, o.TransactionID,
+             CASE WHEN o.FulfillmentTime IS NULL AND e.EmployeeRole = 'Manager'
+                  THEN NULL ELSE o.EmployeeID END AS EmployeeID,
+             d.DeliveryName, e.FirstName, e.LastName,
+             CASE WHEN o.FulfillmentTime IS NOT NULL THEN 'Completed'
+                  WHEN o.EmployeeID IS NULL OR e.EmployeeRole = 'Manager'
+                    THEN 'Needs Assignment'
+                  ELSE 'Assigned' END AS Status
+      FROM OrderFulfillment o
+      JOIN DeliveryType d ON o.DeliveryID = d.DeliveryID
+      LEFT JOIN Employee e ON o.EmployeeID = e.EmployeeID
+      ORDER BY o.FulfillmentID`);
+    res.json(orders);
   } catch (err) {
-    console.log("failed to load orders: ", err.message);
-    res.status(500).json({
-      message: "Unable to load orders for manager",
-    });
+    console.error("Failed to load orders:", err.message);
+    res.status(500).json({ message: "Unable to load orders for manager" });
   }
 });
 
-
-// Check the employee and order before saving an assignment.
-// PATCH is also used to request an update.
 router.patch("/:fulfillmentID/assign", async (req, res) => {
-  // Read the fulfillment ID from the URL and the employee ID from the request body.
   const fulfillmentID = Number(req.params.fulfillmentID);
   const employeeID = Number(req.body.employeeID);
-
-  // Reject IDs that are not positive whole numbers.
-  if (!Number.isInteger(fulfillmentID) || fulfillmentID <= 0) {
-    return res.status(400).json({
-      message: "Invalid fulfillment ID",
-    });
+  if (!Number.isSafeInteger(fulfillmentID) || fulfillmentID <= 0) {
+    return res.status(400).json({ message: "Invalid fulfillment ID" });
+  }
+  if (!Number.isSafeInteger(employeeID) || employeeID <= 0) {
+    return res.status(400).json({ message: "Invalid employee ID" });
   }
 
-  if (!Number.isInteger(employeeID) || employeeID <= 0) {
-    return res.status(400).json({
-      message: "Invalid employee ID",
-    });
-  }
-
+  let connection;
   try {
-    // Find regular employees who have no active assignment.
-    const results = await pool.query(
-      `
-            SELECT EmployeeID AS employeeID
-            FROM employee
-            WHERE EmployeeRole != 'Manager'
-                AND EmployeeID NOT IN (
-                SELECT EmployeeID
-                From orderfulfillment
-                WHERE Status = 'Assigned'
-                    AND EmployeeID IS NOT NULL
-                GROUP BY EmployeeID
-                HAVING COUNT(*) >= 5
-                )
-            `,
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    // Serialize assignments to each employee so concurrent requests cannot
+    // both take their last available slot. Completed orders do not use slots.
+    const [employees] = await connection.query(
+      "SELECT EmployeeID FROM Employee WHERE EmployeeID = ? AND EmployeeRole != 'Manager' FOR UPDATE",
+      [employeeID],
     );
-    
-    // The first query result contains the rows. Check whether the selected employee is in them.
-    const availableEmployees = results[0];
-    const selectedEmployee = availableEmployees.find((employee) => {
-      return employee.employeeID === employeeID;
-    });
-
-    // Find the requested fulfillment record so we can check its assignment status.
-    const orderResults = await pool.query(`
-        SELECT FulfillmentID, EmployeeID, Status
-        FROM orderfulfillment
-        `);
-    const selectedOrder = orderResults[0].find((order) => {
-      return order.FulfillmentID === fulfillmentID;
-    });
-
-    if (selectedEmployee === undefined) {
-      return res.status(400).json({
-        message: "employee is not avilable to be assigned",
-      });
+    if (!employees.length) {
+      await connection.rollback();
+      return res.status(400).json({ message: "Choose an available employee" });
+    }
+    const [activeOrders] = await connection.query(
+      `SELECT FulfillmentID FROM OrderFulfillment
+       WHERE EmployeeID = ? AND FulfillmentTime IS NULL FOR UPDATE`,
+      [employeeID],
+    );
+    if (activeOrders.length >= 5) {
+      await connection.rollback();
+      return res.status(409).json({ message: "This employee already has five active orders" });
     }
 
-    if(selectedOrder === undefined){
-        return res.status(400).json({
-            message: "Order not found"
-        })
+    const [orders] = await connection.query(
+      `SELECT o.FulfillmentID, o.EmployeeID, o.FulfillmentTime, o.ReadyStatus,
+              e.EmployeeRole
+       FROM OrderFulfillment o
+       LEFT JOIN Employee e ON e.EmployeeID = o.EmployeeID
+       WHERE o.FulfillmentID = ? FOR UPDATE`,
+      [fulfillmentID],
+    );
+    const order = orders[0];
+    if (!order) {
+      await connection.rollback();
+      return res.status(404).json({ message: "Order not found" });
+    }
+    // Earlier checkouts used the first employee (a manager) as a placeholder.
+    // Recover those pending orders without permitting reassignment of a real
+    // employee's order or changes to ready/completed orders.
+    if (order.FulfillmentTime != null || Number(order.ReadyStatus) !== 0 ||
+        (order.EmployeeID != null && order.EmployeeRole !== 'Manager')) {
+      await connection.rollback();
+      return res.status(409).json({ message: "Order already completed or assigned" });
     }
 
-    // Only orders with no employee and a Needs Assignment status can be assigned.
-    if (
-      selectedOrder.Status !== "Needs Assignment" ||
-      selectedOrder.EmployeeID !== null
-    ) {
-      return res.status(400).json({
-        message: "Order already completed or assigned",
-      });
-    }
-
-    // Save the employee and status only if the order still needs assignment.
-    const updateResult = await pool.query(`
-        UPDATE orderfulfillment
-        SET EmployeeID = ${employeeID},
-        Status = 'Assigned'
-        WHERE FulfillmentID = ${fulfillmentID}
-        AND EmployeeID IS NULL
-        AND Status = 'Needs Assignment'
-        `)
-        // No changed rows means the order no longer matched the update conditions.
-        if(updateResult[0].affectedRows === 0){
-            return res.status(400).json({
-                message: "Order couldn't be assigned"
-            })
-        }
-        
-        res.json({
-          message: "employee assigned a task",
-          fulfillmentID: fulfillmentID,
-          employeeID: employeeID,
-        });
-
+    await connection.query(
+      `UPDATE OrderFulfillment
+       SET EmployeeID = ?, Status = 'Assigned', TableUpdateTime = NOW()
+       WHERE FulfillmentID = ?`,
+      [employeeID, fulfillmentID],
+    );
+    await connection.commit();
+    res.json({ message: "Employee assigned to order", fulfillmentID, employeeID });
   } catch (err) {
-    console.log("error", err.message);
-    res.status(500).json({
-      message: "unable to assign or grab employee",
-    });
+    if (connection) await connection.rollback();
+    console.error("Assignment failed:", err.message);
+    res.status(500).json({ message: "Unable to assign employee" });
+  } finally {
+    if (connection) connection.release();
   }
 });
 

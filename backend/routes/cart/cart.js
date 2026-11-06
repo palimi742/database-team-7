@@ -14,9 +14,6 @@ export default function (pool) {
     return activeCustomerId(req, res, pool);
   }
 
-  // the EmployeeID that online orders are assigned to at first.
-  const FULFILLMENT_EMPLOYEE_ID = null;
-
   //Fees
   const TAX_RATE = 0; // taxes
   const DELIVERY_FEE = 5.99;
@@ -391,20 +388,6 @@ export default function (pool) {
           });
         }
 
-        let employeeId = FULFILLMENT_EMPLOYEE_ID;
-        if (!employeeId) {
-          const [[emp]] = await conn.query(
-            "SELECT EmployeeID FROM Employee ORDER BY EmployeeID LIMIT 1",
-          );
-          employeeId = emp?.EmployeeID;
-        }
-        if (!employeeId) {
-          await conn.rollback();
-          return res.status(500).json({
-            error: "Add at least one Employee so orders can be assigned.",
-          });
-        }
-
         const t = calcTotals(items, fulfillmentType);
         const [members] = await conn.query(
           `SELECT CurrentPoints FROM LoyaltyProgram
@@ -460,7 +443,7 @@ export default function (pool) {
           `INSERT INTO OrderFulfillment
           (TransactionID, EmployeeID, DeliveryID, FulfillmentTime, ReadyStatus, DeliveryAddress)
          VALUES (?, ?, ?, NULL, 0, ?)`,
-          [orderId, employeeId, delivery.DeliveryID, addressText],
+          [orderId, null, delivery.DeliveryID, addressText],
         );
 
         for (const i of items) {

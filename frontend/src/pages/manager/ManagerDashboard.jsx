@@ -10,6 +10,7 @@ function ManagerDashboard() {
   const [employeeError, setEmployeeError] = useState("");
   const [orders, setOrders] = useState([]);
   const [orderError, setOrderError] = useState("");
+  const [assigningOrder, setAssigningOrder] = useState(null);
   // Load employees with no active assignment when the dashboard opens.
   async function loadEmployees() {
     setEmployeeError("");
@@ -34,7 +35,6 @@ function ManagerDashboard() {
 
   // Load orders and prepare their details for the table.
   async function loadOrders() {
-    setOrderError("");
     try {
       const res = await managerFetch("/api/manager/orders");
       const data = await res.json();
@@ -96,8 +96,8 @@ function ManagerDashboard() {
 
   // Remember the dropdown selection in React until Assign is clicked.
   function selectEmployee(orderID, employeeID) {
-    setOrders(
-      orders.map((order) =>
+    setOrders((currentOrders) =>
+      currentOrders.map((order) =>
         order.id === orderID ? { ...order, employeeID } : order,
       ),
     );
@@ -105,6 +105,7 @@ function ManagerDashboard() {
 
   // Send the selected employee and fulfillment ID to the backend to save the assignment.
   async function assignOrder(orderID) {
+    if (assigningOrder !== null) return;
     const selectedOrder = orders.find((order) => {
       return order.id === orderID;
     });
@@ -115,6 +116,8 @@ function ManagerDashboard() {
       return;
     }
 
+    setOrderError("");
+    setAssigningOrder(orderID);
     try {
       const res = await managerFetch(`/api/manager/orders/${orderID}/assign`, {
         method: "PATCH",
@@ -137,6 +140,8 @@ function ManagerDashboard() {
       await loadEmployees();
     } catch (err) {
       setOrderError(err.message);
+    } finally {
+      setAssigningOrder(null);
     }
   }
 
@@ -147,7 +152,7 @@ function ManagerDashboard() {
         <h1>Manager Dashboard</h1>
 
         {employeeError && <p>{employeeError}</p>}
-        {orderError && <p>{orderError}</p>}
+        {orderError && <p role="alert">{orderError}</p>}
 
         <div>
           {orderStatus.map((status) => (
@@ -182,6 +187,8 @@ function ManagerDashboard() {
                   <td>
                     {order.status === "Needs Assignment" ? (
                       <select
+                        aria-label={`Employee for order #${order.transactionID}`}
+                        disabled={assigningOrder !== null}
                         value={order.employeeID}
                         onChange={(event) =>
                           selectEmployee(order.id, event.target.value)
@@ -203,10 +210,10 @@ function ManagerDashboard() {
                   <td>
                     {order.status === "Needs Assignment" && (
                       <button
-                        disabled={!order.employeeID}
+                        disabled={assigningOrder !== null || !order.employeeID}
                         onClick={() => assignOrder(order.id)}
                       >
-                        Assign
+                        {assigningOrder === order.id ? "Assigning…" : "Assign"}
                       </button>
                     )}
                   </td>

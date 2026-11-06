@@ -230,10 +230,11 @@ CREATE TABLE EmployeeAccounts (
 CREATE TABLE OrderFulfillment (
     FulfillmentID INT AUTO_INCREMENT PRIMARY KEY,
     TransactionID INT NOT NULL,
-    EmployeeID INT NOT NULL,
+    EmployeeID INT NULL,
     DeliveryID INT NOT NULL,
     FulfillmentTime TIMESTAMP NULL,
     ReadyStatus BOOLEAN,
+    Status VARCHAR(30) NOT NULL DEFAULT 'Needs Assignment',
     DeliveryAddress VARCHAR(150),
     TableUpdateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
