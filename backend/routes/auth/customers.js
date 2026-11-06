@@ -7,6 +7,8 @@ import {
 
 import requireCustomer from "../../auth/requireCustomer.js";
 
+import { validZipCode } from "../../validation/zipCode.js";
+
 const router = Router();
 
 // Identity comes from the verified cookie, never a customer ID in the form.
@@ -14,7 +16,7 @@ router.use("/profile", requireCustomer);
 
 router.get("/profile", async (req, res) => {
   const [rows] = await pool.query(
-    `SELECT CustomerID, FirstName, LastName, PhoneNumber, CustomerAddress
+    `SELECT CustomerID, FirstName, LastName, PhoneNumber, CustomerAddress, ZipCode
      FROM Customer WHERE CustomerID = ?`,
     [req.customerId],
   );
@@ -34,7 +36,8 @@ router.post("/profile/deactivate", async (req, res) => {
 });
 
 router.put("/profile", async (req, res) => {
-  const { FirstName, LastName, PhoneNumber, CustomerAddress } = req.body || {};
+  const { FirstName, LastName, PhoneNumber, CustomerAddress, ZipCode } = req.body || {};
+  if (!validZipCode(ZipCode)) return res.status(400).json({ message: "Enter a valid ZIP code (12345 or 12345-6789)." });
   const fields = [FirstName, LastName, PhoneNumber, CustomerAddress];
   const limits = [100, 100, 50, 150];
   if (fields.some((value, index) =>
@@ -48,9 +51,9 @@ router.put("/profile", async (req, res) => {
   }
   await pool.query(
     `UPDATE Customer
-     SET FirstName = ?, LastName = ?, PhoneNumber = ?, CustomerAddress = ?
+     SET FirstName = ?, LastName = ?, PhoneNumber = ?, CustomerAddress = ?, ZipCode = ?
      WHERE CustomerID = ?`,
-    [...fields.map(value => value.trim()), req.customerId],
+    [...fields.map(value => value.trim()), ZipCode.trim(), req.customerId],
   );
   res.json({ message: "Account updated." });
 });
@@ -64,6 +67,7 @@ router.post("/signup", async (req, res) => {
       lastName,
       phoneNumber,
       customerAddress,
+      zipCode,
       username,
       password,
     } = req.body;
@@ -80,6 +84,7 @@ router.post("/signup", async (req, res) => {
         message: "Please fill in all fields",
       });
     }
+    if (!validZipCode(zipCode)) return res.status(400).json({ message: "Enter a valid ZIP code (12345 or 12345-6789)." });
     connection = await pool.getConnection();
     await connection.beginTransaction();
     transactionStarted = true;
@@ -98,8 +103,8 @@ router.post("/signup", async (req, res) => {
     }
 
     const [customerResult] = await connection.query(
-      "INSERT INTO Customer(FirstName, LastName, PhoneNumber, CustomerAddress) VALUES(?, ?, ?, ?)",
-      [firstName, lastName, phoneNumber, customerAddress],
+      "INSERT INTO Customer(FirstName, LastName, PhoneNumber, CustomerAddress, ZipCode) VALUES(?, ?, ?, ?, ?)",
+      [firstName, lastName, phoneNumber, customerAddress, zipCode.trim()],
     );
 
     await connection.query(

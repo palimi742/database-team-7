@@ -109,6 +109,12 @@ export default function Account() {
               <label htmlFor="address">Default delivery address</label>
               <input id="address" name="CustomerAddress" value={customer.CustomerAddress} onChange={change} maxLength={150} autoComplete="street-address" required />
             </div>
+            <div className="account-field">
+              <label htmlFor="zip-code">ZIP code</label>
+              <input id="zip-code" name="ZipCode" type="text" value={customer.ZipCode || ""}
+                onChange={change} autoComplete="postal-code" pattern="[0-9]{5}(-[0-9]{4})?"
+                maxLength={10} title="Enter 5 digits or ZIP+4, such as 77008 or 77008-1234" required />
+            </div>
             <button type="submit" disabled={saving}>{saving ? "Saving…" : "Save changes"}</button>
             <section className="account-deactivate-section">
               <h2>Deactivate account</h2>

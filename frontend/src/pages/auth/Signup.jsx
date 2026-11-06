@@ -115,6 +115,11 @@ function CustomerSignup() {
             required
           ></input>
 
+          <label htmlFor="zipCode">ZIP code</label>
+          <input id="zipCode" name="zipCode" type="text" autoComplete="postal-code"
+            placeholder="77008" pattern="[0-9]{5}(-[0-9]{4})?" maxLength={10}
+            title="Enter 5 digits or ZIP+4, such as 77008 or 77008-1234" required />
+
           <p>Your account includes free loyalty program membership.</p>
           <button className="signup-btn" type="submit" disabled={submitting}>
             {submitting ? "Creating account…" : "Sign up"}

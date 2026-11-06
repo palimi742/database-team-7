@@ -30,14 +30,14 @@ VALUES
 
 /* Customer */
 INSERT INTO Customer
-  (CustomerID, FirstName, LastName, PhoneNumber, CustomerAddress, TableUpdateTime)
+  (CustomerID, FirstName, LastName, PhoneNumber, CustomerAddress, ZipCode, TableUpdateTime)
 VALUES
-  (1, 'Olivia', 'Martinez', '832-555-0201', '1204 Elm Street, Houston, TX 77002', NOW()),
-  (2, 'Ethan', 'Johnson', '832-555-0202', '88 Westheimer Road, Houston, TX 77006', NOW()),
-  (3, 'Sophia', 'Nguyen', '832-555-0203', '452 Main Street, Houston, TX 77004', NOW()),
-  (4, 'Noah', 'Patel', '832-555-0204', '9010 Bellaire Blvd, Houston, TX 77036', NOW()),
-  (5, 'Emma', 'Brooks', '832-555-0205', '310 Kirby Drive, Houston, TX 77005', NOW()),
-  (6, 'Liam', 'Hernandez', '832-555-0206', '77 Montrose Blvd, Houston, TX 77006', NOW());
+  (1, 'Olivia', 'Martinez', '832-555-0201', '1204 Elm Street, Houston, TX 77002', '77008', NOW()),
+  (2, 'Ethan', 'Johnson', '832-555-0202', '88 Westheimer Road, Houston, TX 77006', '77008', NOW()),
+  (3, 'Sophia', 'Nguyen', '832-555-0203', '452 Main Street, Houston, TX 77004', '77008', NOW()),
+  (4, 'Noah', 'Patel', '832-555-0204', '9010 Bellaire Blvd, Houston, TX 77036', '77008', NOW()),
+  (5, 'Emma', 'Brooks', '832-555-0205', '310 Kirby Drive, Houston, TX 77005', '77008', NOW()),
+  (6, 'Liam', 'Hernandez', '832-555-0206', '77 Montrose Blvd, Houston, TX 77006', '77008', NOW());
 
 /* CustomerAccounts */
 INSERT INTO CustomerAccounts
