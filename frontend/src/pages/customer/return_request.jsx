@@ -107,7 +107,6 @@ export default function ReturnRequest() {
                   <input
                     type="number"
                     min="1"
-                    max={selectedItem ? Number(selectedItem.quantity) - Number(selectedItem.returnedQty) : undefined}
                     step="1"
                     value={quantity}
                     required

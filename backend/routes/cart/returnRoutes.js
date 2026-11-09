@@ -53,10 +53,6 @@ export function registerReturnRoutes(router, pool) {
           `SELECT ${returnedQtySql("?")} AS reserved`, [item.id, item.id],
         );
         const remaining = Number(item.quantity) - Number(availability.reserved);
-        if (qty > remaining) {
-          await connection.rollback();
-          return res.status(400).json({ error: `You can return at most ${Math.max(0, remaining)} more item(s).` });
-        }
         const [[fulfillment]] = await connection.query(
           `SELECT FulfillmentID FROM OrderFulfillment
            WHERE TransactionID = ? AND FulfillmentTime IS NULL`, [order.id],
@@ -71,6 +67,13 @@ export function registerReturnRoutes(router, pool) {
            VALUES (?, ?, ?, ?, ?)`,
           [item.id, qty, String(reason).slice(0, 50), String(details || "").trim().slice(0, 500) || null, refund],
         );
+        // Let the database trigger validate the purchased-quantity limit first.
+        // Before committing, also account for previous returns, which the
+        // simple trigger does not check. Rollback removes this new request.
+        if (qty > remaining) {
+          await connection.rollback();
+          return res.status(400).json({ error: `You can return at most ${Math.max(0, remaining)} more item(s).` });
+        }
         await connection.commit();
       } catch (err) {
         await connection.rollback();
