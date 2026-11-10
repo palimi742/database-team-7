@@ -84,6 +84,7 @@ router.get("/stock", requireStaff, async (req, res) => {
          InventoryName,
          CategoryID,
          StockQuantity,
+         ReorderThreshold,
          StockStatus
        FROM employee_inventory_stock_report
        ${whereClause}

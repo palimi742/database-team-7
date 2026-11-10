@@ -28,3 +28,14 @@
 .manager-main-dashboard select {
   padding: 0.25em;
 }
+.manager-order-issues-link {
+  display: inline-block;
+  margin: 0 0 20px 8px;
+  padding: 10px 18px;
+  border-radius: 6px;
+  background: #174a35;
+  color: white;
+  font-weight: 600;
+  text-decoration: none;
+}
+.manager-order-issues-link:hover { background: #226449; color: white; }
