@@ -1,6 +1,9 @@
 import express from "express";
 import employeeLoginRoutes from "./routes/auth/employeeLogin.js";
 import employeeFulfillmentRoutes from "./routes/employees/employeeFulfillment.js";
+import employeeTimeRoutes from "./routes/employees/employeeTime.js";
+import employeeOrders from "./routes/employees/employeeOrders.js";
+import managerOrderIssueRoutes from "./routes/employees/managerOrderIssues.js";
 //add
 import returnRoutes from "./routes/returns.js";
 import customerRoutes from "./routes/auth/customers.js";
@@ -51,6 +54,9 @@ app.use("/api/manager/reports/employee-workload", employeeWorkloadRoutes);
 app.use("/api/manager/promotions", managePromotionRoutes);
 app.use("/api/employees", employeeLoginRoutes);
 app.use("/api/employee/fulfillment", employeeFulfillmentRoutes);
+app.use("/api/employee/time", employeeTimeRoutes);
+app.use("/api/employee/orders", employeeOrders);
+app.use("/api/manager/order-issues", managerOrderIssueRoutes);
 app.use("/api/employee/restock-requests", restockRequestRoutes);
 app.use("/api/manager/restock-requests", managerRestockRequestRoutes);
 //add

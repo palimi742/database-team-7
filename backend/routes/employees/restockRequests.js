@@ -54,7 +54,6 @@ router.get("/", async (req, res) => {
 router.post("/", async (req, res) => {
   const {
     inventoryId,
-    requestedQuantity,
     note = "",
   } = req.body ?? {};
 
@@ -62,16 +61,6 @@ router.post("/", async (req, res) => {
   if (!Number.isSafeInteger(inventoryId) || inventoryId <= 0) {
     return res.status(400).json({
       message: "Please select a valid product.",
-    });
-  }
-
-  if (
-    !Number.isSafeInteger(requestedQuantity) ||
-    requestedQuantity <= 0 ||
-    requestedQuantity > 2147483647
-  ) {
-    return res.status(400).json({
-      message: "Requested quantity must be a positive whole number.",
     });
   }
 
@@ -89,9 +78,9 @@ router.post("/", async (req, res) => {
 
     // Lock the product while checking stock and saving the request.
     const [products] = await connection.query(
-      `SELECT InventoryID, StockQuantity
+      `SELECT InventoryID, StockQuantity, ReorderThreshold
        FROM Inventory
-       WHERE InventoryID = ?
+       WHERE InventoryID = ? AND IsActive = TRUE
        FOR UPDATE`,
       [inventoryId],
     );
@@ -106,12 +95,14 @@ router.post("/", async (req, res) => {
 
     const stock = Number(products[0].StockQuantity);
 
-    if (stock > 20) {
+    const requestedQuantity = Number(products[0].ReorderThreshold) - stock;
+
+    if (requestedQuantity <= 0) {
       await connection.rollback();
 
       return res.status(409).json({
         message:
-          "Restock requests are available for products with 20 or fewer units.",
+          "This product is already at or above its reorder threshold.",
       });
     }
 
@@ -155,6 +146,7 @@ router.post("/", async (req, res) => {
     res.status(201).json({
       message: "Restock request submitted for manager approval.",
       requestId: result.insertId,
+      requestedQuantity,
     });
   } catch (error) {
     if (connection) {

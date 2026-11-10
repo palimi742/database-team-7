@@ -13,12 +13,15 @@ export default function EmployeeRestockRequests() {
   const [inventoryId, setInventoryId] = useState(
     searchParams.get("inventoryId") || "",
   );
-  const [quantity, setQuantity] = useState("");
   const [note, setNote] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const selectedProduct = products.find((product) => String(product.InventoryID) === inventoryId);
+  const requestedQuantity = selectedProduct
+    ? Number(selectedProduct.ReorderThreshold) - Number(selectedProduct.StockQuantity)
+    : 0;
 
   const loadData = useCallback(async (signal) => {
     setLoading(true);
@@ -64,7 +67,7 @@ export default function EmployeeRestockRequests() {
 
       setProducts(
         inventoryData.items.filter(
-          (item) => Number(item.StockQuantity) <= 20,
+          (item) => Number(item.StockQuantity) < Number(item.ReorderThreshold),
         ),
       );
       setRequests(requestData.requests);
@@ -94,19 +97,9 @@ export default function EmployeeRestockRequests() {
     setMessage("");
 
     const productId = Number(inventoryId);
-    const requestedQuantity = Number(quantity);
 
-    if (!Number.isSafeInteger(productId) || productId <= 0) {
+    if (!selectedProduct || requestedQuantity <= 0) {
       setError("Please select a product.");
-      return;
-    }
-
-    if (
-      !Number.isSafeInteger(requestedQuantity) ||
-      requestedQuantity <= 0 ||
-      requestedQuantity > 2147483647
-    ) {
-      setError("Enter a positive whole-number quantity.");
       return;
     }
 
@@ -119,7 +112,6 @@ export default function EmployeeRestockRequests() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           inventoryId: productId,
-          requestedQuantity,
           note: note.trim(),
         }),
       });
@@ -140,10 +132,10 @@ export default function EmployeeRestockRequests() {
         );
       }
 
-      setQuantity("");
+      setInventoryId("");
       setNote("");
       await loadData();
-      setMessage(data.message);
+      setMessage(`Request submitted for ${data.requestedQuantity} units.`);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -169,7 +161,7 @@ export default function EmployeeRestockRequests() {
       <section className="employee-panel">
         <h2>Submit a Request</h2>
         <p>
-          You can request products with 20 or fewer units.
+          Requests top up a product to its reorder threshold.
           Approval does not change stock until items are received.
         </p>
 
@@ -217,18 +209,10 @@ export default function EmployeeRestockRequests() {
               Quantity to Request
             </label>
             <br />
-            <input
-              id="restock-quantity"
-              type="number"
-              min="1"
-              max="2147483647"
-              step="1"
-              required
-              value={quantity}
-              disabled={loading || saving}
-              onChange={(event) => setQuantity(event.target.value)}
-              style={{ padding: "10px" }}
-            />
+            <input id="restock-quantity" readOnly value={selectedProduct ? requestedQuantity : ""} />
+            {selectedProduct && (
+              <p>In stock: {selectedProduct.StockQuantity} · Reorder threshold: {selectedProduct.ReorderThreshold}</p>
+            )}
           </div>
 
           <div style={{ marginBottom: "16px" }}>
@@ -252,7 +236,7 @@ export default function EmployeeRestockRequests() {
 
           <button
             type="submit"
-            disabled={loading || saving || products.length === 0}
+            disabled={loading || saving || !selectedProduct || requestedQuantity <= 0}
           >
             {saving ? "Submitting..." : "Submit Request"}
           </button>

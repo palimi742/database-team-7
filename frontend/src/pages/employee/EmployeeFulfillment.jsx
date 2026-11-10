@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import OrderIssueForm from "./OrderIssueForm";
 import "../../css/employee/EmployeeFulfillment.css";
+import "../../css/employee/EmployeeWorkspace.css";
 
 const API = "/api/employee/fulfillment";
 
@@ -16,14 +18,17 @@ export default function EmployeeFulfillment() {
   const [message, setMessage] = useState("");
 
   // The backend identifies the employee from their login cookie.
-  const loadOrders = useCallback(async () => {
-    setLoading(true);
-    setError("");
+  const loadOrders = useCallback(async (signal) => {
+    if (!signal) {
+      setLoading(true);
+      setError("");
+    }
 
     try {
       const response = await fetch(API, {
         credentials: "same-origin",
         cache: "no-store",
+        signal,
       });
 
       if (response.status === 401) {
@@ -43,20 +48,24 @@ export default function EmployeeFulfillment() {
       setEmployee(data.employee);
       setOrders(data.orders);
     } catch (err) {
-      setError(err.message);
-      setEmployee(null);
-      setOrders([]);
+      if (err.name !== "AbortError") {
+        setError(err.message);
+        setEmployee(null);
+        setOrders([]);
+      }
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) setLoading(false);
     }
   }, [navigate]);
 
   // Automatically load orders when the page opens.
   useEffect(() => {
-    loadOrders();
+    const controller = new AbortController();
+    loadOrders(controller.signal);
+    return () => controller.abort();
   }, [loadOrders]);
 
-  async function updateOrder(orderId, action) {
+  async function updateOrder(orderId, action, body, method = "PATCH") {
     setBusyOrder(orderId);
     setError("");
     setMessage("");
@@ -65,8 +74,12 @@ export default function EmployeeFulfillment() {
       const response = await fetch(
         `${API}/orders/${orderId}/${action}`,
         {
-          method: "PATCH",
+          method,
           credentials: "same-origin",
+          ...(body && {
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+          }),
         },
       );
 
@@ -86,8 +99,10 @@ export default function EmployeeFulfillment() {
 
       await loadOrders();
       setMessage(data.message);
+      return true;
     } catch (err) {
       setError(err.message);
+      return false;
     } finally {
       setBusyOrder(null);
     }
@@ -100,12 +115,12 @@ export default function EmployeeFulfillment() {
   });
 
   return (
-    <div className="employee-page">
-      <header className="employee-header">
-        <h1>FreshMart Employee Dashboard</h1>
-        <p>Manage your assigned deliveries and curbside pickups.</p>
-
-        <Link to="/employee">Back to Employee Dashboard</Link>
+    <div className="employee-page fm-workspace">
+      <header className="fm-hero">
+        <Link className="fm-back" to="/employee">← Employee dashboard</Link>
+        <p className="fm-eyebrow">Fulfillment</p>
+        <h1>My Orders</h1>
+        <p>Pack and manage your assigned deliveries and curbside pickups.</p>
       </header>
 
       <section className="employee-panel">
@@ -122,7 +137,7 @@ export default function EmployeeFulfillment() {
         {error && (
           <div role="alert">
             <p className="employee-error">{error}</p>
-            <button onClick={loadOrders} disabled={loading}>
+            <button onClick={() => loadOrders()} disabled={loading}>
               Try Again
             </button>
           </div>
@@ -152,7 +167,7 @@ export default function EmployeeFulfillment() {
               </select>
 
               <button
-                onClick={loadOrders}
+                onClick={() => loadOrders()}
                 disabled={loading || busyOrder !== null}
               >
                 {loading ? "Refreshing..." : "Refresh"}
@@ -165,86 +180,106 @@ export default function EmployeeFulfillment() {
           )}
 
           <div className="employee-order-grid">
-            {visibleOrders.map((order) => (
-              <article
-                className="employee-order"
-                key={order.FulfillmentID}
-              >
-                <div className="employee-order-top">
-                  <div>
-                    <h3>Order #{order.TransactionID}</h3>
-                    <p>{order.DeliveryName}</p>
+            {visibleOrders.map((order) => {
+              const packedCount = order.items.filter((item) => item.Packed).length;
+              const packing = order.status === "Assigned";
+              const disabled = loading || busyOrder !== null;
+              return (
+                <article
+                  className="employee-order"
+                  key={order.FulfillmentID}
+                >
+                  <div className="employee-order-top">
+                    <div>
+                      <h3>Order #{order.TransactionID}</h3>
+                      <p>{order.DeliveryName}</p>
+                    </div>
+
+                    <span className="employee-status">
+                      {order.status}
+                    </span>
                   </div>
 
-                  <span className="employee-status">
-                    {order.status}
-                  </span>
-                </div>
-
-                <p>
-                  <strong>Customer:</strong>{" "}
-                  {order.CustomerFirstName} {order.CustomerLastName}
-                </p>
-
-                {order.DeliveryName === "Home Delivery" && (
                   <p>
-                    <strong>Delivery Address:</strong>{" "}
-                    {order.DeliveryAddress || "Not provided"}
+                    <strong>Customer:</strong>{" "}
+                    {order.CustomerFirstName} {order.CustomerLastName}
                   </p>
-                )}
 
-                <p>
-                  <strong>Total:</strong>{" "}
-                  ${Number(order.TotalPrice).toFixed(2)}
-                </p>
+                  {order.DeliveryName === "Home Delivery" && (
+                    <p>
+                      <strong>Delivery Address:</strong>{" "}
+                      {order.DeliveryAddress || "Not provided"}
+                    </p>
+                  )}
 
-                <div className="employee-items">
-                  <h4>Order Items</h4>
-
-                  <ul>
-                    {order.items.map((item, index) => (
-                      <li key={index}>
-                        {item.InventoryName} × {item.Quantity}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {order.status === "Assigned" && (
-                  <button
-                    disabled={loading || busyOrder !== null}
-                    onClick={() =>
-                      updateOrder(order.FulfillmentID, "ready")
-                    }
-                  >
-                    {busyOrder === order.FulfillmentID
-                      ? "Updating..."
-                      : "Mark Ready"}
-                  </button>
-                )}
-
-                {order.status === "Ready" && (
-                  <button
-                    disabled={loading || busyOrder !== null}
-                    onClick={() =>
-                      updateOrder(order.FulfillmentID, "complete")
-                    }
-                  >
-                    {busyOrder === order.FulfillmentID
-                      ? "Updating..."
-                      : order.DeliveryName === "Home Delivery"
-                        ? "Confirm Delivered"
-                        : "Confirm Picked Up"}
-                  </button>
-                )}
-
-                {order.status === "Completed" && (
-                  <p className="employee-success">
-                    Order Completed
+                  <p>
+                    <strong>Total:</strong>{" "}
+                    ${Number(order.TotalPrice).toFixed(2)}
                   </p>
-                )}
-              </article>
-            ))}
+
+                  <div className="employee-items fm-packing">
+                    <h4>{packing ? "Packing checklist" : "Order items"}</h4>
+                    {packing && order.items.length > 0 && (
+                      <>
+                        <p className="fm-subtle">{packedCount} of {order.items.length} lines packed</p>
+                        <progress aria-label="Order lines packed" value={packedCount} max={order.items.length} />
+                      </>
+                    )}
+                    <ul className={packing ? "fm-checklist" : undefined}>
+                      {order.items.map((item) => (
+                        <li key={item.TransactionItemID}>
+                          {packing ? (
+                            <label>
+                              <input type="checkbox" checked={Boolean(item.Packed)} disabled={disabled}
+                                onChange={(event) => updateOrder(
+                                  order.FulfillmentID, `items/${item.TransactionItemID}`, { packed: event.target.checked },
+                                )} />
+                              {item.InventoryName} × {item.Quantity}
+                            </label>
+                          ) : `${item.InventoryName} × ${item.Quantity}`}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {order.status === "Assigned" && (
+                    <button
+                      disabled={disabled || packedCount < order.items.length}
+                      onClick={() =>
+                        updateOrder(order.FulfillmentID, "ready")
+                      }
+                    >
+                      {busyOrder === order.FulfillmentID
+                        ? "Updating..."
+                        : "Mark Ready"}
+                    </button>
+                  )}
+
+                  {order.status === "Ready" && (
+                    <button
+                      disabled={loading || busyOrder !== null}
+                      onClick={() =>
+                        updateOrder(order.FulfillmentID, "complete")
+                      }
+                    >
+                      {busyOrder === order.FulfillmentID
+                        ? "Updating..."
+                        : order.DeliveryName === "Home Delivery"
+                          ? "Confirm Delivered"
+                          : "Confirm Picked Up"}
+                    </button>
+                  )}
+
+                  {order.status === "Completed" && (
+                    <p className="employee-success">
+                      Order Completed
+                    </p>
+                  )}
+                  <OrderIssueForm order={order} disabled={disabled}
+                    onSubmit={(body) => updateOrder(order.FulfillmentID, "issues", body, "POST")} />
+                </article>
+              );
+            })}
           </div>
         </section>
       )}

@@ -167,7 +167,9 @@ function ManagerDashboard() {
 >
   Manage Restock Requests
 </Link>
-
+        <Link className="manager-order-issues-link" to="/manager/order-issues">
+          Review Order Issues
+        </Link>
         {employeeError && <p>{employeeError}</p>}
         {orderError && <p role="alert">{orderError}</p>}
 
