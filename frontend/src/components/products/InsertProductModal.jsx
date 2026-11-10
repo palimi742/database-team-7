@@ -160,7 +160,6 @@ function InsertProductModal({ onClose, onSaved }) {
               type="number"
               onWheel={(event) => event.currentTarget.blur()}
               min="1"
-              max="2147483647"
               step="1"
               required
             />
