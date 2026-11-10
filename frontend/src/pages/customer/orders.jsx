@@ -122,13 +122,29 @@ export default function Orders() {
             );
           }
           return (
-            <article className="order-card" key={entry.id}>
+            <article className="order-card order-card-with-preview" key={entry.id}>
               <div>
                 <h2>Order #{entry.id}</h2>
                 <p>{fmtDate(entry.orderDate)}</p>
                 <p>{entry.fulfillmentType || "In-store"}</p>
                 <span className="order-status">{entry.status}</span>
                 <p>{Number(entry.returnRequestCount) > 0 ? `${entry.returnRequestCount} return request(s)` : "No return requests"}</p>
+              </div>
+              <div>
+                {entry.previewItems?.length > 0 && (
+                  <ul className="order-item-previews" aria-label="Product previews">
+                    {entry.previewItems.map(item => (
+                      <li key={item.id} title={item.name}>
+                        {item.imageURL ? (
+                          <img src={item.imageURL} alt={item.name} loading="lazy" />
+                        ) : (
+                          <span aria-label={item.name}>{item.name.slice(0, 2)}</span>
+                        )}
+                      </li>
+                    ))}
+                    {entry.extraItemCount > 0 && <li className="order-preview-count" aria-label={`${entry.extraItemCount} more items`}>+{entry.extraItemCount}</li>}
+                  </ul>
+                )}
               </div>
               <div className="order-card-actions">
                 <strong>{money(entry.total)}</strong>
