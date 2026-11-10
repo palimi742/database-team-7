@@ -1,5 +1,9 @@
 import { asyncHandler as ah, requireLogin } from "./cartMiddleware.js";
-import { calcTotals, getCartItems, applyClippedCoupons } from "./cartHelpers.js";
+import {
+  calcTotals,
+  getCartItems,
+  applyClippedCoupons,
+} from "./cartHelpers.js";
 import { calculateRedemption } from "../../rewards/redeemPoints.js";
 import { handleDatabaseTriggerError } from "../../errors/databaseCartStockTrigger.js";
 
@@ -28,7 +32,11 @@ export function registerCheckoutRoutes(router, pool) {
     "/cart/:cartId/summary",
     ah(async (req, res) => {
       const type = req.query.type === "curbside" ? "curbside" : "delivery";
-      const items = await applyClippedCoupons(pool, req.customerId, await getCartItems(pool, req.cart.id));
+      const items = await applyClippedCoupons(
+        pool,
+        req.customerId,
+        await getCartItems(pool, req.cart.id),
+      );
       const totals = calcTotals(items, type);
 
       const [members] = await pool.query(
@@ -90,8 +98,16 @@ export function registerCheckoutRoutes(router, pool) {
         await conn.beginTransaction();
 
         // Serialize checkout for this customer's coupons and loyalty balance.
-        await conn.query('SELECT CustomerID FROM Customer WHERE CustomerID = ? FOR UPDATE', [req.customerId]);
-        const items = await applyClippedCoupons(conn, req.customerId, await getCartItems(conn, req.cart.id, true));
+        await conn.query(
+          "SELECT CustomerID FROM Customer WHERE CustomerID = ? FOR UPDATE",
+          [req.customerId],
+        );
+        const items = await applyClippedCoupons(
+          conn,
+          req.customerId,
+          await getCartItems(conn, req.cart.id, true),
+          true,
+        );
         if (items.length === 0) {
           await conn.rollback();
           return res.status(400).json({ error: "Your cart is empty." });
@@ -171,6 +187,25 @@ export function registerCheckoutRoutes(router, pool) {
           [orderId, null, delivery.DeliveryID, addressText],
         );
 
+        const couponIDs = [
+          ...new Set(
+            items.map((item) => item.customerCouponId).filter(Boolean),
+          ),
+        ];
+        if (couponIDs.length) {
+          await conn.query(
+            `INSERT INTO UsedCoupons (CustomerID, CouponID, ClippedAt, Used)
+             SELECT CustomerID, CouponID, ClippedAt, TRUE
+             FROM ClippedCoupons WHERE ClippedCouponID IN (?)`,
+            [couponIDs],
+          );
+          await conn.query(
+            `UPDATE ClippedCoupons SET UsesRemaining = UsesRemaining - 1
+             WHERE ClippedCouponID IN (?)`,
+            [couponIDs],
+          );
+        }
+
         // Earn and redeem points only when the order transaction succeeds.
         await conn.query(
           `UPDATE LoyaltyProgram
@@ -190,7 +225,8 @@ export function registerCheckoutRoutes(router, pool) {
         res.json({ orderId });
       } catch (err) {
         await conn.rollback();
-        if (await handleDatabaseTriggerError(err, res, conn, req.cart.id)) return;
+        if (await handleDatabaseTriggerError(err, res, conn, req.cart.id))
+          return;
         console.error(err);
         res
           .status(500)

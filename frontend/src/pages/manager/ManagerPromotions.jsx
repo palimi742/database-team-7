@@ -1,25 +1,32 @@
 import { managerFetch } from "../../api.js";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ManagerSidebar from "../../components/layout/ManagerSidebar";
 import "../../css/manager/ManagerDashboard.css";
 import "../../css/manager/ManagerPromotions.css";
 
 const emptyForm = {
   CouponName: "",
-  CategoryID: "",
+  Description: "",
+  UsesPerClip: "1",
+  CategoryIDs: [],
+  ProductIDs: [],
   DiscountAmount: "",
   startsAt: "",
   endsAt: "",
 };
 
 function ManagerPromotions() {
-  const [type, setType] = useState("coupons");
-  const [offers, setOffers] = useState({ coupons: [], sales: [] });
+  const [offers, setOffers] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [editor, setEditor] = useState(null);
+  const dialog = useRef(null);
+  const [target, setTarget] = useState("products");
+  const [itemSearch, setItemSearch] = useState("");
+  const [productCategory, setProductCategory] = useState("");
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(null);
@@ -30,15 +37,14 @@ function ManagerPromotions() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  // Load both offer lists and the categories used by the form.
   async function loadPromotions() {
     setError("");
     setLoading(true);
     try {
       const responses = await Promise.all([
         managerFetch("/api/manager/promotions/coupons"),
-        managerFetch("/api/manager/promotions/sales"),
         managerFetch("/api/categories"),
+        managerFetch("/api/manager/products"),
       ]);
       const data = await Promise.all(responses.map((res) => res.json()));
 
@@ -48,8 +54,9 @@ function ManagerPromotions() {
         }
       }
 
-      setOffers({ coupons: data[0], sales: data[1] });
-      setCategories(data[2]);
+      setOffers(data[0]);
+      setCategories(data[1]);
+      setProducts(data[2]);
       setPage(1);
     } catch (err) {
       setError(err.message);
@@ -61,6 +68,13 @@ function ManagerPromotions() {
   useEffect(() => {
     loadPromotions();
   }, []);
+
+  useEffect(() => {
+    const modal = dialog.current;
+    if (!modal) return;
+    if (editor !== null && !modal.open) modal.showModal();
+    if (editor === null && modal.open) modal.close();
+  }, [editor, loading]);
 
   // Convert database timestamps to local values for the date inputs.
   function formatInputTime(value) {
@@ -82,19 +96,19 @@ function ManagerPromotions() {
     return "Active";
   }
 
-  function selectType(value) {
-    setType(value);
-    setPage(1);
-    setEditor(null);
-    setDeleting(null);
-    setError("");
-    setNotice("");
-  }
-
   function openEditor(offer = null) {
     setDeleting(null);
     setError("");
     setNotice("");
+    setItemSearch("");
+    setProductCategory("");
+    setTarget(
+      offer?.CategoryIDs.length
+        ? offer.ProductIDs.length
+          ? ""
+          : "categories"
+        : "products",
+    );
 
     if (offer === null) {
       setEditor("new");
@@ -114,6 +128,22 @@ function ManagerPromotions() {
     setForm({ ...form, [event.target.name]: event.target.value });
   }
 
+  function selectItem(id) {
+    if (target === "categories") {
+      setForm({ ...form, CategoryIDs: [id] });
+      return;
+    }
+    const ProductIDs = form.ProductIDs.includes(id)
+      ? form.ProductIDs.filter((value) => value !== id)
+      : [...form.ProductIDs, id];
+    setForm({ ...form, ProductIDs });
+  }
+
+  function closeEditor() {
+    setEditor(null);
+    setError("");
+  }
+
   function openDelete(offer) {
     setEditor(null);
     setDeleting(offer);
@@ -121,19 +151,46 @@ function ManagerPromotions() {
     setNotice("");
   }
 
+  function showInvalidField(event) {
+    const field = event.target;
+    if (
+      event.currentTarget.querySelector("input:invalid, textarea:invalid") !==
+      field
+    )
+      return;
+    const label = field.labels?.[0]?.firstChild?.textContent.trim();
+    setError(
+      label ? `${label}: ${field.validationMessage}` : field.validationMessage,
+    );
+  }
+
   // Save a new offer or update the selected offer in the database.
   async function savePromotion(event) {
     event.preventDefault();
     setError("");
     setNotice("");
-    if (Date.parse(form.endsAt) <= Date.parse(form.startsAt)) {
+    const fields = new FormData(event.currentTarget);
+    const start = new Date(
+      `${fields.get("startsAt-date")}T${fields.get("startsAt-time")}`,
+    );
+    const end = new Date(
+      `${fields.get("endsAt-date")}T${fields.get("endsAt-time")}`,
+    );
+    if (!(end > start)) {
       setError("End time must be after start time.");
+      return;
+    }
+
+    const CategoryIDs = target === "categories" ? form.CategoryIDs : [];
+    const ProductIDs = target === "products" ? form.ProductIDs : [];
+    if (CategoryIDs.length !== 1 && ProductIDs.length === 0) {
+      setError("Select specific products or one whole category.");
       return;
     }
 
     setSaving(true);
     try {
-      let url = `/api/manager/promotions/${type}`;
+      let url = "/api/manager/promotions/coupons";
       let method = "POST";
       if (editor !== "new") {
         url = `${url}/${editor}`;
@@ -147,8 +204,10 @@ function ManagerPromotions() {
         },
         body: JSON.stringify({
           ...form,
-          startsAt: new Date(form.startsAt).toISOString(),
-          endsAt: new Date(form.endsAt).toISOString(),
+          CategoryIDs,
+          ProductIDs,
+          startsAt: start.toISOString(),
+          endsAt: end.toISOString(),
         }),
       });
       const data = await res.json();
@@ -158,7 +217,7 @@ function ManagerPromotions() {
       }
 
       setEditor(null);
-      setNotice("Offer saved.");
+      setNotice("Coupon saved.");
       await loadPromotions();
     } catch (err) {
       setError(err.message);
@@ -173,7 +232,7 @@ function ManagerPromotions() {
     setNotice("");
     try {
       const res = await managerFetch(
-        `/api/manager/promotions/${type}/${deleting.id}`,
+        `/api/manager/promotions/coupons/${deleting.id}`,
         {
           method: "DELETE",
         },
@@ -194,12 +253,40 @@ function ManagerPromotions() {
     }
   }
 
-  const coupon = type === "coupons";
+  const options =
+    target === "categories"
+      ? categories.map((category) => ({
+          id: category.CategoryID,
+          name: category.CategoryName,
+        }))
+      : products.map((product) => ({
+          id: product.InventoryID,
+          name: product.InventoryName,
+          categoryID: product.CategoryID,
+          active: Boolean(Number(product.IsActive)),
+        }));
+  const selectedIDs =
+    target === "categories" ? form.CategoryIDs : form.ProductIDs;
+  const selectedItems = options.filter((item) => selectedIDs.includes(item.id));
+  const matchingItems = options.filter((item) => {
+    const matchesSearch = item.name
+      .toLowerCase()
+      .includes(itemSearch.trim().toLowerCase());
+    const matchesCategory =
+      target !== "products" ||
+      !productCategory ||
+      String(item.categoryID) === productCategory;
+    const isAvailable = target !== "products" || item.active;
+    return isAvailable && matchesSearch && matchesCategory;
+  });
+
   const searchInput = search.trim().toLowerCase();
-  const rows = offers[type].filter((offer) => {
-    const name = offer.CouponName || `${offer.CategoryName} sale`;
+  const rows = offers.filter((offer) => {
+    const name = offer.CouponName;
     const matchesSearch = name.toLowerCase().includes(searchInput);
-    const matchesCategory = categoryFilter === "all" || String(offer.CategoryID) === categoryFilter;
+    const matchesCategory =
+      categoryFilter === "all" ||
+      offer.CategoryIDs.includes(Number(categoryFilter));
     const matchesStatus = filter === "All" || getOfferStatus(offer) === filter;
     return matchesSearch && matchesCategory && matchesStatus;
   });
@@ -210,8 +297,11 @@ function ManagerPromotions() {
 
   function formatDate(value) {
     return new Date(value).toLocaleString(undefined, {
-      month: "short", day: "numeric", year: "numeric",
-      hour: "numeric", minute: "2-digit",
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
     });
   }
 
@@ -220,21 +310,37 @@ function ManagerPromotions() {
       <div className="promotion-pagination">
         <label>
           Offers per page{" "}
-          <select value={pageSize} onChange={(event) => {
-            setPageSize(Number(event.target.value));
-            setPage(1);
-          }}>
+          <select
+            value={pageSize}
+            onChange={(event) => {
+              setPageSize(Number(event.target.value));
+              setPage(1);
+            }}
+          >
             <option value={10}>10</option>
             <option value={25}>25</option>
           </select>
         </label>
         <span aria-live="polite">
-          Showing {rows.length ? startIndex + 1 : 0}–{Math.min(startIndex + pageSize, rows.length)} of {rows.length} offers
+          Showing {rows.length ? startIndex + 1 : 0}–
+          {Math.min(startIndex + pageSize, rows.length)} of {rows.length} offers
         </span>
         <nav aria-label={`Offer pages ${position}`}>
-          <button disabled={currentPage === 1} onClick={() => setPage(currentPage - 1)}>Previous</button>
-          <span>Page {currentPage} of {totalPages}</span>
-          <button disabled={currentPage === totalPages} onClick={() => setPage(currentPage + 1)}>Next</button>
+          <button
+            disabled={currentPage === 1}
+            onClick={() => setPage(currentPage - 1)}
+          >
+            Previous
+          </button>
+          <span>
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            disabled={currentPage === totalPages}
+            onClick={() => setPage(currentPage + 1)}
+          >
+            Next
+          </button>
         </nav>
       </div>
     );
@@ -243,34 +349,23 @@ function ManagerPromotions() {
     <div>
       <ManagerSidebar />
       <main className="manager-page manager-promotions">
-        <h1>Coupons &amp; Sales</h1>
+        <h1>Coupons</h1>
         <p>
-          Create category offers with dollar discounts. Times use your local
-          time zone.
+          Create coupons for specific products or entire categories. Times use
+          your local time zone.
         </p>
-        <div className="promotion-toolbar promotion-tabs" aria-label="Promotion type">
-          {["coupons", "sales"].map((value) => (
-            <button
-              key={value}
-              disabled={saving}
-              aria-pressed={type === value}
-              onClick={() => selectType(value)}
-            >
-              {value === "coupons" ? "Coupons" : "Seasonal Sales"}
-            </button>
-          ))}
-        </div>
-        {error && <p role="alert">{error}</p>}
+        {error && editor === null && <p role="alert">{error}</p>}
         {notice && <p role="status">{notice}</p>}
         {loading && <p>Loading offers...</p>}
         {!loading && (
           <>
             <div className="promotion-toolbar">
               <button
-                disabled={saving || !categories.length}
+                className="coupon-primary"
+                disabled={saving || (!categories.length && !products.length)}
                 onClick={() => openEditor()}
               >
-                Add {coupon ? "Coupon" : "Sale"}
+                Add Coupon
               </button>
               <button disabled={saving} onClick={loadPromotions}>
                 Refresh
@@ -279,17 +374,33 @@ function ManagerPromotions() {
             <div className="promotion-toolbar promotion-filters">
               <label>
                 Search offers
-                <input type="search" placeholder="Search by offer name" value={search}
-                  onChange={(event) => { setSearch(event.target.value); setPage(1); }} />
+                <input
+                  type="search"
+                  placeholder="Search by offer name"
+                  value={search}
+                  onChange={(event) => {
+                    setSearch(event.target.value);
+                    setPage(1);
+                  }}
+                />
               </label>
               <label>
                 Category
-                <select value={categoryFilter} onChange={(event) => {
-                  setCategoryFilter(event.target.value); setPage(1);
-                }}>
+                <select
+                  value={categoryFilter}
+                  onChange={(event) => {
+                    setCategoryFilter(event.target.value);
+                    setPage(1);
+                  }}
+                >
                   <option value="all">All categories</option>
                   {categories.map((category) => (
-                    <option key={category.CategoryID} value={category.CategoryID}>{category.CategoryName}</option>
+                    <option
+                      key={category.CategoryID}
+                      value={category.CategoryID}
+                    >
+                      {category.CategoryName}
+                    </option>
                   ))}
                 </select>
               </label>
@@ -297,7 +408,10 @@ function ManagerPromotions() {
                 Status{" "}
                 <select
                   value={filter}
-                  onChange={(event) => { setFilter(event.target.value); setPage(1); }}
+                  onChange={(event) => {
+                    setFilter(event.target.value);
+                    setPage(1);
+                  }}
                 >
                   {["All", "Active", "Scheduled", "Expired"].map((value) => (
                     <option key={value}>{value}</option>
@@ -305,107 +419,289 @@ function ManagerPromotions() {
                 </select>
               </label>
             </div>
-            {!categories.length && (
-              <p>Add categories before creating offers.</p>
+            {!categories.length && !products.length && (
+              <p>Add a category or product before creating a coupon.</p>
             )}
-            {editor !== null && (
-              <form className="promotion-editor" onSubmit={savePromotion}>
-                <h2>
-                  {editor === "new" ? "Add" : "Edit"}{" "}
-                  {coupon ? "Coupon" : "Sale"}
-                </h2>
-                <fieldset disabled={saving}>
-                  {coupon && (
-                    <label>
-                      Coupon name
-                      <input
-                        name="CouponName"
-                        value={form.CouponName}
-                        onChange={handleFieldChange}
-                        maxLength={100}
-                        required
-                      />
-                    </label>
-                  )}
-                  <label>
-                    Category
-                    <select
-                      name="CategoryID"
-                      value={form.CategoryID}
-                      onChange={handleFieldChange}
-                      required
-                    >
-                      <option value="">Select category</option>
-                      {categories.map((category) => (
-                        <option
-                          key={category.CategoryID}
-                          value={category.CategoryID}
-                        >
-                          {category.CategoryName}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <label>
-                    Discount ($ off)
-                    <input
-                      name="DiscountAmount"
-                      type="number"
-                      min="0.01"
-                      max="99999999.99"
-                      step="0.01"
-                      value={form.DiscountAmount}
-                      onChange={handleFieldChange}
-                      required
-                    />
-                  </label>
-                  {[
-                    ["startsAt", "Start"],
-                    ["endsAt", "End"],
-                  ].map(([field, label]) => {
-                    const [date = "", time = ""] = form[field].split("T");
-                    return (
-                      <div className="offer-dates" key={field}>
-                        <label>
-                          {label} date
+            <dialog
+              ref={dialog}
+              className="coupon-dialog"
+              aria-labelledby="coupon-dialog-title"
+              onCancel={(event) => {
+                event.preventDefault();
+                if (!saving) closeEditor();
+              }}
+            >
+              <form onSubmit={savePromotion} onInvalid={showInvalidField}>
+                <header className="coupon-dialog-header">
+                  <h2 id="coupon-dialog-title">
+                    {editor === "new" ? "Add Coupon" : "Edit Coupon"}
+                  </h2>
+                  <button
+                    type="button"
+                    aria-label="Close"
+                    disabled={saving}
+                    onClick={closeEditor}
+                  >
+                    ×
+                  </button>
+                </header>
+                <div className="coupon-dialog-body">
+                  <div className="coupon-dialog-columns">
+                    <section>
+                      <h3>Coupon details</h3>
+                      <fieldset className="coupon-details" disabled={saving}>
+                        <label className="coupon-wide">
+                          Coupon name
                           <input
-                            type="date"
-                            value={date}
-                            onChange={(event) => setForm({ ...form, [field]: event.target.value + "T" + time })}
+                            name="CouponName"
+                            placeholder="Example: Dairy Deal"
+                            value={form.CouponName}
+                            onChange={handleFieldChange}
+                            maxLength={100}
+                            required
+                          />
+                        </label>
+                        <label className="coupon-wide">
+                          Description
+                          <textarea
+                            name="Description"
+                            placeholder="Example: Save $1 on each eligible dairy item."
+                            value={form.Description}
+                            onChange={handleFieldChange}
+                            maxLength={500}
+                            rows={3}
                             required
                           />
                         </label>
                         <label>
-                          {label} time
+                          Discount ($ off)
                           <input
-                            type="time"
-                            value={time}
-                            onChange={(event) => setForm({ ...form, [field]: date + "T" + event.target.value })}
+                            name="DiscountAmount"
+                            type="number"
+                            min="0.01"
+                            max="99999999.99"
+                            step="0.01"
+                            value={form.DiscountAmount}
+                            onChange={handleFieldChange}
                             required
                           />
                         </label>
+                        <label>
+                          Limit
+                          <input
+                            name="UsesPerClip"
+                            aria-describedby="coupon-limit-help"
+                            type="number"
+                            min="1"
+                            max="2147483647"
+                            step="1"
+                            value={form.UsesPerClip}
+                            onChange={handleFieldChange}
+                            required
+                          />
+                          <small id="coupon-limit-help">
+                            One completed order counts as one use, even when
+                            this coupon discounts multiple items.
+                          </small>
+                        </label>
+                        {editor !== null &&
+                          [
+                            ["startsAt", "Start"],
+                            ["endsAt", "End"],
+                          ].map(([field, label]) => {
+                            const [date = "", time = ""] =
+                              form[field].split("T");
+                            return (
+                              <div
+                                className="coupon-date-time coupon-wide"
+                                key={field}
+                              >
+                                <label>
+                                  {label} date
+                                  <input
+                                    type="date"
+                                    name={`${field}-date`}
+                                    defaultValue={date}
+                                    required
+                                  />
+                                </label>
+                                <label>
+                                  {label} time
+                                  <input
+                                    type="time"
+                                    name={`${field}-time`}
+                                    defaultValue={time}
+                                    required
+                                  />
+                                </label>
+                              </div>
+                            );
+                          })}
+                      </fieldset>
+                    </section>
+                    <section>
+                      <h3>Applies to</h3>
+                      <div
+                        className="coupon-targets"
+                        role="group"
+                        aria-label="Eligibility type"
+                      >
+                        {[
+                          ["products", "Specific products"],
+                          ["categories", "Whole category"],
+                        ].map(([value, label]) => (
+                          <button
+                            key={value}
+                            type="button"
+                            aria-pressed={target === value}
+                            disabled={saving}
+                            onClick={() => {
+                              setTarget(value);
+                              setItemSearch("");
+                            }}
+                          >
+                            {label}
+                          </button>
+                        ))}
                       </div>
-                    );
-                  })}
-                </fieldset>
-                <button disabled={saving} type="submit">
-                  {saving ? "Saving..." : "Save offer"}
-                </button>
-                <button
-                  disabled={saving}
-                  type="button"
-                  onClick={() => setEditor(null)}
-                >
-                  Cancel
-                </button>
+                      {target && (
+                        <>
+                          <input
+                            className="coupon-search"
+                            type="search"
+                            aria-label={
+                              target === "products"
+                                ? "Search products"
+                                : "Search categories"
+                            }
+                            placeholder={
+                              target === "products"
+                                ? "Search products"
+                                : "Search categories"
+                            }
+                            value={itemSearch}
+                            onChange={(event) =>
+                              setItemSearch(event.target.value)
+                            }
+                            disabled={saving}
+                          />
+                          {target === "products" && (
+                            <select
+                              className="coupon-category-filter"
+                              aria-label="Filter products by category"
+                              value={productCategory}
+                              onChange={(event) =>
+                                setProductCategory(event.target.value)
+                              }
+                              disabled={saving}
+                            >
+                              <option value="">All categories</option>
+                              {categories.map((category) => (
+                                <option
+                                  key={category.CategoryID}
+                                  value={category.CategoryID}
+                                >
+                                  {category.CategoryName}
+                                </option>
+                              ))}
+                            </select>
+                          )}
+                          <fieldset
+                            className="coupon-options"
+                            aria-label="Search results"
+                            disabled={saving}
+                          >
+                            {matchingItems.map((item) => (
+                              <label key={item.id}>
+                                <input
+                                  type={
+                                    target === "products" ? "checkbox" : "radio"
+                                  }
+                                  name={
+                                    target === "categories"
+                                      ? "coupon-category"
+                                      : undefined
+                                  }
+                                  checked={
+                                    selectedIDs.includes(item.id) &&
+                                    (target === "products" ||
+                                      selectedIDs.length === 1)
+                                  }
+                                  onChange={() => selectItem(item.id)}
+                                />
+                                {item.name}
+                              </label>
+                            ))}
+                            {!matchingItems.length && <p>No matches.</p>}
+                          </fieldset>
+                          {selectedItems.length > 0 && (
+                            <>
+                              <p>{selectedItems.length} selected</p>
+                              <div className="coupon-selected">
+                                {selectedItems.map((item) => (
+                                  <button
+                                    key={item.id}
+                                    type="button"
+                                    aria-label={`Remove ${item.name}`}
+                                    disabled={saving}
+                                    onClick={() => {
+                                      const field =
+                                        target === "products"
+                                          ? "ProductIDs"
+                                          : "CategoryIDs";
+                                      setForm({
+                                        ...form,
+                                        [field]: selectedIDs.filter(
+                                          (id) => id !== item.id,
+                                        ),
+                                      });
+                                    }}
+                                  >
+                                    {item.name}
+                                    {target === "products" && !item.active
+                                      ? " (inactive)"
+                                      : ""}{" "}
+                                    ×
+                                  </button>
+                                ))}
+                              </div>
+                            </>
+                          )}
+                        </>
+                      )}
+                    </section>
+                  </div>
+                </div>
+                <footer className="coupon-dialog-footer">
+                  {error && (
+                    <p className="coupon-save-error" role="alert">
+                      {error}
+                    </p>
+                  )}
+                  <div className="coupon-dialog-actions">
+                    <button
+                      type="button"
+                      disabled={saving}
+                      onClick={closeEditor}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      className="coupon-primary"
+                      type="submit"
+                      disabled={saving}
+                    >
+                      {saving ? "Saving..." : "Save coupon"}
+                    </button>
+                  </div>
+                </footer>
               </form>
-            )}
+            </dialog>
             {deleting && (
               <div className="promotion-editor" role="alert">
                 <p>
-                  Delete{" "}
-                  {deleting.CouponName || `${deleting.CategoryName} sale`}? This
-                  removes the offer for customers.
+                  Delete {deleting.CouponName}? This removes the offer for
+                  customers.
                 </p>
                 <button disabled={saving} onClick={deletePromotion}>
                   Confirm delete
@@ -420,8 +716,9 @@ function ManagerPromotions() {
               <table>
                 <thead>
                   <tr>
-                    {coupon && <th>Name</th>}
-                    <th>Category</th>
+                    <th>Name</th>
+                    <th>Eligible items</th>
+                    <th>Limit</th>
                     <th>Discount</th>
                     <th>Starts</th>
                     <th>Ends</th>
@@ -432,34 +729,52 @@ function ManagerPromotions() {
                 <tbody>
                   {visibleRows.map((offer) => (
                     <tr key={offer.id}>
-                      {coupon && <td>{offer.CouponName}</td>}
-                      <td>{offer.CategoryName}</td>
+                      <td>
+                        <strong>{offer.CouponName}</strong>
+                        {offer.Description && <div>{offer.Description}</div>}
+                      </td>
+                      <td>
+                        {categories
+                          .filter((category) =>
+                            offer.CategoryIDs.includes(category.CategoryID),
+                          )
+                          .map((category) => category.CategoryName)
+                          .concat(
+                            products
+                              .filter((product) =>
+                                offer.ProductIDs.includes(product.InventoryID),
+                              )
+                              .map((product) => product.InventoryName),
+                          )
+                          .join(", ")}
+                      </td>
+                      <td>{offer.UsesPerClip}</td>
                       <td>${Number(offer.DiscountAmount).toFixed(2)} off</td>
                       <td>{formatDate(offer.startsAt)}</td>
                       <td>{formatDate(offer.endsAt)}</td>
                       <td>{getOfferStatus(offer)}</td>
                       <td>
                         <div className="promotion-actions">
-                        <button
-                          disabled={saving}
-                          onClick={() => openEditor(offer)}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          disabled={saving}
-                          onClick={() => openDelete(offer)}
-                        >
-                          Delete
-                        </button>
+                          <button
+                            disabled={saving}
+                            onClick={() => openEditor(offer)}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            disabled={saving}
+                            onClick={() => openDelete(offer)}
+                          >
+                            Delete
+                          </button>
                         </div>
                       </td>
                     </tr>
                   ))}
                   {!rows.length && (
                     <tr>
-                      <td colSpan={coupon ? 7 : 6}>
-                        No {coupon ? "coupons" : "sales"} match your search or filters.
+                      <td colSpan={8}>
+                        No coupons match your search or filters.
                       </td>
                     </tr>
                   )}

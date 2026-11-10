@@ -5,161 +5,179 @@ const router = Router();
 
 router.get("/coupons", async (req, res) => {
   try {
-    const results = await pool.query(
-      `SELECT p.CouponID AS id, p.CategoryID, c.CategoryName,
-              p.TimeStart AS startsAt, p.TimeEnd AS endsAt, p.DiscountAmount, p.CouponName
-       FROM Coupons AS p
-       JOIN Category AS c ON p.CategoryID = c.CategoryID
-       ORDER BY p.TimeStart DESC`,
+    const [coupons] = await pool.query(
+      `SELECT CouponID AS id, CouponName, Description, UsesPerClip, CategoryID,
+              UNIX_TIMESTAMP(TimeStart) AS startSeconds,
+              UNIX_TIMESTAMP(TimeEnd) AS endSeconds, DiscountAmount
+       FROM Coupons ORDER BY TimeStart DESC`,
     );
-    res.json(results[0]);
+    const [categories] = await pool.query(
+      "SELECT CouponID, CategoryID FROM CouponCategories",
+    );
+    const [products] = await pool.query(
+      "SELECT CouponID, InventoryID FROM CouponProducts",
+    );
+
+    for (const coupon of coupons) {
+      coupon.startsAt = new Date(coupon.startSeconds * 1000).toISOString();
+      coupon.endsAt = new Date(coupon.endSeconds * 1000).toISOString();
+      delete coupon.startSeconds;
+      delete coupon.endSeconds;
+      coupon.CategoryIDs = categories
+        .filter((row) => row.CouponID === coupon.id)
+        .map((row) => row.CategoryID);
+      if (coupon.CategoryIDs.length === 0 && coupon.CategoryID !== null) {
+        coupon.CategoryIDs = [coupon.CategoryID];
+      }
+      coupon.ProductIDs = products
+        .filter((row) => row.CouponID === coupon.id)
+        .map((row) => row.InventoryID);
+    }
+    res.json(coupons);
   } catch (err) {
-    console.log(err.message);
+    console.error(err.message);
     res.status(500).json({ message: "Unable to load coupons" });
   }
 });
 
-router.post("/coupons", async (req, res) => {
-  const promotion = req.body;
+router.post("/coupons", saveCoupon);
+router.put("/coupons/:id", saveCoupon);
 
-  if (
-    !promotion.CategoryID ||
-    !promotion.DiscountAmount ||
-    !promotion.startsAt ||
-    !promotion.endsAt
-  ) {
+async function saveCoupon(req, res) {
+  const id = req.params.id === undefined ? null : Number(req.params.id);
+  const {
+    CouponName,
+    Description,
+    UsesPerClip,
+    DiscountAmount,
+    startsAt,
+    endsAt,
+    CategoryIDs = [],
+    ProductIDs = [],
+  } = req.body || {};
+  const name = typeof CouponName === "string" ? CouponName.trim() : "";
+  const description = typeof Description === "string" ? Description.trim() : "";
+  const uses = Number(UsesPerClip);
+  const discount = Number(DiscountAmount);
+  const start = Date.parse(startsAt);
+  const end = Date.parse(endsAt);
+
+  if (id !== null && (!Number.isInteger(id) || id < 1)) {
+    return res.status(400).json({ message: "Invalid coupon ID" });
+  }
+  if (!name || name.length > 100 || !description || description.length > 500) {
+    return res.status(400).json({
+      message: "Enter a name and description (up to 100 and 500 characters)",
+    });
+  }
+  if (!Number.isInteger(uses) || uses < 1 || uses > 2147483647) {
     return res
       .status(400)
-      .json({
-        message: "Category, discount, start time and end time are required",
-      });
+      .json({ message: "Limit must be a positive whole number" });
   }
-  if (Number(promotion.DiscountAmount) <= 0) {
-    return res
-      .status(400)
-      .json({ message: "Discount must be greater than zero" });
+  if (!Number.isFinite(discount) || discount < 0.01 || discount > 99999999.99) {
+    return res.status(400).json({ message: "Enter a valid dollar discount" });
   }
-  if (new Date(promotion.startsAt) >= new Date(promotion.endsAt)) {
-    return res
-      .status(400)
-      .json({ message: "End time must be after start time" });
-  }
-  if (!promotion.CouponName || !promotion.CouponName.trim()) {
-    return res.status(400).json({ message: "Coupon name is required" });
-  }
-
-  try {
-    const existing = await pool.query(
-      `SELECT CouponID FROM Coupons
-       WHERE CategoryID = ? AND TimeStart <= ? AND TimeEnd >= ?`,
-      [
-        promotion.CategoryID,
-        new Date(promotion.endsAt),
-        new Date(promotion.startsAt),
-      ],
-    );
-    if (existing[0].length > 0) {
-      return res
-        .status(400)
-        .json({
-          message: "Another offer in this category already uses these dates",
-        });
-    }
-
-    await pool.query(
-      `INSERT INTO Coupons (CategoryID, TimeStart, TimeEnd, DiscountAmount, CouponName)
-       VALUES (?, ?, ?, ?, ?)`,
-      [
-        promotion.CategoryID,
-        new Date(promotion.startsAt),
-        new Date(promotion.endsAt),
-        promotion.DiscountAmount,
-        promotion.CouponName,
-      ],
-    );
-    res.status(201).json({ message: "Coupon added" });
-  } catch (err) {
-    console.log(err.message);
-    res.status(500).json({ message: "Unable to add coupon" });
-  }
-});
-
-router.put("/coupons/:id", async (req, res) => {
-  const promotion = req.body;
-  const promotionID = Number(req.params.id);
-
-  if (!Number.isInteger(promotionID) || promotionID <= 0) {
-    return res.status(400).json({ message: "Invalid promotion ID" });
-  }
-
-  if (
-    !promotion.CategoryID ||
-    !promotion.DiscountAmount ||
-    !promotion.startsAt ||
-    !promotion.endsAt
-  ) {
-    return res
-      .status(400)
-      .json({
-        message: "Category, discount, start time and end time are required",
-      });
-  }
-  if (Number(promotion.DiscountAmount) <= 0) {
-    return res
-      .status(400)
-      .json({ message: "Discount must be greater than zero" });
-  }
-  if (new Date(promotion.startsAt) >= new Date(promotion.endsAt)) {
+  if (!Number.isFinite(start) || !Number.isFinite(end) || start >= end) {
     return res
       .status(400)
       .json({ message: "End time must be after start time" });
   }
-  if (!promotion.CouponName || !promotion.CouponName.trim()) {
-    return res.status(400).json({ message: "Coupon name is required" });
+  if (
+    !validIDs(CategoryIDs) ||
+    !validIDs(ProductIDs) ||
+    (CategoryIDs.length !== 1 && ProductIDs.length === 0) ||
+    (CategoryIDs.length > 0 && ProductIDs.length > 0)
+  ) {
+    return res
+      .status(400)
+      .json({ message: "Select specific products or one whole category" });
   }
 
+  let connection;
   try {
-    const existing = await pool.query(
-      `SELECT CouponID FROM Coupons
-       WHERE CategoryID = ? AND TimeStart <= ? AND TimeEnd >= ? AND CouponID <> ?`,
-      [
-        promotion.CategoryID,
-        new Date(promotion.endsAt),
-        new Date(promotion.startsAt),
-        promotionID,
-      ],
-    );
-    if (existing[0].length > 0) {
-      return res
-        .status(400)
-        .json({
-          message: "Another offer in this category already uses these dates",
-        });
-    }
-
-    const results = await pool.query(
-      `UPDATE Coupons
-       SET CategoryID = ?, TimeStart = ?, TimeEnd = ?, DiscountAmount = ?, CouponName = ?,
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+    const values = [
+      name,
+      description,
+      uses,
+      discount,
+      Math.floor(start / 1000),
+      Math.floor(end / 1000),
+    ];
+    let couponID = id;
+    if (id === null) {
+      const [result] = await connection.query(
+        `INSERT INTO Coupons (CouponName, Description, UsesPerClip, DiscountAmount, TimeStart, TimeEnd)
+         VALUES (?, ?, ?, ?, FROM_UNIXTIME(?), FROM_UNIXTIME(?))`,
+        values,
+      );
+      couponID = result.insertId;
+    } else {
+      const [result] = await connection.query(
+        `UPDATE Coupons SET CouponName = ?, Description = ?, UsesPerClip = ?,
+           DiscountAmount = ?, TimeStart = FROM_UNIXTIME(?), TimeEnd = FROM_UNIXTIME(?),
+           CategoryID = NULL,
            TableUpdateTime = CURRENT_TIMESTAMP
-       WHERE CouponID = ?`,
-      [
-        promotion.CategoryID,
-        new Date(promotion.startsAt),
-        new Date(promotion.endsAt),
-        promotion.DiscountAmount,
-        promotion.CouponName,
-        promotionID,
-      ],
-    );
-    if (results[0].affectedRows === 0) {
-      return res.status(404).json({ message: "Coupon not found" });
+         WHERE CouponID = ?`,
+        [...values, id],
+      );
+      if (!result.affectedRows) {
+        await connection.rollback();
+        return res.status(404).json({ message: "Coupon not found" });
+      }
+      await connection.query(
+        "DELETE FROM CouponCategories WHERE CouponID = ?",
+        [id],
+      );
+      await connection.query("DELETE FROM CouponProducts WHERE CouponID = ?", [
+        id,
+      ]);
     }
-    res.json({ message: "Coupon updated" });
+
+    if (CategoryIDs.length) {
+      await connection.query(
+        "INSERT INTO CouponCategories (CouponID, CategoryID) VALUES ?",
+        [[...new Set(CategoryIDs)].map((categoryID) => [couponID, categoryID])],
+      );
+    }
+    if (ProductIDs.length) {
+      await connection.query(
+        "INSERT INTO CouponProducts (CouponID, InventoryID) VALUES ?",
+        [[...new Set(ProductIDs)].map((productID) => [couponID, productID])],
+      );
+    }
+    await connection.commit();
+    res.status(id === null ? 201 : 200).json({ message: "Coupon saved" });
   } catch (err) {
-    console.log(err.message);
-    res.status(500).json({ message: "Unable to update coupon" });
+    if (connection) await connection.rollback();
+    if (err.code === "ER_NO_REFERENCED_ROW_2") {
+      return res
+        .status(400)
+        .json({ message: "A selected category or product no longer exists" });
+    }
+    if (
+      ["ER_NO_DEFAULT_FOR_FIELD", "ER_BAD_NULL_ERROR"].includes(err.code) &&
+      err.sqlMessage?.includes("'CategoryID'")
+    ) {
+      return res.status(500).json({
+        message:
+          "The database must allow NULL in coupons.CategoryID before saving coupons.",
+      });
+    }
+    console.error(err.message);
+    res.status(500).json({ message: "Unable to save coupon" });
+  } finally {
+    connection?.release();
   }
-});
+}
+
+function validIDs(ids) {
+  return (
+    Array.isArray(ids) && ids.every((id) => Number.isSafeInteger(id) && id > 0)
+  );
+}
 
 router.delete("/coupons/:id", async (req, res) => {
   const promotionID = Number(req.params.id);
@@ -171,9 +189,16 @@ router.delete("/coupons/:id", async (req, res) => {
     const connection = await pool.getConnection();
     try {
       await connection.beginTransaction();
-      await connection.query('DELETE FROM ClippedCoupons WHERE CouponID = ?', [promotionID]);
-      await connection.query('DELETE FROM UsedCoupons WHERE CouponID = ?', [promotionID]);
-      const [result] = await connection.query('DELETE FROM Coupons WHERE CouponID = ?', [promotionID]);
+      await connection.query("DELETE FROM ClippedCoupons WHERE CouponID = ?", [
+        promotionID,
+      ]);
+      await connection.query("DELETE FROM UsedCoupons WHERE CouponID = ?", [
+        promotionID,
+      ]);
+      const [result] = await connection.query(
+        "DELETE FROM Coupons WHERE CouponID = ?",
+        [promotionID],
+      );
       if (!result.affectedRows) {
         await connection.rollback();
         return res.status(404).json({ message: "Coupon not found" });
@@ -189,177 +214,6 @@ router.delete("/coupons/:id", async (req, res) => {
   } catch (err) {
     console.log(err.message);
     res.status(500).json({ message: "Unable to delete coupon" });
-  }
-});
-
-router.get("/sales", async (req, res) => {
-  try {
-    const results = await pool.query(
-      `SELECT p.SeasonalSalesID AS id, p.CategoryID, c.CategoryName,
-              p.SalesStart AS startsAt, p.SalesEnd AS endsAt, p.DiscountAmount
-       FROM SeasonalSales AS p
-       JOIN Category AS c ON p.CategoryID = c.CategoryID
-       ORDER BY p.SalesStart DESC`,
-    );
-    res.json(results[0]);
-  } catch (err) {
-    console.log(err.message);
-    res.status(500).json({ message: "Unable to load sales" });
-  }
-});
-
-router.post("/sales", async (req, res) => {
-  const promotion = req.body;
-
-  if (
-    !promotion.CategoryID ||
-    !promotion.DiscountAmount ||
-    !promotion.startsAt ||
-    !promotion.endsAt
-  ) {
-    return res
-      .status(400)
-      .json({
-        message: "Category, discount, start time and end time are required",
-      });
-  }
-  if (Number(promotion.DiscountAmount) <= 0) {
-    return res
-      .status(400)
-      .json({ message: "Discount must be greater than zero" });
-  }
-  if (new Date(promotion.startsAt) >= new Date(promotion.endsAt)) {
-    return res
-      .status(400)
-      .json({ message: "End time must be after start time" });
-  }
-
-  try {
-    const existing = await pool.query(
-      `SELECT SeasonalSalesID FROM SeasonalSales
-       WHERE CategoryID = ? AND SalesStart <= ? AND SalesEnd >= ?`,
-      [
-        promotion.CategoryID,
-        new Date(promotion.endsAt),
-        new Date(promotion.startsAt),
-      ],
-    );
-    if (existing[0].length > 0) {
-      return res
-        .status(400)
-        .json({
-          message: "Another offer in this category already uses these dates",
-        });
-    }
-
-    await pool.query(
-      `INSERT INTO SeasonalSales (CategoryID, SalesStart, SalesEnd, DiscountAmount)
-       VALUES (?, ?, ?, ?)`,
-      [
-        promotion.CategoryID,
-        new Date(promotion.startsAt),
-        new Date(promotion.endsAt),
-        promotion.DiscountAmount,
-      ],
-    );
-    res.status(201).json({ message: "Sale added" });
-  } catch (err) {
-    console.log(err.message);
-    res.status(500).json({ message: "Unable to add sale" });
-  }
-});
-
-router.put("/sales/:id", async (req, res) => {
-  const promotion = req.body;
-  const promotionID = Number(req.params.id);
-
-  if (!Number.isInteger(promotionID) || promotionID <= 0) {
-    return res.status(400).json({ message: "Invalid promotion ID" });
-  }
-
-  if (
-    !promotion.CategoryID ||
-    !promotion.DiscountAmount ||
-    !promotion.startsAt ||
-    !promotion.endsAt
-  ) {
-    return res
-      .status(400)
-      .json({
-        message: "Category, discount, start time and end time are required",
-      });
-  }
-  if (Number(promotion.DiscountAmount) <= 0) {
-    return res
-      .status(400)
-      .json({ message: "Discount must be greater than zero" });
-  }
-  if (new Date(promotion.startsAt) >= new Date(promotion.endsAt)) {
-    return res
-      .status(400)
-      .json({ message: "End time must be after start time" });
-  }
-
-  try {
-    const existing = await pool.query(
-      `SELECT SeasonalSalesID FROM SeasonalSales
-       WHERE CategoryID = ? AND SalesStart <= ? AND SalesEnd >= ? AND SeasonalSalesID <> ?`,
-      [
-        promotion.CategoryID,
-        new Date(promotion.endsAt),
-        new Date(promotion.startsAt),
-        promotionID,
-      ],
-    );
-    if (existing[0].length > 0) {
-      return res
-        .status(400)
-        .json({
-          message: "Another offer in this category already uses these dates",
-        });
-    }
-
-    const results = await pool.query(
-      `UPDATE SeasonalSales
-       SET CategoryID = ?, SalesStart = ?, SalesEnd = ?, DiscountAmount = ?,
-           TableUpdateTime = CURRENT_TIMESTAMP
-       WHERE SeasonalSalesID = ?`,
-      [
-        promotion.CategoryID,
-        new Date(promotion.startsAt),
-        new Date(promotion.endsAt),
-        promotion.DiscountAmount,
-        promotionID,
-      ],
-    );
-    if (results[0].affectedRows === 0) {
-      return res.status(404).json({ message: "Sale not found" });
-    }
-    res.json({ message: "Sale updated" });
-  } catch (err) {
-    console.log(err.message);
-    res.status(500).json({ message: "Unable to update sale" });
-  }
-});
-
-router.delete("/sales/:id", async (req, res) => {
-  const promotionID = Number(req.params.id);
-
-  if (!Number.isInteger(promotionID) || promotionID <= 0) {
-    return res.status(400).json({ message: "Invalid promotion ID" });
-  }
-  try {
-    const results = await pool.query(
-      `DELETE FROM SeasonalSales WHERE SeasonalSalesID = ?`,
-      [promotionID],
-    );
-    if (results[0].affectedRows === 0) {
-      return res.status(404).json({ message: "Sale not found" });
-    }
-    res.json({ message: "Sale deleted" });
-  } catch (err) {
-    console.log(err.message);
-    res.status(500).json({ message: "Unable to delete sale" });
   }
 });
 

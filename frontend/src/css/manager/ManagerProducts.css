@@ -234,14 +234,13 @@
   color: white;
 }
 .manager-products .product-row-actions .delete-product-button {
-  background: transparent;
+  background: #a12932;
   border: 1px solid #a12932;
-  color: #a12932;
+  color: #fff;
 }
 .manager-products .product-row-actions .delete-product-button:hover {
-  background: #fcecef;
-  border-color: #a12932;
-  color: #841e27;
+  background: #84222a;
+  border-color: #84222a;
 }
 .manager-products .product-row-actions .delete-product-button:focus-visible {
   outline: 2px solid #a12932;

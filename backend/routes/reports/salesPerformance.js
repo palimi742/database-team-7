@@ -13,7 +13,9 @@ router.get("/overview", async (req, res) => {
     res.json(overview);
   } catch (err) {
     console.error(err.message);
-    res.status(500).json({ message: "Unable to load all-time sales overview." });
+    res
+      .status(500)
+      .json({ message: "Unable to load all-time sales overview." });
   }
 });
 
@@ -131,10 +133,6 @@ router.get("/", async (req, res) => {
          SELECT CouponID AS id, 'Coupon' AS OfferType, CouponName AS OfferName,
                 CategoryID, DATE(TimeStart) AS Starts, DATE(TimeEnd) AS Ends
          FROM Coupons
-         UNION ALL
-         SELECT SeasonalSalesID, 'Seasonal sale', 'Seasonal sale',
-                CategoryID, DATE(SalesStart), DATE(SalesEnd)
-         FROM SeasonalSales
        ) AS p
        JOIN Category c ON c.CategoryID = p.CategoryID
        WHERE p.Starts <= LEAST(?, CURDATE()) AND p.Ends >= ?
@@ -161,9 +159,15 @@ router.get("/", async (req, res) => {
          JOIN Inventory i ON i.InventoryID = ti.InventoryID
          JOIN Transactions t ON t.TransactionID = ti.TransactionID
          WHERE i.CategoryID = ? AND t.TransactionDate BETWEEN ? AND ?`,
-        [promotion.PeriodStart, promotion.PeriodEnd,
-         promotion.BeforeStart, promotion.BeforeEnd, promotion.CategoryID,
-         promotion.BeforeStart, promotion.PeriodEnd],
+        [
+          promotion.PeriodStart,
+          promotion.PeriodEnd,
+          promotion.BeforeStart,
+          promotion.BeforeEnd,
+          promotion.CategoryID,
+          promotion.BeforeStart,
+          promotion.PeriodEnd,
+        ],
       );
       promotion.DuringSales = Number(totals.DuringSales);
       promotion.BeforeSales = Number(totals.BeforeSales);

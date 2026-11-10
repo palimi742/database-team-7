@@ -33,7 +33,6 @@ function Browse() {
 
   const [showSignIn, setShowSignIn] = useState(false);
   const [products, setProducts] = useState([]);
-  const [seasonalProducts, setSeasonalProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(
     searchParams.get("category") || "All",
@@ -79,25 +78,6 @@ function Browse() {
     loadCategories();
   }, []);
 
-  useEffect(() => {
-    async function loadSales() {
-      try {
-        const response = await fetch("/api/seasonal-sales");
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.message || "Unable to load seasonal sales.");
-        }
-
-        setSeasonalProducts(data);
-      } catch (err) {
-        setError(err.message);
-      }
-    }
-
-    loadSales();
-  }, []);
-
   const filteredProducts = products.filter((product) => {
     const matchesSearch = product.InventoryName.toLowerCase().includes(
       search.toLowerCase(),
@@ -115,21 +95,6 @@ function Browse() {
       total + Number(product.Price) * Number(product.Quantity),
     0,
   );
-
-  function getDiscount(product) {
-    let discount = 0;
-
-    for (const sale of seasonalProducts) {
-      if (
-        Number(sale.InventoryID) === Number(product.InventoryID) &&
-        Number(sale.DiscountAmount) > discount
-      ) {
-        discount = Number(sale.DiscountAmount);
-      }
-    }
-
-    return discount;
-  }
 
   function addToCart(product) {
     if (!isSignedIn) {
@@ -158,6 +123,14 @@ function Browse() {
           <p className="order-success">{location.state.orderMessage}</p>
         )}
         <p>Find everything you need for your groceries</p>
+
+        <input
+          className="search-input"
+          type="text"
+          placeholder="Search for Groceries"
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+        />
 
         <div className="category-section">
           <h2>Shop by Category</h2>
@@ -197,28 +170,23 @@ function Browse() {
           <div className="product-grid">
             {filteredProducts.map((product) => {
               const outOfStock = Number(product.StockQuantity) <= 0;
-              const discount = getDiscount(product);
-              const regularPrice = Number(product.Price);
-              const salePrice = Math.max(regularPrice - discount, 0);
 
               return (
                 <div className="product-card" key={product.InventoryID}>
-                  {product.ImageURL && <img className="product-card-image" src={product.ImageURL} alt={product.InventoryName} loading="lazy" />}
-                  <h3>{product.InventoryName}</h3>
-
-                  {discount > 0 ? (
-                    <>
-                      <p>
-                        <strong>${salePrice.toFixed(2)}</strong>{" "}
-                        <del>${regularPrice.toFixed(2)}</del>
-                      </p>
-                      <p>Seasonal Sale!</p>
-                    </>
-                  ) : (
-                    <p>${regularPrice.toFixed(2)}</p>
+                  {product.ImageURL && (
+                    <img
+                      className="product-card-image"
+                      src={product.ImageURL}
+                      alt={product.InventoryName}
+                      loading="lazy"
+                    />
                   )}
+                  <h3>{product.InventoryName}</h3>
+                  <p>${Number(product.Price).toFixed(2)}</p>
 
-                  {outOfStock && <p className="product-stock-empty">Out of stock</p>}
+                  {outOfStock && (
+                    <p className="product-stock-empty">Out of stock</p>
+                  )}
                   <button
                     onClick={() => addToCart(product)}
                     disabled={updating || outOfStock || (isSignedIn && !cartID)}
@@ -248,4 +216,3 @@ function Browse() {
 }
 
 export default Browse;
-

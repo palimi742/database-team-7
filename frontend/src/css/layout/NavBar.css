@@ -1,43 +1,10 @@
 .navbar {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  padding: 0;
-  background-color: #3a5a40;
-}
-
-.navbar-top {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  gap: 1.5em;
-  width: 100%;
+  gap: 1.1em;
   padding: 1em 1.8em;
-  box-sizing: border-box;
-}
-
-.search-bar {
-  display: flex;
-  align-items: center;
-  flex: 1;
-  max-width: 500px;
-  background-color: white;
-  border-radius: 0.35em;
-  overflow: hidden;
-}
-
-.search-bar input {
-  flex: 1;
-  min-width: 0;
-  padding: 0.7em;
-  border: none;
-  outline: none;
-  font-size: 1rem;
-}
-
-.search-bar button {
-  padding: 0.7em;
-  border: none;
-  cursor: pointer;
+  background-color: #3a5a40;
 }
 
 .navbar a {
@@ -77,7 +44,6 @@
   align-items: center;
   justify-content: flex-end;
   gap: 0.9em;
-  margin-left: auto;
   min-width: 0;
 }
 
@@ -125,6 +91,25 @@
   cursor: pointer;
 }
 
+@media (max-width: 1000px) {
+  .navbar {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75em;
+    padding: 1em;
+  }
+
+  .home-link {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    justify-self: center;
+    font-size: 1.5rem;
+  }
+
+  .navbar-right {
+    flex-wrap: wrap;
+    gap: 0.5em;
+  }
+}
 
 .navbar-left {
   display: flex;
@@ -132,11 +117,6 @@
   flex-wrap: wrap;
   gap: 0.75em;
   min-width: 0;
-  background-color: #28442c;
-  padding: 0.6em 1.8em;
-  border-top: 1px solid rgba(255, 255, 255, 0.25);
-
-  box-sizing: border-box;
 }
 
 .savings-link {
@@ -160,51 +140,4 @@
   width: 1.4em;
   height: 1.4em;
   flex-shrink: 0;
-}
-
-.account-dropdown {
-  position: relative;
-}
-
-.account-toggle {
-  display: flex;
-  align-items: center;
-  gap: 0.35em;
-  padding: 0.4em;
-  border: none;
-  background: transparent;
-  color: white;
-  font-family: inherit;
-  font-size: 1.2rem;
-  cursor: pointer;
-}
-
-.account-dropdown-menu {
-  display: none;
-  position: absolute;
-  top: 100%;
-  right: 0;
-  min-width: 160px;
-  background: white;
-  border-radius: 0.35em;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  z-index: 100;
-}
-
-.account-dropdown:hover .account-dropdown-menu,
-.account-dropdown:focus-within .account-dropdown-menu {
-  display: flex;
-  flex-direction: column;
-}
-
-.account-dropdown-menu a,
-.account-dropdown-menu button {
-  padding: 0.8em 1em;
-  color: #333;
-  background: white;
-  border: none;
-  text-decoration: none;
-  text-align: left;
-  font: inherit;
-  cursor: pointer;
 }

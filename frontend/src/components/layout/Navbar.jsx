@@ -6,7 +6,7 @@ import accountSVG from "../../assets/account_circle.svg";
 import receiptSVG from "../../assets/receipt.svg";
 import "../../css/layout/NavBar.css";
 
-function NavBar({ search, setSearch }) {
+function NavBar() {
   const navigate = useNavigate();
   const [customer, setCustomer] = useState(() => {
     try {
@@ -29,110 +29,48 @@ function NavBar({ search, setSearch }) {
     navigate("/");
   }
 
- 
-return (
-  <nav className="navbar">
-
-    {/* FIRST ROW */}
-    <div className="navbar-top">
-
+  return (
+    <nav className="navbar">
+      <div className="navbar-left">
+        <Link to="/my-orders" className="orders-link">
+          My orders <img className="receipt-svg" src={receiptSVG} alt="" />
+        </Link>
+        <Link to="/savings" className="savings-link">
+          Savings
+        </Link>
+        <Link to="/my-orders?tab=returns&page=1" className="savings-link">
+          Returns
+        </Link>
+      </div>
       <Link className="home-link" to="/browse">
         FreshMart
       </Link>
-
-      {/* Search bar */}
-      <div className="search-bar">
-        <input
-          type="text"
-          placeholder="Search products..."
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-        />
-        <button type="button">
-          Search
-        </button>
-      </div>
-
-      {/* Account and Cart */}
       <div className="navbar-right">
-
         {customer ? (
-          <div className="account-dropdown">
-
+          <>
+            <Link to="/account" className="login-link account-link">
+              <img className="account-svg" src={accountSVG} alt="" />
+              My Account
+            </Link>
             <button
-              className="account-toggle"
+              className="login-link logout-button"
               type="button"
+              onClick={logOut}
             >
-              <img
-                className="account-svg"
-                src={accountSVG}
-                alt=""
-              />
-              <span className="customer-name">
-                {customer.FirstName} {customer.LastName}
-              </span>
+              Log out
             </button>
-
-            <div className="account-dropdown-menu">
-              <Link to="/account">
-                My Account
-              </Link>
-
-              <button
-                type="button"
-                onClick={logOut}
-              >
-                Log Out
-              </button>
-            </div>
-
-          </div>
+          </>
         ) : (
           <Link to="/login" className="login-link">
             Log in
           </Link>
         )}
-
-        <Link
-          to="/cart"
-          className="cart-link"
-          aria-label="Shopping Cart"
-        >
-          <img
-            className="shopping-cart"
-            src={shoppingCartSVG}
-            alt=""
-          />
+        <Link to="/cart" className="cart-link" aria-label="Shopping Cart">
+          <img className="shopping-cart" src={shoppingCartSVG} alt="" />
         </Link>
-
       </div>
-    </div>
-
-    {/* SECOND ROW */}
-    <div className="navbar-left">
-
-      <Link to="/my-orders" className="orders-link">
-        My orders
-        <img className="receipt-svg" src={receiptSVG} alt="" />
-      </Link>
-
-      <Link to="/savings" className="savings-link">
-        Savings
-      </Link>
-
-      <Link
-        to="/my-orders?tab=returns&page=1"
-        className="savings-link"
-      >
-        Returns
-      </Link>
-
-    </div>
-
-  </nav>
-);
+    </nav>
+  );
 }
 
-
 export default NavBar;
-

@@ -81,7 +81,7 @@ function ManagerSidebar() {
         <li>
           <NavLink to="/manager-coupon-sales">
             <img src={coupon} alt="" />
-            Coupons & Sales
+            Coupons
           </NavLink>
         </li>
         <li>
@@ -111,7 +111,12 @@ function ManagerSidebar() {
         </li>
       </ul>
       {error && <p role="alert">{error}</p>}
-      <button className="manager-logout" type="button" onClick={handleLogout} disabled={signingOut}>
+      <button
+        className="manager-logout"
+        type="button"
+        onClick={handleLogout}
+        disabled={signingOut}
+      >
         {signingOut ? "Signing out…" : "Logout"}
       </button>
       <div
@@ -130,11 +135,18 @@ function ManagerSidebar() {
           event.currentTarget.setPointerCapture(event.pointerId);
         }}
         onPointerMove={(event) => {
-          if (event.currentTarget.hasPointerCapture(event.pointerId) && drag.current) {
-            setWidth(clampWidth(drag.current.width + event.clientX - drag.current.x));
+          if (
+            event.currentTarget.hasPointerCapture(event.pointerId) &&
+            drag.current
+          ) {
+            setWidth(
+              clampWidth(drag.current.width + event.clientX - drag.current.x),
+            );
           }
         }}
-        onLostPointerCapture={() => { drag.current = null; }}
+        onLostPointerCapture={() => {
+          drag.current = null;
+        }}
       />
     </div>
   );

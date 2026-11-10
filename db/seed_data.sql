@@ -110,16 +110,6 @@ VALUES
   (5, 'Pantry Stock-Up $1 Off', 7, '2026-10-05 00:00:00', '2026-10-25 23:59:59', 1.0, NOW()),
   (6, 'Beverage Refresh $0.50 Off', 5, '2026-10-15 00:00:00', '2026-10-22 23:59:59', 0.5, NOW());
 
-/* SeasonalSales (DiscountAmount is dollars off) */
-INSERT INTO SeasonalSales
-  (SeasonalSalesID, CategoryID, SalesStart, SalesEnd, DiscountAmount, TableUpdateTime)
-VALUES
-  (1, 5, '2026-08-01 00:00:00', '2026-08-31 23:59:59', 0.5, NOW()),
-  (2, 1, '2026-09-20 00:00:00', '2026-10-20 23:59:59', 0.25, NOW()),
-  (3, 6, '2026-10-25 00:00:00', '2026-11-05 23:59:59', 0.5, NOW()),
-  (4, 7, '2026-11-15 00:00:00', '2026-11-28 23:59:59', 0.75, NOW()),
-  (5, 3, '2026-11-20 00:00:00', '2026-11-30 23:59:59', 1.0, NOW());
-
 /* WorkSchedule */
 INSERT INTO WorkSchedule
   (ScheduleID, EmployeeID, Weekday, StartTime, EndTime, TableUpdateTime)

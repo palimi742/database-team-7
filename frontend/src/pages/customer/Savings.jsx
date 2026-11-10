@@ -9,7 +9,7 @@ function Savings() {
   const [clipping, setClipping] = useState(null);
   const [coupons, setCoupons] = useState([]);
   const [couponStatus, setCouponStatus] = useState("loading");
-  const [clippedCoupons, setClippedCoupons] = useState([]);
+  const [clippedCoupons, setClippedCoupons] = useState({});
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -42,16 +42,18 @@ function Savings() {
           return;
         }
 
-        const response = await fetch(
-          "/api/coupons/clipped",
-        );
+        const response = await fetch("/api/coupons/clipped");
         const data = await response.json();
 
         if (!response.ok) {
           throw new Error(data.message || "Unable to load clipped coupons.");
         }
 
-        setClippedCoupons(data.map((coupon) => Number(coupon.CouponID)));
+        setClippedCoupons(
+          Object.fromEntries(
+            data.map((coupon) => [coupon.CouponID, coupon.UsesRemaining]),
+          ),
+        );
       } catch (err) {
         setError(err.message);
       }
@@ -86,7 +88,10 @@ function Savings() {
         throw new Error(data.message || "Unable to clip coupon.");
       }
 
-      setClippedCoupons((previous) => [...previous, Number(couponID)]);
+      setClippedCoupons((previous) => ({
+        ...previous,
+        [couponID]: data.UsesRemaining,
+      }));
     } catch (err) {
       setError(err.message);
     } finally {
@@ -122,7 +127,7 @@ function Savings() {
             <div className="coupon-grid">
               {coupons.map((coupon) => (
                 <div
-                  className={`coupon-card ${clippedCoupons.includes(Number(coupon.CouponID)) ? "coupon-clipped" : ""}`}
+                  className={`coupon-card ${clippedCoupons[coupon.CouponID] ? "coupon-clipped" : ""}`}
                   key={coupon.CouponID}
                 >
                   <div className="coupon-heading">
@@ -130,18 +135,21 @@ function Savings() {
                     <p>${Number(coupon.DiscountAmount).toFixed(2)} Off</p>
                   </div>
 
-                  {clippedCoupons.includes(Number(coupon.CouponID)) && (
-                    <span className="coupon-status">✓ Clipped</span>
+                  {coupon.Description && <p>{coupon.Description}</p>}
+                  {clippedCoupons[coupon.CouponID] > 0 && (
+                    <span className="coupon-status">
+                      {clippedCoupons[coupon.CouponID]} uses left
+                    </span>
                   )}
                   <button
                     onClick={() =>
-                      clippedCoupons.includes(Number(coupon.CouponID))
+                      clippedCoupons[coupon.CouponID]
                         ? shopCoupon(coupon)
                         : clipCoupon(coupon.CouponID)
                     }
                     disabled={clipping !== null}
                   >
-                    {clippedCoupons.includes(Number(coupon.CouponID))
+                    {clippedCoupons[coupon.CouponID]
                       ? "Add items"
                       : clipping === coupon.CouponID
                         ? "Clipping…"

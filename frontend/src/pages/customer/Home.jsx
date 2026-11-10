@@ -73,6 +73,17 @@ function Home() {
 
   return (
     <div className="browse-page browse-container">
+      <div>
+        <input
+          className="search-input"
+          type="search"
+          aria-label="Search groceries"
+          placeholder="Search for groceries"
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+        />
+      </div>
+
       <div className="category-section">
         <div className="category-buttons">
           <button
@@ -114,14 +125,19 @@ function Home() {
         <div className="product-grid">
           {filteredProducts.map((product) => (
             <div className="product-card" key={product.InventoryID}>
-              {product.ImageURL && <img className="product-card-image" src={product.ImageURL} alt={product.InventoryName} loading="lazy" />}
+              {product.ImageURL && (
+                <img
+                  className="product-card-image"
+                  src={product.ImageURL}
+                  alt={product.InventoryName}
+                  loading="lazy"
+                />
+              )}
               <h3>{product.InventoryName}</h3>
               <p>${Number(product.Price).toFixed(2)}</p>
               <button
                 onClick={() =>
-                  cartId
-                    ? addItem(product.InventoryID)
-                    : navigate("/login")
+                  cartId ? addItem(product.InventoryID) : navigate("/login")
                 }
               >
                 Add to cart
@@ -135,4 +151,3 @@ function Home() {
 }
 
 export default Home;
-

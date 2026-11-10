@@ -12,7 +12,6 @@ import productRoutes from "./routes/products/products.js";
 import loyaltyRoutes from "./routes/loyalty.js";
 import healthRoutes from "./routes/health.js";
 import couponRoutes from "./routes/promotions/coupons.js";
-import seasonalSalesRoutes from "./routes/promotions/seasonalSales.js";
 import employeeRoutes from "./routes/employees/unassignedEmployees.js";
 import manageOrderRoutes from "./routes/employees/manageOrders.js";
 import categoryRoutes from "./routes/products/categories.js";
@@ -83,7 +82,6 @@ app.use("/api/employees/unassigned", employeeRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/", healthRoutes);
 app.use("/api/coupons", couponRoutes);
-app.use("/api/seasonal-sales", seasonalSalesRoutes);
 app.use("/api/manager/reports/sales-performance", salesPerformanceRoutes);
 app.use("/api/reports/loyalty", loyaltyReportRoutes);
 app.use("/api/reports/inventory", inventoryReportRoutes);
@@ -91,7 +89,10 @@ app.use("/api", createCartRoutes(pool));
 
 // API requests must receive JSON even when an older or incorrect URL is used.
 app.use("/api", (req, res) => {
-  res.status(404).json({ message: "API route not found. Restart the backend if it was recently updated." });
+  res.status(404).json({
+    message:
+      "API route not found. Restart the backend if it was recently updated.",
+  });
 });
 
 app.use((error, req, res, next) => {
