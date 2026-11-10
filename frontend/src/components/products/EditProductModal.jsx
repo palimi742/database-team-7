@@ -219,7 +219,13 @@ function EditProductModal({ product, onClose, onSaved }) {
             <div className="product-image-section">
               <div className="product-image-heading">
                 <label htmlFor="edit-image">Product Image</label>
-                <span className={savedImageURL ? "product-image-status is-uploaded" : "product-image-status"}>
+                <span
+                  className={
+                    savedImageURL
+                      ? "product-image-status is-uploaded"
+                      : "product-image-status"
+                  }
+                >
                   {savedImageURL ? "Uploaded" : "No image"}
                 </span>
               </div>
@@ -257,7 +263,11 @@ function EditProductModal({ product, onClose, onSaved }) {
           {selectedImage && (
             <div className="product-save-notice">
               <p>Unsaved image: {selectedImage.name}</p>
-              <button type="button" onClick={handleImageUpload} disabled={Boolean(saving)}>
+              <button
+                type="button"
+                onClick={handleImageUpload}
+                disabled={Boolean(saving)}
+              >
                 {saving === "image" ? "Uploading image…" : "Upload Image"}
               </button>
             </div>
@@ -273,7 +283,11 @@ function EditProductModal({ product, onClose, onSaved }) {
               className={`product-save-notice ${saving ? "" : "product-save-success"}`}
               role="status"
             >
-              {saving === "image" ? "Uploading image…" : saving ? "Saving product…" : saveStatus}
+              {saving === "image"
+                ? "Uploading image…"
+                : saving
+                  ? "Saving product…"
+                  : saveStatus}
             </p>
           )}
 
@@ -294,7 +308,11 @@ function EditProductModal({ product, onClose, onSaved }) {
         >
           <div className="product-image-dialog-header">
             <h3>{product.InventoryName}</h3>
-            <button type="button" aria-label="Close image" onClick={() => imageDialog.current.close()}>
+            <button
+              type="button"
+              aria-label="Close image"
+              onClick={() => imageDialog.current.close()}
+            >
               ×
             </button>
           </div>
