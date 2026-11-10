@@ -51,6 +51,10 @@ function EditProductModal({ product, onClose, onSaved }) {
 
     setSaveError("");
     setSaveStatus("");
+    if (Number(productUpdates.restockTargetQuantity) <= Number(productUpdates.reorderThreshold)) {
+      setSaveError("Restock target must be greater than the reorder threshold.");
+      return;
+    }
     setSaving(true);
 
     try {
@@ -159,6 +163,7 @@ function EditProductModal({ product, onClose, onSaved }) {
                 id="edit-price"
                 name="price"
                 type="number"
+                onWheel={(event) => event.currentTarget.blur()}
                 step="0.01"
                 min="0"
                 defaultValue={product.Price}
@@ -196,6 +201,7 @@ function EditProductModal({ product, onClose, onSaved }) {
                 id="edit-stock"
                 name="stockQuantity"
                 type="number"
+                onWheel={(event) => event.currentTarget.blur()}
                 min="0"
                 step="1"
                 defaultValue={product.StockQuantity}
@@ -209,9 +215,25 @@ function EditProductModal({ product, onClose, onSaved }) {
                 id="edit-threshold"
                 name="reorderThreshold"
                 type="number"
+                onWheel={(event) => event.currentTarget.blur()}
                 min="0"
                 step="1"
                 defaultValue={product.ReorderThreshold}
+                required
+              />
+            </div>
+
+            <div>
+              <label htmlFor="edit-restock-target">Restock Target</label>
+              <input
+                id="edit-restock-target"
+                name="restockTargetQuantity"
+                type="number"
+                onWheel={(event) => event.currentTarget.blur()}
+                min="1"
+                max="2147483647"
+                step="1"
+                defaultValue={product.RestockTargetQuantity ?? ""}
                 required
               />
             </div>

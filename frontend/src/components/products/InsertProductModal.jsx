@@ -31,6 +31,14 @@ function InsertProductModal({ onClose, onSaved }) {
     const product = Object.fromEntries(formData);
     setSaveError("");
     setFieldError(null);
+    if (
+      Number(product.restockTargetQuantity) <= Number(product.reorderThreshold)
+    ) {
+      setSaveError(
+        "Restock target must be greater than the reorder threshold.",
+      );
+      return;
+    }
     setSaving(true);
 
     try {
@@ -71,7 +79,9 @@ function InsertProductModal({ onClose, onSaved }) {
               name="sku"
               required
               aria-invalid={fieldError?.field === "sku"}
-              aria-describedby={fieldError?.field === "sku" ? "insert-sku-error" : undefined}
+              aria-describedby={
+                fieldError?.field === "sku" ? "insert-sku-error" : undefined
+              }
             />
             {fieldError?.field === "sku" && (
               <p id="insert-sku-error" className="product-field-error">
@@ -86,7 +96,9 @@ function InsertProductModal({ onClose, onSaved }) {
               name="name"
               required
               aria-invalid={fieldError?.field === "name"}
-              aria-describedby={fieldError?.field === "name" ? "insert-name-error" : undefined}
+              aria-describedby={
+                fieldError?.field === "name" ? "insert-name-error" : undefined
+              }
             />
             {fieldError?.field === "name" && (
               <p id="insert-name-error" className="product-field-error">
@@ -112,6 +124,7 @@ function InsertProductModal({ onClose, onSaved }) {
               id="insert-price"
               name="price"
               type="number"
+              onWheel={(event) => event.currentTarget.blur()}
               step="0.01"
               min="0"
               required
@@ -123,6 +136,7 @@ function InsertProductModal({ onClose, onSaved }) {
               id="insert-stock"
               name="stockQuantity"
               type="number"
+              onWheel={(event) => event.currentTarget.blur()}
               min="0"
               required
             />
@@ -133,7 +147,21 @@ function InsertProductModal({ onClose, onSaved }) {
               id="insert-threshold"
               name="reorderThreshold"
               type="number"
+              onWheel={(event) => event.currentTarget.blur()}
               min="0"
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="insert-restock-target">Restock Target</label>
+            <input
+              id="insert-restock-target"
+              name="restockTargetQuantity"
+              type="number"
+              onWheel={(event) => event.currentTarget.blur()}
+              min="1"
+              max="2147483647"
+              step="1"
               required
             />
           </div>
@@ -147,25 +175,25 @@ function InsertProductModal({ onClose, onSaved }) {
             </button>
           </div>
         </form>
-          {saveError && (
-            <div className="product-error-modal">
-              <div className="product-error-text" role="alert">
-                <h2 className="product-error-title">
-                  Product could not be added
-                </h2>
-                <p className="product-error-message">{saveError}</p>
-                <button
-                  type="button"
-                  autoFocus
-                  onClick={() => {
-                    setSaveError("");
-                  }}
-                >
-                  Back to form
-                </button>
-              </div>
+        {saveError && (
+          <div className="product-error-modal">
+            <div className="product-error-text" role="alert">
+              <h2 className="product-error-title">
+                Product could not be added
+              </h2>
+              <p className="product-error-message">{saveError}</p>
+              <button
+                type="button"
+                autoFocus
+                onClick={() => {
+                  setSaveError("");
+                }}
+              >
+                Back to form
+              </button>
             </div>
-          )}
+          </div>
+        )}
       </div>
     </div>
   );

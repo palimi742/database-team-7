@@ -4,20 +4,44 @@ import pool from "../../db.js";
 const router = Router();
 
 router.post("/", async (req, res) => {
-  const product = req.body;
+  const product = req.body ?? {};
+  const reorderThreshold = Number(product.reorderThreshold);
+  if (
+    !["number", "string"].includes(typeof product.reorderThreshold) ||
+    String(product.reorderThreshold).trim() === "" ||
+    !Number.isInteger(reorderThreshold) ||
+    reorderThreshold < 0
+  ) {
+    return res.status(400).json({
+      message: "Reorder threshold must be a whole number of zero or more.",
+    });
+  }
+
+  const restockTargetQuantity = Number(product.restockTargetQuantity);
+  if (
+    !["number", "string"].includes(typeof product.restockTargetQuantity) ||
+    !Number.isInteger(restockTargetQuantity) ||
+    restockTargetQuantity <= reorderThreshold ||
+    restockTargetQuantity > 2147483647
+  ) {
+    return res.status(400).json({
+      message: "Restock target must be a whole number greater than the reorder threshold.",
+    });
+  }
 
   try {
     await pool.query(
       `INSERT INTO Inventory
-        (SKU, InventoryName, CategoryID, Price, StockQuantity, ReorderThreshold)
-       VALUES (?, ?, ?, ?, ?, ?)`,
+        (SKU, InventoryName, CategoryID, Price, StockQuantity, ReorderThreshold, RestockTargetQuantity)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [
         product.sku,
         product.name,
         product.categoryID,
         product.price,
         product.stockQuantity,
-        product.reorderThreshold,
+        reorderThreshold,
+        restockTargetQuantity,
       ],
     );
 

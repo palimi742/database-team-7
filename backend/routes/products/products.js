@@ -24,6 +24,7 @@ router.get("/", async (req, res) => {
         Inventory.Price,
         Inventory.StockQuantity,
         Inventory.ReorderThreshold,
+        Inventory.RestockTargetQuantity,
         Inventory.IsActive,
         Inventory.CategoryID,
         Category.CategoryName

@@ -261,6 +261,9 @@ function ManagerProducts() {
                     <strong>{product.StockQuantity}</strong>
                     {Number(product.StockQuantity) === 0 ? <small>Out of stock</small> :
                       Number(product.StockQuantity) <= Number(product.ReorderThreshold) ? <small>Low stock</small> : null}
+                    <span className="product-stock-target">
+                      Target: {product.RestockTargetQuantity ?? "Not set"}
+                    </span>
                   </td>
                   <td>{product.IsActive ? "Active" : "Inactive"}</td>
                   <td className="product-row-actions">

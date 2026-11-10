@@ -105,8 +105,12 @@
   background: rgb(0 0 0 / 70%);
 }
 
-.manager-session-dialog h2 { margin-top: 0; }
-.manager-session-dialog p { line-height: 1.6; }
+.manager-session-dialog h2 {
+  margin-top: 0;
+}
+.manager-session-dialog p {
+  line-height: 1.6;
+}
 .manager-session-dialog button {
   margin-top: 1rem;
   padding: 0.75rem 1rem;

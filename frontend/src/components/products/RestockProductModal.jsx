@@ -55,6 +55,7 @@ export default function RestockProductModal({ product, onClose, onSaved }) {
       <form onSubmit={submit}>
         <label htmlFor="restock-quantity">Units to add</label>
         <input id="restock-quantity" type="number" min="1" step="1"
+          onWheel={(event) => event.currentTarget.blur()}
           max={2147483647 - Number(product.StockQuantity)} required
           value={quantity} disabled={saving} onChange={(event) => setQuantity(event.target.value)} />
         <p>Stock after restocking: <strong>{valid ? Number(product.StockQuantity) + amount : product.StockQuantity}</strong></p>

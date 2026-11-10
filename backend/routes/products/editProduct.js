@@ -42,10 +42,22 @@ router.patch("/:inventoryID", async (req, res) => {
     });
   }
 
+  const restockTargetQuantity = Number(product.restockTargetQuantity);
+  if (
+    !["number", "string"].includes(typeof product.restockTargetQuantity) ||
+    !Number.isInteger(restockTargetQuantity) ||
+    restockTargetQuantity <= reorderThreshold ||
+    restockTargetQuantity > 2147483647
+  ) {
+    return res.status(400).json({
+      message: "Restock target must be a whole number greater than the reorder threshold.",
+    });
+  }
+
   try {
     const results = await pool.query(
       `UPDATE Inventory
-            SET SKU = ?, InventoryName = ?, Price = ?, CategoryID = ?, StockQuantity = ?, ReorderThreshold = ?
+            SET SKU = ?, InventoryName = ?, Price = ?, CategoryID = ?, StockQuantity = ?, ReorderThreshold = ?, RestockTargetQuantity = ?
             WHERE InventoryID = ?`,
       [
         product.sku,
@@ -54,6 +66,7 @@ router.patch("/:inventoryID", async (req, res) => {
         categoryID,
         stockQuantity,
         reorderThreshold,
+        restockTargetQuantity,
         inventoryID,
       ],
     );
