@@ -1,4 +1,5 @@
 import express from "express";
+import loginRoutes from "./routes/auth/login.js";
 import employeeLoginRoutes from "./routes/auth/employeeLogin.js";
 import employeeFulfillmentRoutes from "./routes/employees/employeeFulfillment.js";
 //add
@@ -50,6 +51,7 @@ app.get("/api/manager/session", (req, res) => {
 });
 app.use("/api/manager/reports/employee-workload", employeeWorkloadRoutes);
 app.use("/api/manager/promotions", managePromotionRoutes);
+app.use("/api/login", loginRoutes);
 app.use("/api/employees", employeeLoginRoutes);
 app.use("/api/employee/fulfillment", employeeFulfillmentRoutes);
 app.use("/api/employee/restock-requests", restockRequestRoutes);

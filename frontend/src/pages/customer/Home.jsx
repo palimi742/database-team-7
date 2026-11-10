@@ -131,7 +131,7 @@ function Home() {
                 onClick={() =>
                   cartId
                     ? addItem(product.InventoryID)
-                    : navigate("/customer-login")
+                    : navigate("/login")
                 }
               >
                 Add to cart

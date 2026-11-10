@@ -30,7 +30,7 @@ export default function EmployeeFulfillment() {
         setEmployee(null);
         setOrders([]);
         localStorage.removeItem("employee");
-        navigate("/employee/login", { replace: true });
+        navigate("/login", { replace: true });
         return;
       }
 
@@ -74,7 +74,7 @@ export default function EmployeeFulfillment() {
         setEmployee(null);
         setOrders([]);
         localStorage.removeItem("employee");
-        navigate("/employee/login", { replace: true });
+        navigate("/login", { replace: true });
         return;
       }
 

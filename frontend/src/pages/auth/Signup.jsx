@@ -45,7 +45,7 @@ function CustomerSignup() {
               <h1 id="signup-success-heading" className="signup-heading">Your account is ready!</h1>
               <p>You’re automatically enrolled in Freshmart Rewards with 0 points. Log in to start shopping and earning rewards.</p>
             </div>
-            <Link className="signup-btn" to="/customer-login">Continue to log in</Link>
+            <Link className="signup-btn" to="/login">Continue to log in</Link>
           </section>
         ) : (
         <form className="signup-form" onSubmit={handleSubmit}>
@@ -125,7 +125,7 @@ function CustomerSignup() {
             {submitting ? "Creating account…" : "Sign up"}
           </button>
           <p>
-            Already have an account? <Link to="/customer-login">Log in</Link>
+            Already have an account? <Link to="/login">Log in</Link>
           </p>
         </form>
         )}

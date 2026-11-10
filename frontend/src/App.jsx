@@ -1,7 +1,6 @@
 import "./css/App.css";
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Login from "./pages/auth/Login";
-import StaffLogin from "./pages/auth/StaffLogin";
 import EmployeeDashboard from "./pages/employee/EmployeeDashboard";
 import EmployeeFulfillment from "./pages/employee/EmployeeFulfillment";
 import Signup from "./pages/auth/Signup";
@@ -20,7 +19,6 @@ import ManagerPromotions from "./pages/manager/ManagerPromotions";
 import ProtectedManagerRoute from "./components/auth/ProtectedManagerRoute";
 import Home from "./pages/customer/Home";
 import NavBar from "./components/layout/Navbar";
-import Footer from "./components/layout/Footer";
 
 import Account from "./pages/customer/Account";
 import CartPage from "./pages/customer/CartPage";
@@ -34,14 +32,9 @@ import EmployeeInventoryReport from "./pages/employee/EmployeeInventoryReport";
 import EmployeeRestockRequests from "./pages/employee/EmployeeRestockRequests";
 
 function App() {
-  const { pathname } = useLocation();
-  const isManagerPage =
-    pathname === "/manager" ||
-    pathname.startsWith("/manager/") ||
-    pathname === "/manager-coupon-sales";
+  const { search } = useLocation();
 
   return (
-    <>
       <div className="app-content">
         <Routes>
           <Route
@@ -54,23 +47,12 @@ function App() {
             }
           />
           <Route path="/login" element={<Login />} />
-          <Route path="/customer-login" element={<Login />} />
-          <Route path="/staff/login" element={<StaffLogin />} />
-          <Route
-            path="/employee/login"
-            element={<StaffLogin key="employee" loginType="employee" />}
-          />
+          {["/customer-login", "/staff/login", "/employee/login", "/admin/login", "/manager/login"].map(path => (
+            <Route key={path} path={path} element={<Navigate to={{ pathname: "/login", search }} replace />} />
+          ))}
           <Route
             path="/employee/restock-requests"
             element={<EmployeeRestockRequests />}
-          />
-          <Route
-            path="/admin/login"
-            element={<StaffLogin key="admin" loginType="admin" />}
-          />
-          <Route
-            path="/manager/login"
-            element={<StaffLogin key="manager" loginType="admin" />}
           />
           <Route path="/employee" element={<EmployeeDashboard />} />
           <Route path="/employee/inventory"
@@ -141,8 +123,6 @@ function App() {
           <Route path="/return-request" element={<ReturnRequest />} />
         </Routes>
       </div>
-      {!isManagerPage && <Footer />}
-    </>
   );
 }
 export default App;

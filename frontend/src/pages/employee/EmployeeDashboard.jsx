@@ -23,7 +23,7 @@ export default function EmployeeDashboard() {
 
         if (response.status === 401) {
           localStorage.removeItem("employee");
-          navigate("/employee/login", { replace: true });
+          navigate("/login", { replace: true });
           return;
         }
 
@@ -75,7 +75,7 @@ export default function EmployeeDashboard() {
 
       localStorage.removeItem("employee");
       setEmployee(null);
-      navigate("/employee/login", { replace: true });
+      navigate("/login", { replace: true });
     } catch (err) {
       setError(err.message);
     } finally {

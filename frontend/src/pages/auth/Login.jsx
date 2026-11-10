@@ -5,8 +5,9 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import Navbar from "../../components/layout/Navbar";
 import PasswordInput from "../../components/auth/PasswordInput";
 
-function CustomerLogin() {
+function Login() {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const [notice, setNotice] = useState(() => searchParams.get("notice") === "account-inactive"
     ? { title: "Account is marked as inactive", message: "Your account has been deactivated and you’re now signed out." }
@@ -32,8 +33,9 @@ function CustomerLogin() {
   async function handleSubmit(event) {
     event.preventDefault();
     const fields = Object.fromEntries(new FormData(event.currentTarget));
+    setLoading(true);
     try {
-      const response = await fetch("/api/customers/login", {
+      const response = await fetch("/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(fields),
@@ -49,10 +51,21 @@ function CustomerLogin() {
         });
         return;
       }
-      sessionStorage.setItem("customer", JSON.stringify(data.customer));
-      navigate("/browse");
+      if (data.role === "customer") {
+        localStorage.removeItem("employee");
+        localStorage.removeItem("manager");
+        sessionStorage.setItem("customer", JSON.stringify(data.customer));
+        navigate("/browse", { replace: true });
+      } else {
+        sessionStorage.removeItem("customer");
+        localStorage.removeItem("manager");
+        localStorage.setItem("employee", JSON.stringify(data.employee));
+        navigate(data.role === "manager" ? "/manager" : "/employee", { replace: true });
+      }
     } catch {
       setNotice({ title: "Unable to sign in", message: "We couldn’t connect. Please try again shortly." });
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -70,7 +83,7 @@ function CustomerLogin() {
       )}
       <main>
         <form className="login-form" onSubmit={handleSubmit}>
-          <h1>Customer Login</h1>
+          <h1>Sign in to FreshMart</h1>
           <label className="username-label" htmlFor="username">
             Username
           </label>
@@ -78,15 +91,15 @@ function CustomerLogin() {
             id="username"
             name="username"
             type="text"
-            placeholder="JohnDoe123"
+            autoComplete="username"
             required
           ></input>
           <label className="password-label" htmlFor="password">
             Password
           </label>
           <PasswordInput autoComplete="current-password" />
-          <button className="login-btn" type="submit">
-            Login
+          <button className="login-btn" type="submit" disabled={loading}>
+            {loading ? "Signing in…" : "Sign in"}
           </button>
           <p className="create-account">
             Don't have an account?{" "}
@@ -100,4 +113,4 @@ function CustomerLogin() {
   );
 }
 
-export default CustomerLogin;
+export default Login;

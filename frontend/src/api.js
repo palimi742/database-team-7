@@ -1,4 +1,4 @@
-export const LOGIN_URL = "/customer-login";
+export const LOGIN_URL = "/login";
 
 export async function logoutStaff() {
   await api("/api/employees/logout", "POST");

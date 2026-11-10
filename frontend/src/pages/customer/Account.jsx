@@ -39,7 +39,7 @@ export default function Account() {
       await api("/api/customers/profile/deactivate", "POST");
       sessionStorage.removeItem("customer");
       // Reload to clear customer profile and cart data held in React memory.
-      window.location.replace("/customer-login?notice=account-inactive");
+      window.location.replace("/login?notice=account-inactive");
     } catch (error) {
       setDeactivationError(error.message);
       setDeactivating(false);
@@ -77,7 +77,7 @@ export default function Account() {
           </div>
         )}
         {!customer ? (
-          <div><Link to="/customer-login">Sign in</Link> to manage your account.</div>
+          <div><Link to="/login">Sign in</Link> to manage your account.</div>
         ) : (
           <div className="account-layout">
           <section className="account-rewards" aria-labelledby="account-rewards-title">

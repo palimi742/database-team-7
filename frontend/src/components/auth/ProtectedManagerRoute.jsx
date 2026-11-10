@@ -66,14 +66,14 @@ function ProtectedManagerRoute() {
       {showNotice && (
         <dialog ref={dialog} className="manager-session-dialog"
           aria-labelledby="session-title" aria-describedby="session-description"
-          onCancel={event => { event.preventDefault(); navigate("/manager/login", { replace: true }); }}>
+          onCancel={event => { event.preventDefault(); navigate("/login", { replace: true }); }}>
           <h2 id="session-title">{status === "forbidden" ? "Manager access required" : status === "error" ? "Unable to verify your session" : "Sign in required"}</h2>
           <p id="session-description">
             {status === "forbidden" ? "Please sign in with an active manager account to view this page."
               : status === "error" ? "We couldn’t check your session. Please try again shortly."
               : "Your session has expired or you’re signed out. Please sign in to continue."}
           </p>
-          <button type="button" autoFocus onClick={() => navigate("/manager/login", { replace: true })}>Go to manager login</button>
+          <button type="button" autoFocus onClick={() => navigate("/login", { replace: true })}>Go to sign in</button>
         </dialog>
       )}
     </div>

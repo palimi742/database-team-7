@@ -43,7 +43,7 @@ export default function EmployeeInventoryReport() {
           setItems([]);
           setSummary(null);
           localStorage.removeItem("employee");
-          navigate("/employee/login", { replace: true });
+          navigate("/login", { replace: true });
           return;
         }
 
