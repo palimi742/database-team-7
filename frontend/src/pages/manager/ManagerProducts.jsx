@@ -33,7 +33,6 @@ function ManagerProducts() {
         throw new Error("failed to load products");
       }
       setProducts(data);
-      setPage(1);
     } catch (err) {
       setError(err.message);
     } finally {

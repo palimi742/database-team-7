@@ -216,9 +216,13 @@ function EditProductModal({ product, onClose, onSaved }) {
               />
             </div>
 
-            <div>
-              <label htmlFor="edit-image">Product Image</label>
-              <p>{savedImageURL ? "Image uploaded" : "No image uploaded"}</p>
+            <div className="product-image-section">
+              <div className="product-image-heading">
+                <label htmlFor="edit-image">Product Image</label>
+                <span className={savedImageURL ? "product-image-status is-uploaded" : "product-image-status"}>
+                  {savedImageURL ? "Uploaded" : "No image"}
+                </span>
+              </div>
               {imageURL && (
                 <button
                   type="button"
@@ -227,7 +231,7 @@ function EditProductModal({ product, onClose, onSaved }) {
                   onClick={() => imageDialog.current.showModal()}
                 >
                   <img src={imageURL} alt={product.InventoryName} width="96" />
-                  <span>Enlarge</span>
+                  <span>View larger</span>
                 </button>
               )}
               <input
@@ -288,10 +292,13 @@ function EditProductModal({ product, onClose, onSaved }) {
           className="product-image-dialog"
           aria-label={product.InventoryName}
         >
+          <div className="product-image-dialog-header">
+            <h3>{product.InventoryName}</h3>
+            <button type="button" aria-label="Close image" onClick={() => imageDialog.current.close()}>
+              ×
+            </button>
+          </div>
           {imageURL && <img src={imageURL} alt={product.InventoryName} />}
-          <button type="button" onClick={() => imageDialog.current.close()}>
-            Close image
-          </button>
         </dialog>
       </div>
     </div>
