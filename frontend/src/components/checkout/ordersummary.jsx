@@ -7,26 +7,39 @@ export default function OrderSummary({ summary, type, onQuantityChange, updating
       <h2>Order Summary</h2>
       {summary && (
         <>
-          {summary.items.map((i) => (
-            <div className="cart-row" key={i.productId}>
-              <span>
-                {i.name} <span className="summary-quantity">× {onQuantityChange ? <input
-                  key={`${i.productId}-${i.quantity}`}
-                  aria-label={`Quantity for ${i.name}`} type="number" min="0" step="1"
-                  className="quantity-input" defaultValue={i.quantity} disabled={updating}
-                  onBlur={(event) => {
-                    const value = Number(event.target.value);
-                    if (event.target.value.trim() !== "" && Number.isSafeInteger(value) && value >= 0) {
-                      if (value !== Number(i.quantity)) onQuantityChange(i.productId, value);
-                    } else event.target.value = i.quantity;
-                  }}
-                  onKeyDown={(event) => { if (event.key === "Enter") event.currentTarget.blur(); }}
-                /> : i.quantity}</span>
-                {i.couponName && <span className="coupon-applied">Coupon applied: {i.couponName}</span>}
-              </span>
-              <span>{money(i.lineTotal)}</span>
-            </div>
-          ))}
+          {summary.items.map((i) => {
+            const originalCents = Math.round(Number(i.originalPrice) * 100) * Number(i.quantity);
+            const couponCents = originalCents - Math.round(Number(i.lineTotal) * 100);
+            const hasDiscount = i.couponName && couponCents > 0;
+
+            return (
+              <div className="cart-row checkout-summary-item" key={i.productId}>
+                <span>
+                  {i.name} <span className="summary-quantity">× {onQuantityChange ? <input
+                    key={`${i.productId}-${i.quantity}`}
+                    aria-label={`Quantity for ${i.name}`} type="number" min="0" step="1"
+                    className="quantity-input" defaultValue={i.quantity} disabled={updating}
+                    onBlur={(event) => {
+                      const value = Number(event.target.value);
+                      if (event.target.value.trim() !== "" && Number.isSafeInteger(value) && value >= 0) {
+                        if (value !== Number(i.quantity)) onQuantityChange(i.productId, value);
+                      } else event.target.value = i.quantity;
+                    }}
+                    onKeyDown={(event) => { if (event.key === "Enter") event.currentTarget.blur(); }}
+                  /> : i.quantity}</span>
+                </span>
+                <span>{money(hasDiscount ? originalCents / 100 : i.lineTotal)}</span>
+                {hasDiscount && (
+                  <>
+                    <span className="coupon-applied">Coupon · {i.couponName}</span>
+                    <span className="coupon-applied">−{money(couponCents / 100)}</span>
+                    <strong className="checkout-discounted-price">After coupon</strong>
+                    <strong className="checkout-discounted-price">{money(i.lineTotal)}</strong>
+                  </>
+                )}
+              </div>
+            );
+          })}
           <div className="cart-row">
             <span>Subtotal</span>
             <span>{money(summary.subtotal)}</span>
