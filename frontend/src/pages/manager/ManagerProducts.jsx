@@ -165,7 +165,7 @@ function ManagerProducts() {
   return (
     <div>
       <ManagerSidebar />
-      <div className="manager-main-dashboard manager-products">
+      <div className="manager-page manager-products">
         <div className="products-heading">
           <div><h1>Products</h1><p>Manage your catalog and inventory.</p></div>
           <div className="products-heading-actions">
@@ -173,7 +173,7 @@ function ManagerProducts() {
             <button type="button" onClick={() => openModal("insert")}>+ Add product</button>
           </div>
         </div>
-        <div className="product-category-buttons" aria-label="Product categories">
+        <div className="category-filters" aria-label="Product categories">
           {[{ id: "all", name: "All" }, ...categories].map((category) => (
             <button key={category.id} type="button" aria-pressed={categoryFilter === category.id}
               onClick={() => { setCategoryFilter(category.id); setPage(1); }}>{category.name}</button>
@@ -220,7 +220,7 @@ function ManagerProducts() {
 
         {!loading && !error && (
           <>
-          <div className="products-table-scroll">
+          <div className="product-table">
           <table>
             <thead>
               <tr>

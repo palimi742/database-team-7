@@ -45,7 +45,7 @@
   font-weight: 600;
 }
 
-.manager-main-dashboard .product-filters select {
+.manager-page .product-filters select {
   max-width: 100%;
   padding: 0.65em 1em;
   border: 0.0625rem solid #b9c7ba;
@@ -76,7 +76,7 @@
   gap: 0.35rem;
 }
 
-.manager-main-dashboard .product-pagination button {
+.manager-page .product-pagination button {
   box-sizing: border-box;
   width: 6em;
   height: 2em;
@@ -87,14 +87,14 @@
   font: inherit;
 }
 
-.manager-main-dashboard .product-pagination button:disabled {
+.manager-page .product-pagination button:disabled {
   background: #e6e6e6;
   color: #59675d;
   opacity: 1;
   cursor: not-allowed;
 }
 
-.manager-main-dashboard .product-pagination select {
+.manager-page .product-pagination select {
   padding: 0.2em 0.35em;
   border: 0.0625rem solid #b9c7ba;
   border-radius: 0.5rem;
@@ -111,15 +111,15 @@
 .manager-products button, .products-heading-actions a { border: 1px solid #b9c7ba; border-radius: 6px; padding: 0.5rem 0.75rem; font: inherit; cursor: pointer; }
 .manager-products button { margin: 0; background: #fafafa; color: #171717; }
 .products-heading-actions a { color: #18251c; text-decoration: none; }
-.product-category-buttons { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
-.manager-products .product-category-buttons button { background: #fff; color: #18251c; font-size: 1.066rem; }
-.manager-products .product-category-buttons button:hover {
+.category-filters { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+.manager-products .category-filters button { background: #fff; color: #18251c; font-size: 1.066rem; }
+.manager-products .category-filters button:hover {
   background: #f0f2f5;
   color: #18251c;
   border-color: #aab9ac;
 }
-.manager-products .product-category-buttons button[aria-pressed="true"],
-.manager-products .product-category-buttons button[aria-pressed="true"]:hover {
+.manager-products .category-filters button[aria-pressed="true"],
+.manager-products .category-filters button[aria-pressed="true"]:hover {
   background: #e6efe4;
   color: #171717;
   border-color: #18251c;
@@ -127,7 +127,7 @@
 .products-toolbar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 1rem; margin-bottom: 1.5rem; }
 .manager-products .product-search { flex: 1; min-width: 12rem; max-width: none; margin: 0; }
 .manager-products .product-filters { margin: 0; }
-.products-table-scroll { overflow-x: auto; border: 1px solid #dce5dc; border-radius: 8px; }
+.product-table { overflow-x: auto; border: 1px solid #dce5dc; border-radius: 8px; }
 .manager-products table { width: 100%; font-size: 1.05rem; }
 .manager-products th { background: #f0f2f5; color: #18251c; }
 .manager-products td { border-top: 1px solid #dce5dc; }
@@ -184,7 +184,7 @@
 }
 
 .products-heading p { margin: 0; }
-.products-table-scroll, .products-heading-actions a { background: #fff; }
+.product-table, .products-heading-actions a { background: #fff; }
 .manager-products .products-heading-actions button,
 .manager-products .product-modal button[type="submit"] {
   background: #245b39;

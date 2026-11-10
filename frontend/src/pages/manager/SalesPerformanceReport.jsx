@@ -205,7 +205,7 @@ function SalesPerformanceReport() {
   return (
     <div>
       <ManagerSidebar />
-      <div className="manager-main-dashboard sales-performance-report">
+      <div className="manager-page sales-performance-report">
         <h1>Sales Performance Report</h1>
         <div className="sales-all-time">
           <h2>All-Time Sales Overview</h2>

@@ -242,7 +242,7 @@ function ManagerPromotions() {
   return (
     <div>
       <ManagerSidebar />
-      <main className="manager-main-dashboard manager-promotions">
+      <main className="manager-page manager-promotions">
         <h1>Coupons &amp; Sales</h1>
         <p>
           Create category offers with dollar discounts. Times use your local
@@ -365,7 +365,7 @@ function ManagerPromotions() {
                   ].map(([field, label]) => {
                     const [date = "", time = ""] = form[field].split("T");
                     return (
-                      <div className="promotion-schedule" key={field}>
+                      <div className="offer-dates" key={field}>
                         <label>
                           {label} date
                           <input

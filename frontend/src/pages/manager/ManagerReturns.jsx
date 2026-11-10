@@ -103,7 +103,7 @@ function ManagerReturns() {
         </div>
       </dialog>
 
-      <div className="manager-main-dashboard">
+      <div className="manager-page">
         <h1>Return Requests</h1>
         <div className="return-view-buttons" aria-label="Return views">
           <button type="button" disabled={saving} aria-pressed={view === "Requested"}

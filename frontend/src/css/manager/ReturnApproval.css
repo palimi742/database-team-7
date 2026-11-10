@@ -39,7 +39,7 @@ dialog.return-approval-modal .return-approval-actions button:hover { background:
 dialog.return-approval-modal .return-approval-actions button:focus-visible { outline: 3px solid #8bac91; outline-offset: 3px; }
 
 .return-view-buttons { display: flex; gap: 0.75rem; margin-bottom: 1rem; }
-.manager-main-dashboard .return-view-buttons button {
+.manager-page .return-view-buttons button {
   margin: 0;
   padding: 0.5rem 0.8rem;
   border: 1px solid #777;
@@ -48,13 +48,13 @@ dialog.return-approval-modal .return-approval-actions button:focus-visible { out
   color: #18251c;
   cursor: pointer;
 }
-.manager-main-dashboard .return-view-buttons button:hover { background: #f0f2f5; color: #18251c; }
-.manager-main-dashboard .return-view-buttons button[aria-pressed="true"] { background: #e6efe4; color: #171717; }
+.manager-page .return-view-buttons button:hover { background: #f0f2f5; color: #18251c; }
+.manager-page .return-view-buttons button[aria-pressed="true"] { background: #e6efe4; color: #171717; }
 
 .return-view-buttons { flex-wrap: wrap; }
 .returns-table-scroll { overflow-x: auto; }
 .returns-pagination { display: flex; align-items: center; flex-wrap: wrap; gap: 0.6rem; margin-top: 1rem; font-size: 1.066rem; }
 .returns-pagination nav { display: flex; align-items: center; flex-wrap: wrap; gap: 0.6rem; }
-.manager-main-dashboard .returns-pagination button { margin: 0; padding: 0.4rem 0.7rem; }
+.manager-page .returns-pagination button { margin: 0; padding: 0.4rem 0.7rem; }
 .returns-pagination select { background: #fff; color: #18251c; border: 1px solid #777; border-radius: 5px; }
 .returns-pagination button:disabled { opacity: 0.5; cursor: not-allowed; }

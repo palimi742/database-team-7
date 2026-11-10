@@ -15,108 +15,203 @@
   color: inherit;
   font-size: clamp(1.7rem, 4vw, 2.65rem);
   line-height: 1.12;
-  margin: .35rem 0 .55rem;
+  margin: 0.35rem 0 0.55rem;
 }
 .fm-hero .fm-back {
   display: inline-block;
-  margin-bottom: .9rem;
+  margin-bottom: 0.9rem;
   color: inherit;
 }
 .fm-eyebrow {
-  font-size: .75rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
-  letter-spacing: .12em;
+  letter-spacing: 0.12em;
   color: #b8e8c9;
   font-weight: 700;
 }
-.fm-hero-row, .fm-shift {
+.fm-hero-row,
+.fm-shift {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
 }
-.fm-shift h2 { margin: .65rem 0 .3rem; }
-.fm-workspace button.fm-secondary, .fm-action {
+.fm-shift h2 {
+  margin: 0.65rem 0 0.3rem;
+}
+.fm-workspace button.fm-secondary,
+.fm-action {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
   border: 1px solid #c7dacd;
-  border-radius: .55rem;
-  padding: .5rem .85rem;
+  border-radius: 0.55rem;
+  padding: 0.5rem 0.85rem;
   background: #edf7ef;
   color: #174a35;
   font: inherit;
   font-weight: 650;
   text-decoration: none;
 }
-.fm-workspace button.fm-secondary:hover, .fm-action:hover {
+.fm-workspace button.fm-secondary:hover,
+.fm-action:hover {
   background: #daeddf;
   color: #103826;
 }
-.fm-tiles, .fm-metrics {
+.fm-tiles,
+.fm-metrics {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 215px), 1fr));
-  gap: .85rem;
+  gap: 0.85rem;
   margin: 1.1rem auto;
 }
-.fm-tile, .fm-metrics > div {
+.fm-tile,
+.fm-metrics > div {
   border: 1px solid #d6e5d8;
   background: #fff;
-  border-radius: .8rem;
+  border-radius: 0.8rem;
   padding: 1rem;
 }
 .fm-tile {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: .65rem;
+  gap: 0.65rem;
 }
-.fm-tile h2 { margin: 0; }
-.fm-tile p { flex: 1; }
-.fm-tile-label { color: #2b674a; font-weight: 700; font-size: .8rem; }
-.fm-metrics dt, .fm-subtle { color: #4b6656; font-size: .88rem; }
-.fm-metrics dd { margin: .3rem 0 0; font-size: 1.6rem; font-weight: 700; }
-.fm-feedback { margin-bottom: 1rem; }
-.fm-feedback p { margin-top: .5rem; }
-.fm-table-wrap { overflow-x: auto; margin-top: .85rem; }
-.fm-table { width: 100%; border-collapse: collapse; }
-.fm-table th, .fm-table td { text-align: left; padding: .65rem; border-bottom: 1px solid #deebe0; }
-.fm-table th { background: #edf7ef; }
-.fm-workspace .employee-order-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); }
-.fm-packing h4, .fm-issue-area h4 { margin: 0 0 .4rem; }
-.fm-packing progress { width: 100%; accent-color: #24733a; }
-.fm-packing .fm-checklist, .fm-issue-list { list-style: none; padding: 0; margin: .55rem 0; }
+.fm-tile h2 {
+  margin: 0;
+}
+.fm-tile p {
+  flex: 1;
+}
+.fm-tile-label {
+  color: #2b674a;
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+.fm-metrics dt,
+.fm-subtle {
+  color: #4b6656;
+  font-size: 0.88rem;
+}
+.fm-metrics dd {
+  margin: 0.3rem 0 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+.fm-feedback {
+  margin-bottom: 1rem;
+}
+.fm-feedback p {
+  margin-top: 0.5rem;
+}
+.fm-table-wrap {
+  overflow-x: auto;
+  margin-top: 0.85rem;
+}
+.fm-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.fm-table th,
+.fm-table td {
+  text-align: left;
+  padding: 0.65rem;
+  border-bottom: 1px solid #deebe0;
+}
+.fm-table th {
+  background: #edf7ef;
+}
+.fm-workspace .employee-order-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+}
+.fm-packing h4,
+.fm-issue-area h4 {
+  margin: 0 0 0.4rem;
+}
+.fm-packing progress {
+  width: 100%;
+  accent-color: #24733a;
+}
+.fm-packing .fm-checklist,
+.fm-issue-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.55rem 0;
+}
 .fm-checklist label {
   display: flex;
   align-items: center;
-  gap: .55rem;
+  gap: 0.55rem;
   min-height: 44px;
-  padding: .35rem .55rem;
+  padding: 0.35rem 0.55rem;
   border: 1px solid #dae7dc;
-  border-radius: .45rem;
+  border-radius: 0.45rem;
   background: white;
 }
-.fm-checklist input { width: 1.05rem; height: 1.05rem; flex: none; accent-color: #24733a; }
-.fm-issue, .fm-issue-area, .fm-form { overflow-wrap: anywhere; }
-.fm-issue-area { border-top: 1px solid #dbe8dd; padding-top: .8rem; margin-top: .8rem; }
-.fm-issue-list li, .fm-reply { background: #edf7ef; border-radius: .45rem; padding: .65rem; margin: .45rem 0; }
-.fm-issue-list li .fm-reply { background: white; }
-.fm-form { display: grid; justify-items: start; gap: .55rem; margin-top: .65rem; }
-.fm-form[hidden] { display: none; }
-.fm-form label { display: block; width: 100%; font-weight: 600; }
-.fm-form textarea, .fm-form select {
+.fm-checklist input {
+  width: 1.05rem;
+  height: 1.05rem;
+  flex: none;
+  accent-color: #24733a;
+}
+.fm-issue,
+.fm-issue-area,
+.fm-form {
+  overflow-wrap: anywhere;
+}
+.fm-issue-area {
+  border-top: 1px solid #dbe8dd;
+  padding-top: 0.8rem;
+  margin-top: 0.8rem;
+}
+.fm-issue-list li,
+.fm-reply {
+  background: #edf7ef;
+  border-radius: 0.45rem;
+  padding: 0.65rem;
+  margin: 0.45rem 0;
+}
+.fm-issue-list li .fm-reply {
+  background: white;
+}
+.fm-form {
+  display: grid;
+  justify-items: start;
+  gap: 0.55rem;
+  margin-top: 0.65rem;
+}
+.fm-form[hidden] {
+  display: none;
+}
+.fm-form label {
+  display: block;
+  width: 100%;
+  font-weight: 600;
+}
+.fm-form textarea,
+.fm-form select {
   display: block;
   width: 100%;
   box-sizing: border-box;
-  padding: .5rem;
+  padding: 0.5rem;
   border: 1px solid #a9c3af;
-  border-radius: .45rem;
+  border-radius: 0.45rem;
   background: #fff;
   color: #18382a;
   font: inherit;
 }
-.fm-form label > :is(textarea, select) { margin-top: .25rem; }
-.fm-form textarea { resize: vertical; }
-.fm-workspace :focus-visible { outline: 2px solid #2b7650; outline-offset: 3px; }
-.fm-hero :focus-visible { outline-color: #c8f2d2; }
+.fm-form label > :is(textarea, select) {
+  margin-top: 0.25rem;
+}
+.fm-form textarea {
+  resize: vertical;
+}
+.fm-workspace :focus-visible {
+  outline: 2px solid #2b7650;
+  outline-offset: 3px;
+}
+.fm-hero :focus-visible {
+  outline-color: #c8f2d2;
+}

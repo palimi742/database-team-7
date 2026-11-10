@@ -95,7 +95,7 @@ export default function EmployeeWorkloadReport() {
   return (
     <div>
       <ManagerSidebar />
-      <main className="manager-main-dashboard employee-workload-report">
+      <main className="manager-page employee-workload-report">
         <h1>Employee Workload Report</h1>
         <p>
           Employee counts and pay cover all employees. Recent hires default to

@@ -87,7 +87,7 @@ function CustomerLoyaltyReport() {
   return (
     <div>
       <ManagerSidebar />
-      <div className="manager-main-dashboard customer-loyalty-report">
+      <div className="manager-page customer-loyalty-report">
         <h1>Customer Loyalty and Rewards Report</h1>
         <h2>Loyalty Program Overview</h2>
 
