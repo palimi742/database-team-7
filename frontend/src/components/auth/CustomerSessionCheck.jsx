@@ -21,7 +21,7 @@ export default function CustomerSessionCheck({ children }) {
         if (response.status === 401) {
           sessionStorage.removeItem("customer");
           if (previous) {
-            window.location.replace("/customer-login?notice=session-ended");
+            window.location.replace("/login?notice=session-ended");
             return;
           }
         } else if (response.ok) {

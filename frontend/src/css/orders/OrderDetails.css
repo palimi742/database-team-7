@@ -93,6 +93,24 @@
   }
 }
 
+.order-item-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.order-item-thumbnail {
+  flex: none;
+  box-sizing: border-box;
+  width: 7rem;
+  height: 7rem;
+  padding: 0.25rem;
+  object-fit: contain;
+  border: 1px solid #e1e8dc;
+  border-radius: 0.45rem;
+  background: white;
+}
+
 .order-item-actions {
   display: flex;
   align-items: center;

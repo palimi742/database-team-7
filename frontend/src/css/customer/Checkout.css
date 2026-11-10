@@ -280,17 +280,26 @@
   background: rgb(0 0 0 / 45%);
 }
 
+#view-checkout #summary .checkout-summary-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.35rem 0.889rem;
+  align-items: baseline;
+}
+
+#view-checkout .checkout-summary-item > :nth-child(even) {
+  text-align: right;
+  white-space: nowrap;
+}
+
 #view-checkout #summary .coupon-applied {
-  display: block;
-  width: fit-content;
-  max-width: 100%;
-  box-sizing: border-box;
-  margin-top: 0.5rem;
-  color: #174b80;
-  font-size: 1rem;
-  line-height: 1.5;
-  font-weight: 500;
-  text-align: left;
+  color: #315b40;
+  font-size: 0.875rem;
+  overflow-wrap: anywhere;
+}
+
+#view-checkout .checkout-discounted-price {
+  font-size: 0.875rem;
 }
 
 #view-checkout .cart-row > span:first-child {
@@ -299,9 +308,4 @@
 
 #view-checkout .cart-row > span:last-child {
   flex-shrink: 0;
-}
-
-#view-checkout #summary .coupon-applied {
-  white-space: normal;
-  overflow-wrap: anywhere;
 }

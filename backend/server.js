@@ -1,4 +1,5 @@
 import express from "express";
+import loginRoutes from "./routes/auth/login.js";
 import employeeLoginRoutes from "./routes/auth/employeeLogin.js";
 import employeeFulfillmentRoutes from "./routes/employees/employeeFulfillment.js";
 import employeeTimeRoutes from "./routes/employees/employeeTime.js";
@@ -17,6 +18,7 @@ import manageOrderRoutes from "./routes/employees/manageOrders.js";
 import categoryRoutes from "./routes/products/categories.js";
 import saveProductRoutes from "./routes/products/saveProduct.js";
 import editProductRoutes from "./routes/products/editProduct.js";
+import uploadProductImageRoutes from "./routes/products/uploadProductImage.js";
 import deleteProductRoutes from "./routes/products/deleteProducts.js";
 import restockProductRoutes from "./routes/products/restockProduct.js";
 import restoreProductRoute from "./routes/products/restoreProducts.js";
@@ -52,6 +54,7 @@ app.get("/api/manager/session", (req, res) => {
 });
 app.use("/api/manager/reports/employee-workload", employeeWorkloadRoutes);
 app.use("/api/manager/promotions", managePromotionRoutes);
+app.use("/api/login", loginRoutes);
 app.use("/api/employees", employeeLoginRoutes);
 app.use("/api/employee/fulfillment", employeeFulfillmentRoutes);
 app.use("/api/employee/time", employeeTimeRoutes);
@@ -72,6 +75,7 @@ app.use("/api/products", (req, res, next) => {
 app.use("/api/products", restockProductRoutes);
 app.use("/api/products", saveProductRoutes);
 app.use("/api/products", editProductRoutes);
+app.use("/api/products", uploadProductImageRoutes);
 app.use("/api/products", deleteProductRoutes);
 app.use("/api/products", restoreProductRoute);
 app.use("/api/loyalty", loyaltyRoutes);

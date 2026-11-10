@@ -32,7 +32,7 @@ export default function ManagerRestockRequests() {
         if (response.status === 401) {
           setRequests([]);
           localStorage.removeItem("employee");
-          navigate("/manager/login", { replace: true });
+          navigate("/login", { replace: true });
           return;
         }
 
@@ -94,7 +94,7 @@ export default function ManagerRestockRequests() {
       if (response.status === 401) {
         setRequests([]);
         localStorage.removeItem("employee");
-        navigate("/manager/login", { replace: true });
+        navigate("/login", { replace: true });
         return;
       }
 
@@ -152,7 +152,7 @@ async function receiveStock(request) {
     if (response.status === 401) {
       setRequests([]);
       localStorage.removeItem("employee");
-      navigate("/manager/login", { replace: true });
+      navigate("/login", { replace: true });
       return;
     }
 

@@ -12,7 +12,7 @@ function ManagerSidebar() {
     setError("");
     try {
       await logoutStaff();
-      navigate("/manager/login", { replace: true });
+      navigate("/login", { replace: true });
     } catch {
       setError("Unable to sign out. Please try again.");
     } finally {

@@ -26,7 +26,28 @@ export function registerOrderRoutes(router, pool) {
             DATE_FORMAT(t.TransactionDate, '%Y-%m-%d') AS orderDate,
             d.DeliveryName AS fulfillmentType, ${STATUS_SQL} AS status
             ${fromSql} ORDER BY t.TransactionID DESC LIMIT ? OFFSET ?`,
-          [req.customerId]);
+          [req.customerId], async (orders) => {
+            const [previews] = await pool.query(
+              `SELECT orderId, id, name, imageURL, itemCount FROM (
+                SELECT ti.TransactionID AS orderId, ti.TransactionItemID AS id,
+                  i.InventoryName AS name, i.ImageURL AS imageURL,
+                  COUNT(*) OVER (PARTITION BY ti.TransactionID) AS itemCount,
+                  ROW_NUMBER() OVER (
+                    PARTITION BY ti.TransactionID ORDER BY ti.TransactionItemID
+                  ) AS position
+                FROM TransactionItems ti
+                JOIN Inventory i ON i.InventoryID = ti.InventoryID
+                WHERE ti.TransactionID IN (?)
+              ) AS rankedItems
+              WHERE position <= 4
+              ORDER BY orderId, position`,
+              [orders.map(order => order.id)],
+            );
+            for (const order of orders) {
+              order.previewItems = previews.filter(item => item.orderId === order.id);
+              order.extraItemCount = Number(order.previewItems[0]?.itemCount ?? 0) - order.previewItems.length;
+            }
+          });
       }
       const [rows] = await pool.query(
         `SELECT t.TransactionID AS id, t.TotalPrice AS total, ${returnCountSql} AS returnRequestCount,
@@ -108,7 +129,8 @@ export function registerOrderRoutes(router, pool) {
 
       const [orderItems] = await pool.query(
         `SELECT orderItem.TransactionItemID AS id,
-                product.InventoryName AS name, orderItem.Quantity AS quantity,
+                product.InventoryName AS name, product.ImageURL AS imageURL,
+                orderItem.Quantity AS quantity,
                 orderItem.UnitPrice AS unitPrice,
                 CAST(${returnedQtySql("orderItem.TransactionItemID")} AS SIGNED) AS returnedQty
          FROM TransactionItems AS orderItem

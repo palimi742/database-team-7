@@ -20,6 +20,7 @@ router.get("/", async (req, res) => {
         Inventory.InventoryID,
         Inventory.SKU,
         Inventory.InventoryName,
+        Inventory.ImageURL,
         Inventory.Price,
         Inventory.StockQuantity,
         Inventory.ReorderThreshold,
@@ -51,4 +52,22 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.get("/:inventoryID/image", async (req, res) => {
+  const [rows] = await pool.execute(
+    `SELECT p.ContentType, p.ImageData
+     FROM ProductImages p
+     JOIN Inventory i ON i.InventoryID = p.InventoryID
+     WHERE p.InventoryID = ? AND i.IsActive = TRUE`,
+    [req.params.inventoryID],
+  );
+
+  const image = rows[0];
+  if (!image) {
+    return res.status(404).json({ message: "Image not found." });
+  }
+
+  res.set("Content-Type", image.ContentType);
+  res.set("Cache-Control", "no-store");
+  return res.send(image.ImageData);
+});
 export default router;

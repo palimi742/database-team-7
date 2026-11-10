@@ -124,13 +124,14 @@ function Home() {
         <div className="product-grid">
           {filteredProducts.map((product) => (
             <div className="product-card" key={product.InventoryID}>
+              {product.ImageURL && <img className="product-card-image" src={product.ImageURL} alt={product.InventoryName} loading="lazy" />}
               <h3>{product.InventoryName}</h3>
               <p>${Number(product.Price).toFixed(2)}</p>
               <button
                 onClick={() =>
                   cartId
                     ? addItem(product.InventoryID)
-                    : navigate("/customer-login")
+                    : navigate("/login")
                 }
               >
                 Add to cart

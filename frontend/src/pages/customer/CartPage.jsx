@@ -29,7 +29,7 @@ export default function CartPage() {
         {error && <p className="cart-page-message">{error}</p>}
         {!cartId && !error && (
           <p className="cart-page-message">
-            <Link to="/customer-login">Sign in</Link> to load your cart.
+            <Link to="/login">Sign in</Link> to load your cart.
           </p>
         )}
 

@@ -18,9 +18,7 @@ export default function ReceiptView({ order }) {
           <span>{order.fulfillmentType || "In-store"}</span>
         </div>
         <div className="order-receipt-row">
-          <span>
-            {order.firstName} {order.lastName}
-          </span>
+          <span>{order.firstName} {order.lastName}</span>
           {order.phone && <span>{formatPhone(order.phone)}</span>}
         </div>
         {order.fulfillmentType?.toLowerCase().includes("deliver") &&
@@ -31,25 +29,30 @@ export default function ReceiptView({ order }) {
 
       {order.items.map((orderItem) => (
         <div className="cart-row" key={orderItem.id}>
-          <span>
-            {orderItem.name} x {orderItem.quantity}
-            <span className="item-return-statuses">
-              {(order.returns || []).filter((request) => Number(request.itemId) === Number(orderItem.id)).map((request) => {
-                const status = returnStatus(request.status);
-                return (
-                  <span className={`return-status return-status-${status.tone}`} key={request.id}>
-                    Return {status.label.toLowerCase()} | {request.quantity} {Number(request.quantity) === 1 ? "item" : "items"}
+          <div className="order-item-summary">
+            {orderItem.imageURL && (
+              <img className="order-item-thumbnail" src={orderItem.imageURL} alt="" loading="lazy" />
+            )}
+            <span>
+              {orderItem.name} x {orderItem.quantity}
+              <span className="item-return-statuses">
+                {(order.returns || []).filter((request) => Number(request.itemId) === Number(orderItem.id)).map((request) => {
+                  const status = returnStatus(request.status);
+                  return (
+                    <span className={`return-status return-status-${status.tone}`} key={request.id}>
+                      Return {status.label.toLowerCase()} | {request.quantity} {Number(request.quantity) === 1 ? "item" : "items"}
+                    </span>
+                  );
+                })}
+              </span>
+              {isCompleted && Number(orderItem.returnedQty) > 0 && orderItem.quantity > orderItem.returnedQty &&
+                !(order.returns || []).some(request => Number(request.itemId) === Number(orderItem.id) && request.status === "Rejected") && (
+                  <span className="item-return-remaining">
+                    {orderItem.quantity} purchased | {orderItem.returnedQty} already requested or approved | {Number(orderItem.quantity) - Number(orderItem.returnedQty)} still eligible to request
                   </span>
-                );
-              })}
+                )}
             </span>
-            {isCompleted && Number(orderItem.returnedQty) > 0 && orderItem.quantity > orderItem.returnedQty &&
-              !(order.returns || []).some(request => Number(request.itemId) === Number(orderItem.id) && request.status === "Rejected") && (
-                <span className="item-return-remaining">
-                  {orderItem.quantity} purchased | {orderItem.returnedQty} already requested or approved | {Number(orderItem.quantity) - Number(orderItem.returnedQty)} still eligible to request
-                </span>
-              )}
-          </span>
+          </div>
           <div className="order-item-actions">
             <span>{money(orderItem.unitPrice * orderItem.quantity)}</span>
             {isCompleted && orderItem.quantity > orderItem.returnedQty &&

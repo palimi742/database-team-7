@@ -45,7 +45,7 @@ export default function EmployeeRestockRequests() {
         setProducts([]);
         setRequests([]);
         localStorage.removeItem("employee");
-        navigate("/employee/login", { replace: true });
+        navigate("/login", { replace: true });
         return;
       }
 
@@ -120,7 +120,7 @@ export default function EmployeeRestockRequests() {
         setProducts([]);
         setRequests([]);
         localStorage.removeItem("employee");
-        navigate("/employee/login", { replace: true });
+        navigate("/login", { replace: true });
         return;
       }
 

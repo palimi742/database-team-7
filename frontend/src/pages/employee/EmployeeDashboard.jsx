@@ -33,7 +33,7 @@ export default function EmployeeDashboard() {
         const response = await fetch("/api/employees/session", { cache: "no-store", signal: controller.signal });
         if (response.status === 401) {
           localStorage.removeItem("employee");
-          navigate("/employee/login", { replace: true });
+          navigate("/login", { replace: true });
           return;
         }
         if (!response.ok) throw new Error("Unable to verify your login.");
@@ -98,7 +98,8 @@ export default function EmployeeDashboard() {
       const response = await fetch("/api/employees/logout", { method: "POST" });
       if (!response.ok) throw new Error("Could not sign out. Try again.");
       localStorage.removeItem("employee");
-      navigate("/employee/login", { replace: true });
+      setEmployee(null);
+navigate("/login", { replace: true });
     } catch (err) { setError(err.message); }
     finally { setBusy(false); }
   }

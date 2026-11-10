@@ -211,6 +211,7 @@ function Browse() {
 
               return (
                 <div className="product-card" key={product.InventoryID}>
+                  {product.ImageURL && <img className="product-card-image" src={product.ImageURL} alt={product.InventoryName} loading="lazy" />}
                   <h3>{product.InventoryName}</h3>
 
                   {discount > 0 ? (
