@@ -114,7 +114,7 @@ function Browse() {
 
   return (
     <div className="browse-page">
-      <Navbar />
+      <Navbar search={search} setSearch={setSearch} />
       {showSignIn && <SignInModal onClose={() => setShowSignIn(false)} />}
 
       <div className="browse-container">
