@@ -6,7 +6,9 @@ function isReportDate(value) {
     return false;
   }
   const date = new Date(value);
-  return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value;
+  return (
+    Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value
+  );
 }
 
 const router = Router();

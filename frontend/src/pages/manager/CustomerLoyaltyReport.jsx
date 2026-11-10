@@ -1,273 +1,333 @@
-import { managerFetch } from "../../api.js";
-import { useEffect, useState } from "react";
-import {
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-} from "recharts";
-
+import { useEffect, useRef, useState } from "react";
+import { fmtDate, managerFetch } from "../../api.js";
 import ManagerSidebar from "../../components/layout/ManagerSidebar";
+import ReceiptView from "../../components/orders/receiptview.jsx";
+import "../../css/orders/OrderDetails.css";
 import "../../css/manager/ManagerDashboard.css";
 import "../../css/manager/CustomerLoyaltyReport.css";
 
-function CustomerLoyaltyReport() {
-  const [summary, setSummary] = useState([]);
-  const [minPoints, setMinPoints] = useState("0");
-  const [joinedAfter, setJoinedAfter] = useState("");
-  const [joinedBefore, setJoinedBefore] = useState("");
-  const [loading, setLoading] = useState(true);
+const currency = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+});
+
+function redeemedPoints(order) {
+  return Number(order.PointsRedeemed) > 0 || Number(order.LoyaltyDiscount) > 0;
+}
+
+function formatSavings(order) {
+  if (order.LoyaltyDiscount == null) {
+    return "Not recorded";
+  }
+  return currency.format(order.LoyaltyDiscount);
+}
+
+function OrderReceipt({ orderId, onClose }) {
+  const dialog = useRef(null);
+  const [order, setOrder] = useState(null);
   const [error, setError] = useState("");
-  const [appliedJoinedAfter, setAppliedJoinedAfter] = useState("");
-  const [appliedJoinedBefore, setAppliedJoinedBefore] = useState("");
 
-  const filteredCustomers = summary.filter((customer) => {
-    const joinedDate = String(customer.DateJoined || "").slice(0, 10);
+  useEffect(() => {
+    const controller = new AbortController();
+    if (!dialog.current.open) dialog.current.showModal();
 
-    if (appliedJoinedAfter && joinedDate < appliedJoinedAfter) {
-      return false;
+    async function loadReceipt() {
+      try {
+        const response = await managerFetch(
+          `/api/reports/loyalty/orders/${orderId}`,
+          { signal: controller.signal },
+        );
+        const data = await response.json();
+        if (!response.ok)
+          throw new Error(data.message || "Unable to load the receipt.");
+        if (!controller.signal.aborted) setOrder(data);
+      } catch (err) {
+        if (!controller.signal.aborted) setError(err.message);
+      }
     }
-    if (appliedJoinedBefore && joinedDate > appliedJoinedBefore) {
-      return false;
-    }
 
-    return true;
-  });
+    void loadReceipt();
+    return () => controller.abort();
+  }, [orderId]);
 
-  const customersByPurchases = filteredCustomers.slice().sort((a, b) => {
-    return Number(b.PurchaseCount || 0) - Number(a.PurchaseCount || 0);
-  });
+  return (
+    <dialog
+      ref={dialog}
+      className="loyalty-receipt"
+      aria-labelledby="loyalty-receipt-title"
+      onClose={onClose}
+    >
+      <div className="loyalty-receipt-heading">
+        <h2 id="loyalty-receipt-title">Order receipt</h2>
+        <form method="dialog">
+          <button type="submit">Close</button>
+        </form>
+      </div>
+      {error && <p role="alert">{error}</p>}
+      {!order && !error && <p role="status">Loading receipt…</p>}
+      {order && (
+        <div className="order-details-card receipt">
+          <ReceiptView order={order} readOnly />
+        </div>
+      )}
+    </dialog>
+  );
+}
 
-  const customersBySpending = filteredCustomers.slice().sort((a, b) => {
-    return Number(b.totalSpending || 0) - Number(a.totalSpending || 0);
-  });
+function LoyaltyResults({ orders }) {
+  const [orderFilter, setOrderFilter] = useState("all");
+  const [page, setPage] = useState(1);
+  const [ordersPerPage, setOrdersPerPage] = useState(10);
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
-  const topCustomers = filteredCustomers
-    .slice()
-    .sort((a, b) => Number(b.totalSpending) - Number(a.totalSpending))
-    .slice(0, 5);
+  if (orders.length === 0) {
+    return <p role="status">No orders match these dates.</p>;
+  }
 
-  async function loadSummary() {
+  const redeemed = orders.filter(redeemedPoints);
+  const notRedeemed = orders.filter((order) => !redeemedPoints(order));
+  let visibleOrders = orders;
+  if (orderFilter === "redeemed") visibleOrders = redeemed;
+  if (orderFilter === "not-redeemed") visibleOrders = notRedeemed;
+  const pageCount = Math.ceil(visibleOrders.length / ordersPerPage);
+  const pageStart = (page - 1) * ordersPerPage;
+  const pageOrders = visibleOrders.slice(pageStart, pageStart + ordersPerPage);
+
+  function showOrders(filter) {
+    setOrderFilter(filter);
+    setPage(1);
+  }
+
+  function renderPagination(position) {
+    return (
+      <div className="loyalty-pagination">
+        <p role={position === "Top" ? "status" : undefined}>
+          Showing {pageStart + 1}–{pageStart + pageOrders.length} of{" "}
+          {visibleOrders.length} orders
+        </p>
+        <label className="loyalty-page-size">
+          Rows per page
+          <select
+            value={ordersPerPage}
+            onChange={(event) => {
+              setOrdersPerPage(Number(event.target.value));
+              setPage(1);
+            }}
+          >
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+          </select>
+        </label>
+        {pageCount > 1 && (
+          <nav aria-label={`${position} order pages`}>
+            <button
+              type="button"
+              disabled={page === 1}
+              onClick={() => setPage(page - 1)}
+            >
+              Previous
+            </button>
+            <span>
+              Page {page} of {pageCount}
+            </span>
+            <button
+              type="button"
+              disabled={page === pageCount}
+              onClick={() => setPage(page + 1)}
+            >
+              Next
+            </button>
+          </nav>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <h2 id="loyalty-order-details">Orders</h2>
+      <div
+        className="loyalty-order-views"
+        role="group"
+        aria-label="Filter orders by points redemption"
+      >
+        <button
+          type="button"
+          aria-pressed={orderFilter === "all"}
+          onClick={() => showOrders("all")}
+        >
+          All orders ({orders.length})
+        </button>
+        <button
+          type="button"
+          aria-pressed={orderFilter === "redeemed"}
+          onClick={() => showOrders("redeemed")}
+        >
+          Points redeemed ({redeemed.length})
+        </button>
+        <button
+          type="button"
+          aria-pressed={orderFilter === "not-redeemed"}
+          onClick={() => showOrders("not-redeemed")}
+        >
+          No points redeemed ({notRedeemed.length})
+        </button>
+      </div>
+      {visibleOrders.length === 0 ? (
+        <p role="status">No orders match this filter.</p>
+      ) : (
+        <>
+          {renderPagination("Top")}
+          <div className="loyalty-table">
+            <table aria-labelledby="loyalty-order-details">
+              <thead>
+                <tr>
+                  <th scope="col">Order</th>
+                  <th scope="col">Customer</th>
+                  <th scope="col">Fulfillment</th>
+                  <th scope="col">Order total</th>
+                  <th scope="col">Points redeemed</th>
+                  <th scope="col">Receipt</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pageOrders.map((order) => (
+                  <tr key={order.TransactionID}>
+                    <td>
+                      <strong>#{order.TransactionID}</strong>
+                      <span className="loyalty-order-date">
+                        {fmtDate(order.TransactionDate)}
+                      </span>
+                    </td>
+                    <td>
+                      {order.FirstName} {order.LastName}
+                    </td>
+                    <td>
+                      <strong
+                        className="loyalty-fulfillment"
+                        data-fulfillment={order.fulfillmentType}
+                      >
+                        {order.fulfillmentType || "In-store"}
+                      </strong>
+                    </td>
+                    <td>{currency.format(order.TotalPrice)}</td>
+                    <td>
+                      {redeemedPoints(order) ? (
+                        <>
+                          <strong>
+                            {order.PointsRedeemed ?? "Not recorded"}
+                          </strong>
+                          <span className="loyalty-order-date">
+                            Savings: {formatSavings(order)}
+                          </span>
+                        </>
+                      ) : (
+                        "0"
+                      )}
+                    </td>
+                    <td>
+                      <button
+                        type="button"
+                        className="loyalty-view-order"
+                        aria-label={`View order #${order.TransactionID}`}
+                        onClick={() => setSelectedOrder(order.TransactionID)}
+                      >
+                        View order
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {renderPagination("Bottom")}
+        </>
+      )}
+      {selectedOrder && (
+        <OrderReceipt
+          orderId={selectedOrder}
+          onClose={() => setSelectedOrder(null)}
+        />
+      )}
+    </>
+  );
+}
+
+export default function CustomerLoyaltyReport() {
+  const [dates, setDates] = useState({ from: "", through: "" });
+  const [orders, setOrders] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  function changeDate(field, value) {
+    setDates((current) => ({ ...current, [field]: value }));
+    setOrders(null);
     setError("");
-    if (joinedAfter && joinedBefore && joinedAfter > joinedBefore) {
-      setError("Joined after must be on or before Joined before.");
-      return;
-    }
-    if (!Number.isSafeInteger(Number(minPoints)) || Number(minPoints) < 0) {
-      setError("Minimum points must be a whole number of zero or more.");
-      return;
-    }
-    setLoading(true);
-    try {
-      const res = await managerFetch(
-        `/api/reports/loyalty/summary?minPoints=${minPoints}`,
-      );
-      const data = await res.json();
+  }
 
-      if (!res.ok) {
-        throw new Error(data.message || "Unable to load loyalty report.");
+  async function runReport(event) {
+    event.preventDefault();
+    setLoading(true);
+    setError("");
+    setOrders(null);
+
+    try {
+      const response = await managerFetch(
+        `/api/reports/loyalty/orders?${new URLSearchParams(dates)}`,
+      );
+      const data = await response.json();
+      if (!response.ok || !Array.isArray(data)) {
+        throw new Error(data.message || "Unable to load the loyalty report.");
       }
-      if (!Array.isArray(data)) {
-        throw new Error("Unable to load loyalty report. Please try again.");
-      }
-      setAppliedJoinedAfter(joinedAfter);
-      setAppliedJoinedBefore(joinedBefore);
-      setSummary(data);
+      setOrders(data);
     } catch (err) {
-      setError(err.message || "Unable to load loyalty report.");
+      setError(err.message);
     } finally {
       setLoading(false);
     }
   }
-  useEffect(() => {
-    loadSummary();
-  }, []);
 
   return (
     <div>
       <ManagerSidebar />
-      <div className="manager-page customer-loyalty-report">
-        <h1>Customer Loyalty and Rewards Report</h1>
-        <h2>Loyalty Program Overview</h2>
-
-        <form className="report-filters" onSubmit={(event) => {
-          event.preventDefault();
-          loadSummary();
-        }}>
-          <label htmlFor="minPoints">
-            Minimum Points Earned
-            <input
-              id="minPoints"
-              type="number"
-              min="0"
-              disabled={loading}
-              value={minPoints}
-              onChange={(e) => setMinPoints(e.target.value)}
-            />
-          </label>
-
+      <main className="manager-page customer-loyalty-report">
+        <h1>Customer Loyalty Report</h1>
+        <form className="loyalty-filters" onSubmit={runReport}>
           <label>
-            Joined after:
+            Transaction from
             <input
               type="date"
+              required
               disabled={loading}
-              value={joinedAfter}
-              onChange={(e) => setJoinedAfter(e.target.value)}
+              value={dates.from}
+              max={dates.through || undefined}
+              onChange={(event) => changeDate("from", event.target.value)}
             />
           </label>
-
           <label>
-            Joined before:
+            Transaction through
             <input
               type="date"
+              required
               disabled={loading}
-              value={joinedBefore}
-              onChange={(e) => setJoinedBefore(e.target.value)}
+              value={dates.through}
+              min={dates.from || undefined}
+              onChange={(event) => changeDate("through", event.target.value)}
             />
           </label>
-
-
-
           <button type="submit" disabled={loading}>
-            {loading ? "Loading..." : "Generate Report"}
+            Run report
           </button>
         </form>
         {error && <p role="alert">{error}</p>}
-        {loading && <p role="status">Loading loyalty report...</p>}
-
-        {!loading && !error && (
-        <>
-        <div className="loyalty-summary">
-          <div className="report-summary-card">
-            <h3>Total Loyalty Members</h3>
-            <p>{filteredCustomers.length}</p>
-          </div>
-          <div className="report-summary-card">
-            <h3>Total Points Earned</h3>
-            <p>
-              {filteredCustomers.reduce(
-                (total, customer) => total + Number(customer.TotalPointsEarned),
-                0,
-              )}
-            </p>
-          </div>
-          <div className="report-summary-card">
-            <h3>Total Points Redeemed</h3>
-            <p>
-              {filteredCustomers.reduce(
-                (total, customer) =>
-                  total + Number(customer.TotalPointsRedeemed),
-                0,
-              )}
-            </p>
-          </div>
-          <div className="report-summary-card">
-            <h3>Total Customer Spending</h3>
-            <p>
-              $
-              {filteredCustomers
-                .reduce(
-                  (total, customer) =>
-                    total + Number(customer.totalSpending || 0),
-                  0,
-                )
-                .toFixed(2)}
-            </p>
-          </div>
-        </div>
-
-        <h2>Top 5 customers by spending</h2>
-        <div className="loyalty-top-customers">
-          <div className="loyalty-chart">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={topCustomers} layout="vertical">
-              <XAxis type="number" tick={{ fill: "#475569" }} />
-              <YAxis type="category" dataKey={(customer) => customer.FirstName + " " + customer.LastName} width={160} tick={{ fill: "#475569" }} />
-              <Bar
-                dataKey="totalSpending"
-                fill="#34765e"
-                isAnimationActive={false}
-              />
-            </BarChart>
-          </ResponsiveContainer>
-          </div>
-        </div>
-
-        <h2>Loyalty Member Details</h2>
-        <p className="loyalty-savings-note">
-          Loyalty savings = points redeemed ÷ {summary[0]?.pointsPerRewardDollar || 50}.
-          Older sample redemptions are valued at this rate.
-        </p>
-        <div className="loyalty-table">
-          <table>
-            <thead>
-              <tr>
-                <th>Customer</th>
-                <th>Purchases</th>
-                <th>Total Spending</th>
-                <th>Average per Purchase</th>
-                <th>Loyalty Savings Used</th>
-                <th>Current Points</th>
-                <th>Points Earned</th>
-                <th>Points Redeemed</th>
-              </tr>
-            </thead>
-            <tbody>
-              {customersByPurchases.map((customer) => (
-                <tr key={customer.CustomerID}>
-                  <td>{customer.FirstName} {customer.LastName}</td>
-                  <td>{customer.PurchaseCount}</td>
-                  <td>${Number(customer.totalSpending || 0).toFixed(2)}</td>
-                  <td>{Number(customer.PurchaseCount) > 0
-                    ? "$" + (Number(customer.totalSpending || 0) / Number(customer.PurchaseCount)).toFixed(2)
-                    : "—"}</td>
-                  <td>${Number(customer.loyaltySavings || 0).toFixed(2)}</td>
-                  <td>{customer.CurrentPoints}</td>
-                  <td>{customer.TotalPointsEarned}</td>
-                  <td>{customer.TotalPointsRedeemed}</td>
-                </tr>
-              ))}
-              {!filteredCustomers.length && (
-                <tr><td colSpan={8}>No members match these filters.</td></tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        <h2>Customer Coupon Usage</h2>
-        <p className="loyalty-savings-note">
-          Estimated coupon savings use the current discount values of coupons marked used.
-          Loyalty rewards and seasonal-sale savings are excluded.
-        </p>
-        <div className="loyalty-table">
-          <table>
-            <thead>
-              <tr>
-                <th>Customer</th>
-                <th>Coupons Used</th>
-                <th>Estimated Coupon Savings</th>
-              </tr>
-            </thead>
-            <tbody>
-              {customersBySpending.map((customer) => (
-                <tr key={customer.CustomerID}>
-                  <td>{customer.FirstName} {customer.LastName}</td>
-                  <td>{Number(customer.couponsUsed || 0)}</td>
-                  <td>${Number(customer.couponSavings || 0).toFixed(2)}</td>
-                </tr>
-              ))}
-              {!filteredCustomers.length && (
-                <tr><td colSpan={3}>No members match these filters.</td></tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-        </>
+        {loading && <p role="status">Loading loyalty report…</p>}
+        {!loading && !error && !orders && (
+          <p>Choose a transaction date range to run the report.</p>
         )}
-      </div>
+        {orders && <LoyaltyResults orders={orders} />}
+      </main>
     </div>
   );
 }
-
-export default CustomerLoyaltyReport;

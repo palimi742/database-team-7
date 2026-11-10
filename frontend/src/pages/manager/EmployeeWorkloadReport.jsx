@@ -22,22 +22,32 @@ function EmployeeResults({ employees }) {
 
   // Sum the same rounded hours shown in the table.
   const totalHundredths = employees.reduce(
-    (total, employee) => total + Math.round(employee.WeeklyScheduledSeconds / 36),
+    (total, employee) =>
+      total + Math.round(employee.WeeklyScheduledSeconds / 36),
     0,
   );
 
   return (
     <section aria-labelledby="employee-report-summary">
       <h2 id="employee-report-summary" className="employee-report-summary">
-        <span><strong>{employees.length}</strong> {employees.length === 1 ? "employee" : "employees"}</span>
-        {" "}
-        <span><strong>{hours.format(totalHundredths / 100)}</strong> weekly schedule hours</span>
+        <span>
+          <strong>{employees.length}</strong>{" "}
+          {employees.length === 1 ? "employee" : "employees"}
+        </span>{" "}
+        <span>
+          <strong>{hours.format(totalHundredths / 100)}</strong> weekly schedule
+          hours
+        </span>
       </h2>
       <p id="employee-report-hours-note" className="employee-report-note">
-        The dates filter by hire date. Hours come from each employee’s recurring weekly schedule.
+        The dates filter by hire date. Hours come from each employee’s recurring
+        weekly schedule.
       </p>
       <div className="employee-report-table">
-        <table aria-labelledby="employee-report-summary" aria-describedby="employee-report-hours-note">
+        <table
+          aria-labelledby="employee-report-summary"
+          aria-describedby="employee-report-hours-note"
+        >
           <thead>
             <tr>
               <th scope="col">Employee ID</th>
@@ -52,11 +62,17 @@ function EmployeeResults({ employees }) {
             {employees.map((employee) => (
               <tr key={employee.EmployeeID}>
                 <td>{employee.EmployeeID}</td>
-                <th scope="row">{employee.FirstName} {employee.LastName}</th>
+                <th scope="row">
+                  {employee.FirstName} {employee.LastName}
+                </th>
                 <td>{employee.EmployeeRole}</td>
                 <td>{formatHireDate(employee.EmployeeHireDate)}</td>
                 <td>{payRate.format(employee.EmployeePay)}/hr</td>
-                <td>{hours.format(Math.round(employee.WeeklyScheduledSeconds / 36) / 100)}</td>
+                <td>
+                  {hours.format(
+                    Math.round(employee.WeeklyScheduledSeconds / 36) / 100,
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -130,12 +146,16 @@ export default function EmployeeWorkloadReport() {
               onChange={(event) => changeDate("asOf", event.target.value)}
             />
           </div>
-          <button disabled={loading} type="submit">Run report</button>
+          <button disabled={loading} type="submit">
+            Run report
+          </button>
         </form>
         {error && <p role="alert">{error}</p>}
         {loading && <p role="status">Loading employee report…</p>}
         {!loading && !error && !employees && (
-          <p className="employee-report-note">Choose a hire date range to run the report.</p>
+          <p className="employee-report-note">
+            Choose a hire date range to run the report.
+          </p>
         )}
         {employees && <EmployeeResults employees={employees} />}
       </main>

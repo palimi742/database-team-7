@@ -1,19 +1,9 @@
-.loyalty-chart {
-  height: 18rem;
-  min-width: 0;
-}
-
 .customer-loyalty-report h1 {
   margin: 0 0 1rem;
   font-size: 2.24rem;
 }
 
-.customer-loyalty-report h2 {
-  margin: 1.5rem 0 1rem;
-  font-size: 1.631rem;
-}
-
-.customer-loyalty-report .report-filters {
+.loyalty-filters {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
@@ -21,95 +11,198 @@
   margin-bottom: 1.5rem;
 }
 
-.report-filters label {
-  display: flex;
-  flex-direction: column;
+.loyalty-filters label {
+  display: grid;
   gap: 0.4rem;
 }
 
-.customer-loyalty-report .report-filters input,
-.customer-loyalty-report .report-filters select {
-  box-sizing: border-box;
-  padding: 0.5em;
-  font: inherit;
-}
-
-.customer-loyalty-report .report-filters button {
+.customer-loyalty-report .loyalty-filters input,
+.customer-loyalty-report .loyalty-filters button {
   margin: 0;
-  padding: 0.5em 1em;
+  padding: 0.5em 0.75em;
 }
 
-/* Summary cards */
-.loyalty-summary {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.loyalty-summary .report-summary-card {
-  flex: 1 1 12rem;
-  padding: 1rem;
-  background: #fff;
-  border: 0.0625rem solid #dce1e7;
-  border-radius: 0.5rem;
-}
-
-.report-summary-card h3 {
-  margin: 0 0 0.75rem;
-  font-size: 1.192rem;
-}
-
-.report-summary-card p {
-  margin: 0;
-  color: #245b47;
-  font-size: 1.96rem;
-  font-weight: 600;
-}
-
-.loyalty-top-customers {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.5rem;
-}
-
-.loyalty-top-customers > div {
-  flex: 1 1 24rem;
-  min-width: 0;
-}
-
-/* Tables */
 .loyalty-table {
   overflow-x: auto;
+  border: 1px solid #dce1e7;
+  border-radius: 0.5rem;
+  background: #fff;
 }
 
 .loyalty-table table {
   width: 100%;
+  border-collapse: collapse;
 }
 
-.customer-loyalty-report th,
-.customer-loyalty-report td {
+.loyalty-table th,
+.loyalty-table td {
   padding: 0.65em 0.85em;
-  font-size: 1.129rem;
+  text-align: left;
 }
 
-.customer-loyalty-report th {
-  background: #fff;
+.loyalty-table td {
+  padding-block: 0.9rem;
+  font-size: 1.0625rem;
 }
 
-.customer-loyalty-report td {
-  border-bottom: 0.0625rem solid #383838;
-}
-.loyalty-savings-note {
-  margin-bottom: 0.75rem;
-  color: #59636f;
-  font-size: 1.129rem;
+.loyalty-table th {
+  font-size: 1.125rem;
 }
 
-.manager-page.customer-loyalty-report [role="alert"] {
-  margin: 1rem 0;
+.customer-loyalty-report [role="alert"] {
   color: #a12932;
 }
 
-.customer-loyalty-report [role="status"] {
-  margin: 1rem 0;
+.loyalty-order-views,
+.loyalty-pagination,
+.loyalty-pagination nav,
+.loyalty-receipt-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.loyalty-order-views {
+  margin-bottom: 0.75rem;
+}
+
+.customer-loyalty-report .loyalty-order-views button,
+.customer-loyalty-report .loyalty-pagination button,
+.customer-loyalty-report .loyalty-view-order {
+  margin: 0;
+}
+
+.customer-loyalty-report .loyalty-order-views button {
+  padding: 0.5rem 0.8rem;
+  font-size: 1.125rem;
+}
+
+.customer-loyalty-report .loyalty-order-views button[aria-pressed="true"] {
+  background: #367759;
+  border-color: #367759;
+  color: #fff;
+}
+
+.customer-loyalty-report .loyalty-view-order {
+  padding: 0.4rem 0.75rem;
+  background: #245b47;
+  border-color: #245b47;
+  border-radius: 0.375rem;
+  color: #fff;
+  font-weight: 600;
+}
+
+.customer-loyalty-report .loyalty-view-order:hover {
+  background: #194533;
+}
+
+.loyalty-table tbody tr:nth-child(even) {
+  background: #f5f8f6;
+}
+
+.loyalty-table td:first-child,
+.loyalty-table td:last-child {
+  white-space: nowrap;
+}
+
+.loyalty-order-date {
+  display: block;
+  font-size: 0.9em;
+}
+
+.loyalty-fulfillment {
+  display: inline-block;
+  border-radius: 0.25rem;
+  padding: 0.2rem 0.5rem;
+}
+
+.loyalty-fulfillment[data-fulfillment*="curbside" i] {
+  background: #e3edf9;
+  color: #234f79;
+}
+
+.loyalty-fulfillment[data-fulfillment*="delivery" i] {
+  background: #eee6f7;
+  color: #593b76;
+}
+
+.loyalty-pagination {
+  justify-content: flex-end;
+  margin-bottom: 0.75rem;
+}
+
+.loyalty-pagination p {
+  margin: 0 auto 0 0;
+}
+
+.loyalty-table + .loyalty-pagination {
+  margin: 0.75rem 0 0;
+}
+
+.loyalty-page-size {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.loyalty-receipt {
+  width: min(42rem, calc(100% - 2rem));
+  max-height: calc(100% - 2rem);
+  box-sizing: border-box;
+  padding: 1rem;
+  border: 1px solid #b9c7ba;
+  border-radius: 0.5rem;
+  background: #fff;
+  text-align: left;
+}
+
+.loyalty-receipt::backdrop {
+  background: rgb(0 0 0 / 50%);
+}
+
+.loyalty-receipt-heading {
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.loyalty-receipt-heading h2 {
+  margin: 0;
+}
+
+.loyalty-receipt .cart-row {
+  padding: 0.6rem 0;
+}
+
+.loyalty-receipt .cart-row,
+.loyalty-receipt .order-receipt-row,
+.loyalty-receipt .order-receipt-status,
+.loyalty-receipt .order-details-card .order-receipt-address {
+  font-size: 1rem;
+}
+
+.loyalty-receipt .cart-row.total {
+  font-size: 1.25rem;
+}
+
+.loyalty-receipt .order-receipt-row,
+.loyalty-receipt .order-receipt-status,
+.loyalty-receipt .order-details-card .order-receipt-address,
+.loyalty-receipt .item-return-remaining {
+  color: #111;
+}
+
+.loyalty-receipt .order-item-thumbnail {
+  width: 3rem;
+  height: 3rem;
+}
+
+.loyalty-receipt .receipt-points {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  padding: 0.65rem 0.75rem;
+  background: #e4eefb;
+  color: #111;
+  border-radius: 0.375rem;
 }

@@ -100,7 +100,7 @@ function ManagerSidebar() {
         <li>
           <NavLink to="/manager/reports/customer-loyalty">
             <img src={loyalty} alt="" />
-            Customer Loyalty & Rewards
+            Customer Loyalty Report
           </NavLink>
         </li>
         <li>
