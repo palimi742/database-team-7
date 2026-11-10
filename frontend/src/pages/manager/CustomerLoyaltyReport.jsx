@@ -182,11 +182,11 @@ function CustomerLoyaltyReport() {
           <div className="loyalty-chart">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={topCustomers} layout="vertical">
-              <XAxis type="number" tick={{ fill: "#ccc" }} />
-              <YAxis type="category" dataKey={(customer) => customer.FirstName + " " + customer.LastName} width={160} tick={{ fill: "#eee" }} />
+              <XAxis type="number" tick={{ fill: "#475569" }} />
+              <YAxis type="category" dataKey={(customer) => customer.FirstName + " " + customer.LastName} width={160} tick={{ fill: "#475569" }} />
               <Bar
                 dataKey="totalSpending"
-                fill="#23e95f"
+                fill="#34765e"
                 isAnimationActive={false}
               />
             </BarChart>

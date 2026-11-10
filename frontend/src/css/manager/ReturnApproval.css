@@ -44,17 +44,17 @@ dialog.return-approval-modal .return-approval-actions button:focus-visible { out
   padding: 0.5rem 0.8rem;
   border: 1px solid #777;
   border-radius: 6px;
-  background: #292929;
-  color: white;
+  background: #fff;
+  color: #18251c;
   cursor: pointer;
 }
-.manager-main-dashboard .return-view-buttons button:hover { background: #3b3b3b; color: white; }
-.manager-main-dashboard .return-view-buttons button[aria-pressed="true"] { background: white; color: #171717; }
+.manager-main-dashboard .return-view-buttons button:hover { background: #f0f2f5; color: #18251c; }
+.manager-main-dashboard .return-view-buttons button[aria-pressed="true"] { background: #e6efe4; color: #171717; }
 
 .return-view-buttons { flex-wrap: wrap; }
 .returns-table-scroll { overflow-x: auto; }
 .returns-pagination { display: flex; align-items: center; flex-wrap: wrap; gap: 0.6rem; margin-top: 1rem; font-size: 1.066rem; }
 .returns-pagination nav { display: flex; align-items: center; flex-wrap: wrap; gap: 0.6rem; }
 .manager-main-dashboard .returns-pagination button { margin: 0; padding: 0.4rem 0.7rem; }
-.returns-pagination select { background: #292929; color: white; border: 1px solid #777; border-radius: 5px; }
+.returns-pagination select { background: #fff; color: #18251c; border: 1px solid #777; border-radius: 5px; }
 .returns-pagination button:disabled { opacity: 0.5; cursor: not-allowed; }

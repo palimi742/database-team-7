@@ -57,7 +57,6 @@
 .sales-performance-report .sales-report-form input {
   padding: 0.5em;
   font: inherit;
-  color-scheme: dark;
 }
 
 .sales-week-controls {
@@ -85,9 +84,9 @@
 
 .sales-performance-report .sales-report-data {
   padding: 1rem;
-  border: 0.0625rem solid #333;
+  border: 0.0625rem solid #dce1e7;
   border-radius: 0.5rem;
-  background: #292929;
+  background: #fff;
 }
 
 .sales-performance-report .sales-report-data h2 {
@@ -96,7 +95,7 @@
 }
 
 .sales-performance-report .sales-report-data p {
-  color: #1dd359;
+  color: #245b47;
   font-size: 1.96rem;
   font-weight: 600;
 }
@@ -122,7 +121,7 @@
 }
 
 .sales-performance-report th {
-  background: #292929;
+  background: #fff;
 }
 
 .sales-performance-report td {
@@ -139,7 +138,7 @@
 }
 
 .sales-category-section > p {
-  color: #bbb;
+  color: #59636f;
   font-size: 1.066rem;
 }
 
@@ -157,13 +156,13 @@
   line-height: 1.4;
 }
 
-.sales-change-up { color: #1de861; }
-.sales-change-down { color: #f25151; }
-.sales-change-neutral { color: #ccc; }
+.sales-change-up { color: #245b47; }
+.sales-change-down { color: #a12932; }
+.sales-change-neutral { color: #59636f; }
 
 .sales-comparison-note {
   margin-bottom: 1rem;
-  color: #bbb;
+  color: #59636f;
   font-size: 1.066rem;
 }
 
@@ -185,7 +184,7 @@
 }
 
 .sales-promotion-section small {
-  color: #bbb;
+  color: #59636f;
   font-size: 1.004rem;
 }
 
@@ -194,6 +193,6 @@
 }
 
 .sales-all-time > p {
-  color: #bbb;
+  color: #59636f;
   font-size: 1.066rem;
 }

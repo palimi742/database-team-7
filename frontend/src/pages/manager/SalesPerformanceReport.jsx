@@ -22,13 +22,15 @@ function SalesPerformanceReport() {
   const weekEnd = new Date(weekStart);
   weekEnd.setDate(weekEnd.getDate() + 6);
   const categoryColors = [
-    "blue",
-    "red",
-    "green",
-    "yellow",
-    "orange",
-    "purple",
-    "pink",
+    "#33A8C7",
+    "#F77976",
+    "#9336FD",
+    "#A0E426",
+    "#FFAB00",
+    "#F050AE",
+    "#52E3E1",
+    "#D883FF",
+    "#FDF148",
   ];
   const categorySales = (report?.CategorySales || []).map((category) => ({
     name: category.CategoryName,
@@ -337,11 +339,11 @@ function SalesPerformanceReport() {
                         ];
                       }}
                       contentStyle={{
-                        background: "#292929",
-                        border: "none",
-                        color: "white",
+                        background: "#fff",
+                        border: "1px solid #dce1e7",
+                        color: "#18251c",
                       }}
-                      itemStyle={{ color: "white" }}
+                      itemStyle={{ color: "#18251c" }}
                     />
                     <Legend
                       formatter={(name) => {
@@ -352,7 +354,7 @@ function SalesPerformanceReport() {
                         const percent =
                           categoryTotal > 0 ? (value / categoryTotal) * 100 : 0;
                         return (
-                          <span style={{ color: "white" }}>
+                          <span style={{ color: "#18251c" }}>
                             {name}: {percent.toFixed(1)}% (${value.toFixed(2)})
                           </span>
                         );

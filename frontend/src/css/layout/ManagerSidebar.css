@@ -1,5 +1,5 @@
 .manager-sidebar {
-  width: 11.111rem;
+  width: var(--manager-sidebar-width);
   height: 100vh;
   position: fixed;
   top: 0;
@@ -48,4 +48,63 @@
 }
 .manager-logout:hover {
   background-color: #d0d0d5;
+}
+
+.manager-theme .manager-sidebar {
+  text-align: left;
+  overflow-y: auto;
+}
+
+.manager-sidebar h2,
+.manager-sidebar > p {
+  margin: 0;
+}
+
+.manager-sidebar h2 {
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+.manager-sidebar > p {
+  margin-top: 0.25rem;
+  color: #425348;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.manager-sidebar-section {
+  color: #59675d;
+  font-size: 0.8rem;
+}
+
+.manager-sidebar li { margin-bottom: 0.25rem; }
+
+.manager-sidebar a {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem;
+  border-radius: 0.4rem;
+  font-size: 1rem;
+}
+
+.manager-sidebar a img {
+  width: 1.65rem;
+  height: 1.65rem;
+  flex-shrink: 0;
+  filter: brightness(0) saturate(100%);
+  opacity: 0.9;
+}
+
+.manager-sidebar a:hover,
+.manager-sidebar a[aria-current="page"] {
+  background: #e6efe4;
+  text-decoration: none;
+}
+
+.manager-sidebar a[aria-current="page"] { font-weight: 600; }
+
+.manager-sidebar-section {
+  padding: 0.75rem 0.45rem 0.25rem;
+  border-top: 1px solid #dce5dc;
 }

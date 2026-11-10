@@ -15,7 +15,7 @@
   padding: 1rem;
   border: 0.0625rem solid #555;
   border-radius: 0.5rem;
-  background: #292929;
+  background: #fff;
 }
 
 .employee-summary-card h2 {
@@ -24,7 +24,7 @@
 }
 
 .employee-summary-card p {
-  color: #33ff77;
+  color: #245b47;
   font-size: 1.96rem;
   font-weight: 600;
 }
@@ -40,7 +40,7 @@
 
 .employee-report-note {
   margin-bottom: 0.75rem;
-  color: #bbb;
+  color: #59636f;
   font-size: 1.129rem;
 }
 
@@ -60,7 +60,6 @@
 .employee-hire-filters input {
   padding: 0.5em;
   font: inherit;
-  color-scheme: dark;
 }
 
 .employee-workload-report .employee-hire-filters button {
@@ -70,7 +69,7 @@
 
 .employee-report-table {
   overflow-x: auto;
-  border: 0.0625rem solid #444;
+  border: 0.0625rem solid #dce1e7;
   border-radius: 0.5rem;
 }
 
@@ -85,13 +84,13 @@
 }
 
 .employee-workload-report th {
-  background: #333;
+  background: #f0f2f5;
 }
 
 .employee-workload-report td {
-  border-bottom: 0.0625rem solid #444;
+  border-bottom: 0.0625rem solid #dce1e7;
 }
 
 .employee-workload-report [role="alert"] {
-  color: #ff8a8a;
+  color: #a12932;
 }

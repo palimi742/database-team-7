@@ -1,15 +1,17 @@
 html:has(.manager-theme),
 body:has(.manager-theme){
-  background-color: #202020;
+  background-color: #f7f8fa;
 }
 
 .manager-theme {
-  font-size: 1.232rem;
+  color-scheme: light;
+  --manager-sidebar-width: 14rem;
+  font-size: 1rem;
   line-height: 1.5;
   display: flow-root;
   min-height: 100vh;
-  background: #202020;
-  color: #fff;
+  background: #f7f8fa;
+  color: #18251c;
 }
 
 .manager-theme h1,
@@ -17,20 +19,20 @@ body:has(.manager-theme){
 .manager-theme h3,
 .manager-theme h4,
 .manager-theme a {
-  color: #fff;
+  color: #18251c;
 }
 
 .manager-theme button {
   background: #fff;
-  color: #000;
-  border: 1px solid #fff;
+  color: #18251c;
+  border: 1px solid #b9c7ba;
   border-radius: 0.25rem;
   font: inherit;
   cursor: pointer;
 }
 
 .manager-theme button:hover {
-  background: #ddd;
+  background: #e8f0e6;
 }
 
 .manager-theme button:disabled {
@@ -42,66 +44,66 @@ body:has(.manager-theme){
 .manager-theme select,
 .manager-theme textarea {
   font: inherit;
-  background: #333;
-  color: #fff;
-  border: 1px solid #666;
+  background: #f0f2f5;
+  color: #18251c;
+  border: 1px solid #aab9ac;
   border-radius: 0.25rem;
 }
 
 .manager-theme th {
-  background: #333;
-  color: #fff;
+  background: #f0f2f5;
+  color: #18251c;
 }
 
 .manager-theme td {
-  border-bottom: 1px solid #444;
+  border-bottom: 1px solid #dce5dc;
 }
 
 .manager-theme .sales-summary-card,
 .manager-theme .promotion-editor {
-  background: #292929;
-  border-color: #444;
+  background: #ffffff;
+  border-color: #dce5dc;
 }
 
 .manager-theme .manager-sidebar {
-  background: #292929;
-  color: #fff;
-  border-color: #444;
+  background: #ffffff;
+  color: #18251c;
+  border-color: #dce5dc;
 }
 
 .manager-theme .manager-sidebar a {
-  color: #fff;
+  color: #18251c;
 }
 
 .manager-theme .manager-logout {
   background: transparent;
-  color: #fff;
+  color: #18251c;
   border: none;
 }
 
 .manager-theme .manager-logout:hover {
-  background: #333;
+  background: #f0f2f5;
 }
 
 .manager-theme .product-modal {
-  background: #292929;
-  color: #fff;
-  border: 1px solid #444;
+  background: #ffffff;
+  color: #18251c;
+  border: 1px solid #dce5dc;
 }
 
 .manager-theme [role="alert"],
 .manager-theme [role="status"] {
-  color: #fff;
+  color: #18251c;
 }
 
 .manager-session-dialog {
   width: min(28rem, calc(100vw - 3rem));
   box-sizing: border-box;
   padding: 1.75rem;
-  border: 1px solid #555;
+  border: 1px solid #aab9ac;
   border-radius: 0.75rem;
-  background: #292929;
-  color: #fff;
+  background: #ffffff;
+  color: #18251c;
 }
 
 .manager-session-dialog::backdrop {
@@ -113,24 +115,4 @@ body:has(.manager-theme){
 .manager-session-dialog button {
   margin-top: 1rem;
   padding: 0.75rem 1rem;
-}
-
-/* Explicit sizes keep shared button styles from shrinking sidebar text. */
-.manager-theme .manager-sidebar > p {
-  font-size: 1.35rem;
-  line-height: 1.5;
-}
-
-.manager-theme .manager-sidebar a,
-.manager-theme .manager-sidebar .manager-logout {
-  font-size: 1.3rem;
-  line-height: 1.5;
-}
-
-.manager-theme .manager-sidebar {
-  overflow-y: auto;
-}
-
-.manager-theme .manager-sidebar .manager-logout {
-  flex-shrink: 0;
 }

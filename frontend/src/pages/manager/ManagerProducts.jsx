@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import RestockProductModal from "../../components/products/RestockProductModal.jsx";
 import { managerFetch } from "../../api.js";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ManagerSidebar from "../../components/layout/ManagerSidebar";
 import DeleteProductModal from "../../components/products/DeleteProductModal";
 import InsertProductModal from "../../components/products/InsertProductModal";
@@ -10,6 +10,8 @@ import "../../css/manager/ManagerDashboard.css";
 import "../../css/manager/ManagerProducts.css";
 
 function ManagerProducts() {
+  const imageDialog = useRef(null);
+  const [previewProduct, setPreviewProduct] = useState(null);
   const [error, setError] = useState("");
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -237,7 +239,21 @@ function ManagerProducts() {
                 <tr key={product.InventoryID}>
                   <td>{product.SKU}</td>
                   <td>{product.InventoryName}</td>
-                  <td>{product.ImageURL ? "Uploaded" : "No image"}</td>
+                  <td>
+                    {product.ImageURL ? (
+                      <button
+                        type="button"
+                        className="product-thumbnail-button"
+                        aria-label={`Enlarge image of ${product.InventoryName}`}
+                        onClick={() => {
+                          setPreviewProduct(product);
+                          imageDialog.current.showModal();
+                        }}
+                      >
+                        <img className="product-thumbnail" src={product.ImageURL} alt="" loading="lazy" />
+                      </button>
+                    ) : "No image"}
+                  </td>
                   <td>{product.CategoryName}</td>
                   <td>${Number(product.Price).toFixed(2)}</td>
                   <td className={Number(product.StockQuantity) === 0 ? "stock-out" :
@@ -287,6 +303,18 @@ function ManagerProducts() {
           {renderPagination("bottom")}
           </>
         )}
+        <dialog
+          ref={imageDialog}
+          className="product-image-dialog"
+          aria-labelledby="catalog-image-title"
+          onClose={() => setPreviewProduct(null)}
+        >
+          <div className="product-image-dialog-header">
+            <h3 id="catalog-image-title">{previewProduct?.InventoryName}</h3>
+            <button type="button" onClick={() => imageDialog.current.close()}>Close</button>
+          </div>
+          {previewProduct && <img src={previewProduct.ImageURL} alt={previewProduct.InventoryName} />}
+        </dialog>
         {activeModal === "restock" && (
           <RestockProductModal product={selectedProduct} onClose={closeModal} onSaved={loadProducts} />
         )}

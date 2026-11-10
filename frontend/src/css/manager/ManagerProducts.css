@@ -7,7 +7,7 @@
 .product-search label {
   display: block;
   margin-bottom: 0.5rem;
-  font-size: 1.192rem;
+  font-size: 0.9rem;
   font-weight: 600;
 }
 
@@ -15,15 +15,15 @@
   box-sizing: border-box;
   width: 100%;
   padding: 0.75em 1em;
-  border: 0.0625rem solid #666;
+  border: 0.0625rem solid #b9c7ba;
   border-radius: 0.5rem;
-  background: #2c2c2c;
-  color: #fff;
+  background: #fff;
+  color: #18251c;
   font: inherit;
 }
 
 .product-search input::placeholder {
-  color: #bbb;
+  color: #59675d;
 }
 
 .product-search input:focus-visible {
@@ -41,17 +41,17 @@
 .product-filters label {
   display: block;
   margin-bottom: 0.5rem;
-  font-size: 1.192rem;
+  font-size: 0.9rem;
   font-weight: 600;
 }
 
 .manager-main-dashboard .product-filters select {
   max-width: 100%;
   padding: 0.65em 1em;
-  border: 0.0625rem solid #666;
+  border: 0.0625rem solid #b9c7ba;
   border-radius: 0.5rem;
-  background: #2c2c2c;
-  color: #fff;
+  background: #fff;
+  color: #18251c;
   font: inherit;
 }
 
@@ -89,81 +89,81 @@
 
 .manager-main-dashboard .product-pagination button:disabled {
   background: #e6e6e6;
-  color: #555;
+  color: #59675d;
   opacity: 1;
   cursor: not-allowed;
 }
 
 .manager-main-dashboard .product-pagination select {
   padding: 0.2em 0.35em;
-  border: 0.0625rem solid #666;
+  border: 0.0625rem solid #b9c7ba;
   border-radius: 0.5rem;
-  background: #2c2c2c;
-  color: #fff;
+  background: #fff;
+  color: #18251c;
   font: inherit;
 }
 
-.manager-products { color: #f5f5f5; background: #202020; min-height: 100vh; box-sizing: border-box; }
+.manager-products { color: #18251c; background: #f7f8fa; min-height: 100vh; box-sizing: border-box; }
 .manager-products .products-heading { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1.5rem; }
-.manager-products .products-heading h1 { margin: 0 0 0.25rem; font-size: 2.24rem; color: white; }
-.products-heading p { color: #bbb; }
+.manager-products .products-heading h1 { margin: 0 0 0.25rem; font-size: 1.75rem; color: #18251c; }
+.products-heading p { color: #59675d; }
 .products-heading-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; }
-.manager-products button, .products-heading-actions a { border: 1px solid #777; border-radius: 6px; padding: 0.5rem 0.75rem; font: inherit; cursor: pointer; }
+.manager-products button, .products-heading-actions a { border: 1px solid #b9c7ba; border-radius: 6px; padding: 0.5rem 0.75rem; font: inherit; cursor: pointer; }
 .manager-products button { margin: 0; background: #fafafa; color: #171717; }
-.products-heading-actions a { color: white; text-decoration: none; }
+.products-heading-actions a { color: #18251c; text-decoration: none; }
 .product-category-buttons { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
-.manager-products .product-category-buttons button { background: #292929; color: white; font-size: 1.066rem; }
+.manager-products .product-category-buttons button { background: #fff; color: #18251c; font-size: 1.066rem; }
 .manager-products .product-category-buttons button:hover {
-  background: #3b3b3b;
-  color: white;
-  border-color: #aaa;
+  background: #f0f2f5;
+  color: #18251c;
+  border-color: #aab9ac;
 }
 .manager-products .product-category-buttons button[aria-pressed="true"],
 .manager-products .product-category-buttons button[aria-pressed="true"]:hover {
-  background: white;
+  background: #e6efe4;
   color: #171717;
-  border-color: white;
+  border-color: #18251c;
 }
 .products-toolbar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 1rem; margin-bottom: 1.5rem; }
 .manager-products .product-search { flex: 1; min-width: 12rem; max-width: none; margin: 0; }
 .manager-products .product-filters { margin: 0; }
-.products-table-scroll { overflow-x: auto; border: 1px solid #555; border-radius: 8px; }
-.manager-products table { width: 100%; font-size: 1.129rem; }
-.manager-products th { background: #333; color: white; }
-.manager-products td { border-top: 1px solid #444; }
+.products-table-scroll { overflow-x: auto; border: 1px solid #dce5dc; border-radius: 8px; }
+.manager-products table { width: 100%; font-size: 1.05rem; }
+.manager-products th { background: #f0f2f5; color: #18251c; }
+.manager-products td { border-top: 1px solid #dce5dc; }
 .manager-products th, .manager-products td { padding: 0.85rem 0.75rem; }
 .manager-products td small { display: block; white-space: nowrap; font-size: 0.941rem; }
-.manager-products .stock-out { color: #ff7979; }
-.manager-products .stock-low { color: #ffc75a; }
+.manager-products .stock-out { color: #a12932; }
+.manager-products .stock-low { color: #785000; }
 .product-row-actions { white-space: nowrap; }
 .manager-products .product-row-actions button { font-size: 1.004rem; padding: 0.4rem 0.6rem; margin-right: 0.4rem; }
-.manager-products .restock-button { background: #287b36; border-color: #378b45; color: white; }
+.manager-products .restock-button { background: #245b39; border-color: #245b39; color: white; }
 .manager-products .product-row-actions .delete-product-button {
   background: transparent;
-  border: 1px solid #ff7979;
-  color: #ff7979;
+  border: 1px solid #a12932;
+  color: #a12932;
 }
 .manager-products .product-row-actions .delete-product-button:hover {
-  background: #492525;
-  border-color: #ff9999;
-  color: #ffb3b3;
+  background: #fcecef;
+  border-color: #a12932;
+  color: #841e27;
 }
 .manager-products .product-row-actions .delete-product-button:focus-visible {
-  outline: 2px solid #ff9999;
+  outline: 2px solid #a12932;
   outline-offset: 3px;
 }
 .manager-products .product-pagination { margin-top: 1rem; gap: 0.75rem; }
 .manager-products .product-pagination nav { margin-left: auto; }
 .manager-products button:disabled { opacity: 0.5; cursor: not-allowed; }
-.manager-products button:focus-visible, .products-heading-actions a:focus-visible { outline: 2px solid white; outline-offset: 3px; }
-.restock-product-modal { width: min(28rem, calc(100vw - 2rem)); max-height: 85vh; overflow-y: auto; box-sizing: border-box; padding: 1.5rem; border: 1px solid #666; border-radius: 8px; background: #242424; color: white; text-align: left; }
+.manager-products button:focus-visible, .products-heading-actions a:focus-visible { outline: 2px solid #245b39; outline-offset: 3px; }
+.restock-product-modal { width: min(28rem, calc(100vw - 2rem)); max-height: 85vh; overflow-y: auto; box-sizing: border-box; padding: 1.5rem; border: 1px solid #b9c7ba; border-radius: 8px; background: #fff; color: #18251c; text-align: left; }
 .restock-product-modal::backdrop { background: rgb(0 0 0 / 60%); }
-.manager-products .restock-product-modal h2 { color: white; margin: 0 0 1rem; }
+.manager-products .restock-product-modal h2 { color: #18251c; margin: 0 0 1rem; }
 .restock-product-modal p { margin: 0.75rem 0; }
 .restock-product-modal label { display: block; margin-bottom: 0.5rem; }
-.restock-product-modal input { width: 100%; box-sizing: border-box; padding: 0.65rem; background: #333; color: white; border: 1px solid #777; border-radius: 6px; font: inherit; }
-.restock-product-modal .restock-hint { font-size: 1.004rem; color: #bbb; }
-.restock-product-modal .product-error { color: #ff7979; }
+.restock-product-modal input { width: 100%; box-sizing: border-box; padding: 0.65rem; background: #f0f2f5; color: #18251c; border: 1px solid #b9c7ba; border-radius: 6px; font: inherit; }
+.restock-product-modal .restock-hint { font-size: 1.004rem; color: #59675d; }
+.restock-product-modal .product-error { color: #a12932; }
 .restock-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
 @media (max-width: 800px) {
   .manager-products .product-search { flex-basis: 100%; }
@@ -172,13 +172,59 @@
 
 .manager-products .product-row-actions .restock-button,
 .manager-products .restock-actions .restock-button {
-  background: #287b36;
-  border-color: #378b45;
+  background: #245b39;
+  border-color: #245b39;
   color: white;
 }
 .manager-products .product-row-actions .restock-button:hover,
 .manager-products .restock-actions .restock-button:hover {
-  background: #20652c;
-  border-color: #459b53;
+  background: #19472b;
+  border-color: #19472b;
   color: white;
+}
+
+.products-heading p { margin: 0; }
+.products-table-scroll, .products-heading-actions a { background: #fff; }
+.manager-products .products-heading-actions button,
+.manager-products .product-modal button[type="submit"] {
+  background: #245b39;
+  border-color: #245b39;
+  color: #fff;
+}
+.manager-products .products-heading-actions button:hover,
+.manager-products .product-modal button[type="submit"]:hover { background: #19472b; }
+.manager-products td:first-child { white-space: nowrap; }
+.product-thumbnail {
+  display: block;
+  width: 3rem;
+  height: 3rem;
+  object-fit: contain;
+  border-radius: 0.35rem;
+  background: #f0f2f5;
+}
+
+.manager-theme .manager-products .product-search input {
+  background: #fff;
+}
+
+.manager-products .stock-low small,
+.manager-products .stock-out small {
+  width: fit-content;
+  padding: 0.1rem 0.4rem;
+  border-radius: 0.3rem;
+}
+
+.manager-products .stock-low small { background: #fff2d7; }
+.manager-products .stock-out small { background: #fcecef; }
+
+.manager-products .product-thumbnail-button {
+  display: block;
+  padding: 0;
+  border-color: transparent;
+  background: transparent;
+  cursor: zoom-in;
+}
+
+.manager-products .product-thumbnail-button:hover {
+  border-color: #245b39;
 }

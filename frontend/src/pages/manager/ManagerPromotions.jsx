@@ -359,26 +359,34 @@ function ManagerPromotions() {
                       required
                     />
                   </label>
-                  <label>
-                    Starts at
-                    <input
-                      name="startsAt"
-                      type="datetime-local"
-                      value={form.startsAt}
-                      onChange={handleFieldChange}
-                      required
-                    />
-                  </label>
-                  <label>
-                    Ends at
-                    <input
-                      name="endsAt"
-                      type="datetime-local"
-                      value={form.endsAt}
-                      onChange={handleFieldChange}
-                      required
-                    />
-                  </label>
+                  {[
+                    ["startsAt", "Start"],
+                    ["endsAt", "End"],
+                  ].map(([field, label]) => {
+                    const [date = "", time = ""] = form[field].split("T");
+                    return (
+                      <div className="promotion-schedule" key={field}>
+                        <label>
+                          {label} date
+                          <input
+                            type="date"
+                            value={date}
+                            onChange={(event) => setForm({ ...form, [field]: event.target.value + "T" + time })}
+                            required
+                          />
+                        </label>
+                        <label>
+                          {label} time
+                          <input
+                            type="time"
+                            value={time}
+                            onChange={(event) => setForm({ ...form, [field]: date + "T" + event.target.value })}
+                            required
+                          />
+                        </label>
+                      </div>
+                    );
+                  })}
                 </fieldset>
                 <button disabled={saving} type="submit">
                   {saving ? "Saving..." : "Save offer"}
