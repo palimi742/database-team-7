@@ -1,8 +1,8 @@
 .navbar {
   display: flex;
   flex-direction: column;
-  gap: 0.8em;
-  padding: 1em 1.8em;
+  gap: 0;
+  padding: 0;
   background-color: #3a5a40;
 }
 
@@ -11,6 +11,8 @@
   align-items: center;
   gap: 1.5em;
   width: 100%;
+  padding: 1em 1.8em;
+  box-sizing: border-box;
 }
 
 .search-bar {
@@ -130,6 +132,11 @@
   flex-wrap: wrap;
   gap: 0.75em;
   min-width: 0;
+  background-color: #28442c;
+  padding: 0.6em 1.8em;
+  border-top: 1px solid rgba(255, 255, 255, 0.25);
+
+  box-sizing: border-box;
 }
 
 .savings-link {
