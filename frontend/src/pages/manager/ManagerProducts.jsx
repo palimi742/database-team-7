@@ -225,6 +225,7 @@ function ManagerProducts() {
               <tr>
                 <th>SKU</th>
                 <th>Name</th>
+                <th>Image</th>
                 <th>Category</th>
                 <th>Unit Price</th>
                 <th>Stock</th>
@@ -237,6 +238,7 @@ function ManagerProducts() {
                 <tr key={product.InventoryID}>
                   <td>{product.SKU}</td>
                   <td>{product.InventoryName}</td>
+                  <td>{product.ImageURL ? "Uploaded" : "No image"}</td>
                   <td>{product.CategoryName}</td>
                   <td>${Number(product.Price).toFixed(2)}</td>
                   <td className={Number(product.StockQuantity) === 0 ? "stock-out" :
@@ -277,7 +279,7 @@ function ManagerProducts() {
 
               {filteredProducts.length === 0 && (
                 <tr>
-                  <td colSpan={7}>No products match your search or filters.</td>
+                  <td colSpan={8}>No products match your search or filters.</td>
                 </tr>
               )}
             </tbody>

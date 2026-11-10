@@ -36,19 +36,17 @@ function ProtectedManagerRoute() {
         }
       }
     }
-    function recheck() {
-      setAccess({ path: pathname, status: "checking" });
-      void verify();
-    }
+    // Returning from the native file picker can refocus the window.
+    // Revalidate without unmounting the current page while the request is pending.
     window.addEventListener("manager-access-denied", onDenied);
-    window.addEventListener("pageshow", recheck);
-    window.addEventListener("focus", recheck);
+    window.addEventListener("pageshow", verify);
+    window.addEventListener("focus", verify);
     void verify();
     return () => {
       controller.abort();
       window.removeEventListener("manager-access-denied", onDenied);
-      window.removeEventListener("pageshow", recheck);
-      window.removeEventListener("focus", recheck);
+      window.removeEventListener("pageshow", verify);
+      window.removeEventListener("focus", verify);
     };
   }, [pathname]);
 

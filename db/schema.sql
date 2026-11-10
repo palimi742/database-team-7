@@ -53,6 +53,7 @@ CREATE TABLE Inventory (
     Price DECIMAL(10,2) NOT NULL,
     StockQuantity INT NOT NULL,
     ReorderThreshold INT NOT NULL,
+    ImageURL VARCHAR(255) NULL,
     TableUpdateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (CategoryID)

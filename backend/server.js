@@ -14,6 +14,7 @@ import manageOrderRoutes from "./routes/employees/manageOrders.js";
 import categoryRoutes from "./routes/products/categories.js";
 import saveProductRoutes from "./routes/products/saveProduct.js";
 import editProductRoutes from "./routes/products/editProduct.js";
+import uploadProductImageRoutes from "./routes/products/uploadProductImage.js";
 import deleteProductRoutes from "./routes/products/deleteProducts.js";
 import restockProductRoutes from "./routes/products/restockProduct.js";
 import restoreProductRoute from "./routes/products/restoreProducts.js";
@@ -66,6 +67,7 @@ app.use("/api/products", (req, res, next) => {
 app.use("/api/products", restockProductRoutes);
 app.use("/api/products", saveProductRoutes);
 app.use("/api/products", editProductRoutes);
+app.use("/api/products", uploadProductImageRoutes);
 app.use("/api/products", deleteProductRoutes);
 app.use("/api/products", restoreProductRoute);
 app.use("/api/loyalty", loyaltyRoutes);
