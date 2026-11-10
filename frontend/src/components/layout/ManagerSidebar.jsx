@@ -94,7 +94,7 @@ function ManagerSidebar() {
         <li>
           <NavLink to="/manager/reports/employee-workload">
             <img src={employee_manage} alt="" />
-            Employee Workload
+            Employee Report
           </NavLink>
         </li>
         <li>

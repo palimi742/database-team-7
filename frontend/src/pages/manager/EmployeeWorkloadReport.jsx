@@ -1,147 +1,121 @@
+import { useState } from "react";
 import { managerFetch } from "../../api.js";
-import { useEffect, useState } from "react";
 import ManagerSidebar from "../../components/layout/ManagerSidebar";
 import "../../css/manager/ManagerDashboard.css";
 import "../../css/manager/EmployeeWorkloadReport.css";
 
-function dateInput(date) {
-  const year = date.getFullYear();
-  let month = String(date.getMonth() + 1);
-  let day = String(date.getDate());
-
-  if (month.length === 1) {
-    month = "0" + month;
-  }
-  if (day.length === 1) {
-    day = "0" + day;
-  }
-  return year + "-" + month + "-" + day;
-}
+const payRate = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+});
+const hours = new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 });
 
 function formatHireDate(value) {
-  if (!value) return "";
-  const parts = value.split("-");
-  return parts[1] + "/" + parts[2] + "/" + parts[0];
+  const [year, month, day] = value.split("-");
+  return `${month}/${day}/${year}`;
 }
 
-function EmployeeTable({ employees, empty }) {
+function EmployeeResults({ employees }) {
+  if (!employees.length) {
+    return <p role="status">No employees were hired in this date range.</p>;
+  }
+
+  // Sum the same rounded hours shown in the table.
+  const totalHundredths = employees.reduce(
+    (total, employee) => total + Math.round(employee.WeeklyScheduledSeconds / 36),
+    0,
+  );
+
   return (
-    <div className="employee-report-table">
-      <table>
-        <thead>
-          <tr>
-            <th>Employee</th>
-            <th>Role</th>
-            <th>Hire date</th>
-            <th>Pay rate</th>
-            <th>Hours / week</th>
-          </tr>
-        </thead>
-        <tbody>
-          {employees.map((employee) => (
-            <tr key={employee.EmployeeID}>
-              <td>
-                {employee.FirstName} {employee.LastName}
-              </td>
-              <td>{employee.EmployeeRole}</td>
-              <td>{formatHireDate(employee.EmployeeHireDate)}</td>
-              <td>${Number(employee.EmployeePay).toFixed(2)}</td>
-              <td>{Number(employee.WeeklyHours).toFixed(2)}</td>
-            </tr>
-          ))}
-          {!employees.length && (
+    <section aria-labelledby="employee-report-summary">
+      <h2 id="employee-report-summary" className="employee-report-summary">
+        <span><strong>{employees.length}</strong> {employees.length === 1 ? "employee" : "employees"}</span>
+        {" "}
+        <span><strong>{hours.format(totalHundredths / 100)}</strong> weekly schedule hours</span>
+      </h2>
+      <p id="employee-report-hours-note" className="employee-report-note">
+        The dates filter by hire date. Hours come from each employee’s recurring weekly schedule.
+      </p>
+      <div className="employee-report-table">
+        <table aria-labelledby="employee-report-summary" aria-describedby="employee-report-hours-note">
+          <thead>
             <tr>
-              <td colSpan={5}>{empty}</td>
+              <th scope="col">Employee ID</th>
+              <th scope="col">Name</th>
+              <th scope="col">Role</th>
+              <th scope="col">Hire date</th>
+              <th scope="col">Pay rate</th>
+              <th scope="col">Weekly schedule (hours)</th>
             </tr>
-          )}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {employees.map((employee) => (
+              <tr key={employee.EmployeeID}>
+                <td>{employee.EmployeeID}</td>
+                <th scope="row">{employee.FirstName} {employee.LastName}</th>
+                <td>{employee.EmployeeRole}</td>
+                <td>{formatHireDate(employee.EmployeeHireDate)}</td>
+                <td>{payRate.format(employee.EmployeePay)}/hr</td>
+                <td>{hours.format(Math.round(employee.WeeklyScheduledSeconds / 36) / 100)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
   );
 }
+
 export default function EmployeeWorkloadReport() {
-  const [dates, setDates] = useState(() => {
-    const today = new Date();
-    const start = new Date(today);
-    start.setDate(start.getDate() - 30);
-    return { hiredSince: dateInput(start), asOf: dateInput(today) };
-  });
-  const [report, setReport] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [dates, setDates] = useState({ hiredSince: "", asOf: "" });
+  const [employees, setEmployees] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  async function load(filters) {
-    setLoading(true);
+
+  function changeDate(field, value) {
+    setDates((previous) => ({ ...previous, [field]: value }));
+    setEmployees(null);
     setError("");
+  }
+
+  async function runReport(event) {
+    event.preventDefault();
+    setLoading(true);
+    setEmployees(null);
+    setError("");
+
     try {
       const response = await managerFetch(
-        `/api/manager/reports/employee-workload?${new URLSearchParams(filters)}`,
+        `/api/manager/reports/employee-workload?${new URLSearchParams(dates)}`,
       );
       const data = await response.json();
-      if (!response.ok)
+      if (!response.ok) {
         throw new Error(data.message || "Unable to load employee report.");
-      setReport(data);
+      }
+      setEmployees(data.employees);
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
   }
-  useEffect(() => {
-    const today = new Date();
-    const start = new Date(today);
-    start.setDate(start.getDate() - 30);
-    load({ hiredSince: dateInput(start), asOf: dateInput(today) });
-  }, []);
+
   return (
     <div>
       <ManagerSidebar />
       <main className="manager-page employee-workload-report">
-        <h1>Employee Workload Report</h1>
-        <p>
-          Employee counts and pay cover all employees. Recent hires default to
-          the last 30 days.
-        </p>
-        {error && <p role="alert">{error}</p>}
-        {loading && <p role="status">Loading employee report...</p>}
-        {report && (
-          <div className="employee-summary">
-            {[
-              ["Employees", report.employeeCount],
-              ["Average pay rate", "$" + Number(report.averageSalary).toFixed(2)],
-              ["Highest pay rate", "$" + Number(report.highestSalary).toFixed(2)],
-              ["Scheduled hours / week", Number(report.weeklyHours).toFixed(2)],
-              ["Recent hires", report.recentHires.length],
-            ].map(([label, value]) => (
-              <div className="employee-summary-card" key={label}>
-                <h2>{label}</h2>
-                <p>{value}</p>
-              </div>
-            ))}
-          </div>
-        )}
-        <section className="employee-report-section" aria-labelledby="recent-hires-title">
-          <h2 id="recent-hires-title">Recent hires</h2>
-          <p className="employee-report-note">
-            Hire-date filters apply only to Recent hires and its summary count.
-          </p>
-        <form
-          className="employee-hire-filters"
-          onSubmit={(event) => {
-            event.preventDefault();
-            load(dates);
-          }}
-        >
+        <h1>Employee Report</h1>
+        <form className="employee-hire-filters" onSubmit={runReport}>
           <div>
             <label htmlFor="hired-since">Hired from</label>
             <input
               id="hired-since"
               type="date"
               required
+              disabled={loading}
               value={dates.hiredSince}
-              max={dates.asOf}
-              onChange={(event) =>
-                setDates({ ...dates, hiredSince: event.target.value })
-              }
+              max={dates.asOf || undefined}
+              onChange={(event) => changeDate("hiredSince", event.target.value)}
             />
           </div>
           <div>
@@ -150,39 +124,20 @@ export default function EmployeeWorkloadReport() {
               id="hired-through"
               type="date"
               required
+              disabled={loading}
               value={dates.asOf}
-              min={dates.hiredSince}
-              onChange={(event) =>
-                setDates({ ...dates, asOf: event.target.value })
-              }
+              min={dates.hiredSince || undefined}
+              onChange={(event) => changeDate("asOf", event.target.value)}
             />
           </div>
-          <button disabled={loading} type="submit">
-            {loading ? "Loading..." : "Run report"}
-          </button>
+          <button disabled={loading} type="submit">Run report</button>
         </form>
-          {!loading && !error && report && (
-            <>
-              <p className="employee-report-note">
-                Hired from {formatHireDate(report.hiredSince)} through {formatHireDate(report.asOf)}
-              </p>
-              <EmployeeTable
-                employees={report.recentHires}
-                empty="No employees hired in this date range."
-              />
-            </>
-          )}
-        </section>
-        {!loading && !error && report && (
-          <section className="employee-report-section" aria-labelledby="all-employees-title">
-            <h2 id="all-employees-title">All employees and weekly hours</h2>
-            <p className="employee-report-note">
-              Pay reflects stored pay rates. Hours reflect weekly schedules,
-              including overnight shifts, rather than actual hours worked.
-            </p>
-            <EmployeeTable employees={report.employees} empty="No employees to display." />
-          </section>
+        {error && <p role="alert">{error}</p>}
+        {loading && <p role="status">Loading employee report…</p>}
+        {!loading && !error && !employees && (
+          <p className="employee-report-note">Choose a hire date range to run the report.</p>
         )}
+        {employees && <EmployeeResults employees={employees} />}
       </main>
     </div>
   );
