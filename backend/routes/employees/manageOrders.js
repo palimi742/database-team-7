@@ -8,12 +8,16 @@ router.get("/", async (req, res) => {
       SELECT o.FulfillmentID, o.TransactionID,
              CASE WHEN o.FulfillmentTime IS NULL AND e.EmployeeRole = 'Manager'
                   THEN NULL ELSE o.EmployeeID END AS EmployeeID,
-             d.DeliveryName, e.FirstName, e.LastName,
+             d.DeliveryName, o.DeliveryAddress, e.FirstName, e.LastName,
+             c.CustomerID, c.FirstName AS CustomerFirstName,
+             c.LastName AS CustomerLastName,
              CASE WHEN o.FulfillmentTime IS NOT NULL THEN 'Completed'
                   WHEN o.EmployeeID IS NULL OR e.EmployeeRole = 'Manager'
                     THEN 'Needs Assignment'
                   ELSE 'Assigned' END AS Status
       FROM OrderFulfillment o
+      JOIN Transactions t ON o.TransactionID = t.TransactionID
+      JOIN Customer c ON t.CustomerID = c.CustomerID
       JOIN DeliveryType d ON o.DeliveryID = d.DeliveryID
       LEFT JOIN Employee e ON o.EmployeeID = e.EmployeeID
       ORDER BY o.FulfillmentID`);

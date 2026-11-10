@@ -108,3 +108,27 @@
   padding: 0.75rem 0.45rem 0.25rem;
   border-top: 1px solid #dce5dc;
 }
+
+.manager-theme .manager-sidebar a[aria-current="page"] {
+  background: #234e3a;
+  color: #fff;
+}
+
+.manager-sidebar a[aria-current="page"] img {
+  filter: brightness(0) invert(1);
+  opacity: 1;
+}
+
+.manager-sidebar-resize {
+  position: fixed;
+  inset: 0 auto 0 calc(var(--manager-sidebar-width) - 5px);
+  width: 10px;
+  cursor: col-resize;
+  touch-action: none;
+  z-index: 2;
+}
+
+.manager-sidebar-resize:hover,
+.manager-sidebar-resize:focus-visible {
+  background: #527663;
+}

@@ -7,6 +7,9 @@ import "../../css/manager/ManagerDashboard.css";
 function ManagerDashboard() {
   const orderStatus = ["Needs Assignment", "Assigned", "Completed"];
   const [statusFilter, setStatusFilter] = useState("Needs Assignment");
+  const [typeFilter, setTypeFilter] = useState("All");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [employees, setEmployees] = useState([]);
   const [employeeError, setEmployeeError] = useState("");
   const [orders, setOrders] = useState([]);
@@ -48,6 +51,13 @@ function ManagerDashboard() {
         id: order.FulfillmentID,
         transactionID: order.TransactionID,
         type: order.DeliveryName,
+        fulfillmentType: /curbside/i.test(order.DeliveryName)
+          ? "Curbside Pickup"
+          : /delivery/i.test(order.DeliveryName) ? "Delivery" : null,
+        customerID: order.CustomerID,
+        customerName: [order.CustomerFirstName, order.CustomerLastName]
+          .filter(Boolean).join(" "),
+        deliveryAddress: order.DeliveryAddress,
         employeeID: order.EmployeeID === null ? "" : String(order.EmployeeID),
         employeeName:
           order.EmployeeID === null
@@ -146,6 +156,20 @@ function ManagerDashboard() {
     }
   }
 
+  const filteredOrders = orders.filter((order) =>
+    order.status === statusFilter &&
+    (typeFilter === "All" || order.fulfillmentType === typeFilter),
+  );
+
+  const totalPages = Math.max(1, Math.ceil(filteredOrders.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const startIndex = (currentPage - 1) * pageSize;
+  const visibleOrders = filteredOrders.slice(startIndex, startIndex + pageSize);
+
+  useEffect(() => {
+    setPage((previous) => Math.min(previous, totalPages));
+  }, [totalPages]);
+
   return (
     <div>
       <ManagerSidebar />
@@ -170,31 +194,64 @@ function ManagerDashboard() {
               key={status}
               data-status={status}
               aria-pressed={statusFilter === status}
-              onClick={() => setStatusFilter(status)}
+              onClick={() => {
+                setStatusFilter(status);
+                setPage(1);
+              }}
             >
-              {status}
+              {status === "Needs Assignment" ? "Unassigned" : status}
             </button>
           ))}
         </div>
-        <h2>{statusFilter}</h2>
+        <h2>{statusFilter === "Needs Assignment" ? "Unassigned" : statusFilter}</h2>
+        <div className="order-filters fulfillment-filters" aria-label="Fulfillment type" role="group">
+          {["All", "Curbside Pickup", "Delivery"].map((type) => (
+            <button
+              key={type}
+              type="button"
+              data-fulfillment={type}
+              aria-pressed={typeFilter === type}
+              onClick={() => {
+                setTypeFilter(type);
+                setPage(1);
+              }}
+            >
+              {type}
+            </button>
+          ))}
+        </div>
 
         <table>
           <thead>
             <tr>
               <th>Order</th>
+              <th>Customer</th>
               <th>Type</th>
+              <th>Delivery address</th>
               <th>Employee</th>
-              <th>Action</th>
+              {statusFilter === "Needs Assignment" && <th>Action</th>}
             </tr>
           </thead>
 
           <tbody>
-            {orders
-              .filter((order) => order.status === statusFilter)
-              .map((order) => (
+            {visibleOrders.map((order) => (
                 <tr key={order.id}>
                   <td>#{order.transactionID}</td>
-                  <td>{order.type}</td>
+                  <td>
+                    {order.customerName
+                      ? `${order.customerName} (Customer ID: ${order.customerID})`
+                      : "Unavailable"}
+                  </td>
+                  <td>
+                    <span className="fulfillment-label" data-fulfillment={order.fulfillmentType}>
+                      {order.type}
+                    </span>
+                  </td>
+                  <td>
+                    {order.fulfillmentType === "Delivery"
+                      ? order.deliveryAddress?.trim() || "Address unavailable"
+                      : "N/A"}
+                  </td>
                   <td>
                     {order.status === "Needs Assignment" ? (
                       <select
@@ -209,35 +266,67 @@ function ManagerDashboard() {
 
                         {employees.map((employee) => (
                           <option key={employee.id} value={employee.id}>
-                            {employee.name}
+                            {employee.name} (Employee ID: {employee.id})
                           </option>
                         ))}
                       </select>
                     ) : (
-                      order.employeeName
+                      order.employeeID
+                        ? `${order.employeeName} (Employee ID: ${order.employeeID})`
+                        : order.employeeName
                     )}
                   </td>
 
-                  <td>
-                    {order.status === "Needs Assignment" && (
+                  {statusFilter === "Needs Assignment" && (
+                    <td>
                       <button
                         disabled={assigningOrder !== null || !order.employeeID}
                         onClick={() => assignOrder(order.id)}
                       >
                         {assigningOrder === order.id ? "Assigning…" : "Assign"}
                       </button>
-                    )}
-                  </td>
+                    </td>
+                  )}
                 </tr>
               ))}
 
-            {!orders.some((order) => order.status === statusFilter) && (
+            {visibleOrders.length === 0 && (
               <tr>
-                <td colSpan={4}>No orders to display.</td>
+                <td colSpan={statusFilter === "Needs Assignment" ? 6 : 5}>No orders to display.</td>
               </tr>
             )}
           </tbody>
         </table>
+
+        <nav className="order-pagination" aria-label="Order pages">
+          <label>
+            Orders per page{" "}
+            <select
+              value={pageSize}
+              onChange={(event) => {
+                setPageSize(Number(event.target.value));
+                setPage(1);
+              }}
+            >
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+            </select>
+          </label>
+          <span aria-live="polite">
+            {filteredOrders.length === 0
+              ? "0 orders"
+              : `Showing ${startIndex + 1}–${startIndex + visibleOrders.length} of ${filteredOrders.length}`}
+          </span>
+          <button type="button" disabled={currentPage === 1} onClick={() => setPage(currentPage - 1)}>
+            Previous
+          </button>
+          <span>Page {currentPage} of {totalPages}</span>
+          <button type="button" disabled={currentPage === totalPages} onClick={() => setPage(currentPage + 1)}>
+            Next
+          </button>
+        </nav>
       </div>
     </div>
   );
