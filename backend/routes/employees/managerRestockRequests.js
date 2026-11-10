@@ -49,6 +49,7 @@ router.get("/", async (req, res) => {
          i.InventoryName,
          i.SKU,
          i.StockQuantity AS CurrentStock,
+         i.RestockTargetQuantity,
          r.RequestedQuantity,
          r.StockAtRequest,
          r.EmployeeNote,

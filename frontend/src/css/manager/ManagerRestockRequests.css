@@ -1,0 +1,110 @@
+.restock-page {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  text-align: left;
+}
+
+.restock-page .employee-header {
+  text-align: left;
+}
+
+.restock-back {
+  display: inline-block;
+  margin-bottom: 1rem;
+  color: #245b39;
+}
+
+.restock-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: 1rem;
+  align-items: start;
+  margin-top: 1.5rem;
+}
+
+.restock-list,
+.restock-review {
+  background: #fff;
+  border: 1px solid #dce5dc;
+  border-radius: 0.75rem;
+}
+
+.restock-list {
+  overflow-x: auto;
+}
+
+.restock-list table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.restock-list th,
+.restock-list td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #e6ebe6;
+  text-align: left;
+}
+
+.restock-list thead {
+  background: #f4f7f4;
+}
+
+.restock-list .is-selected {
+  background: #e6f1e6;
+}
+
+.restock-review {
+  padding: 1rem;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 760px) {
+  .restock-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.restock-page .employee-header h1 {
+  margin: 0 0 0.35rem;
+}
+
+.restock-page .employee-header p {
+  margin: 0;
+}
+
+.restock-page .employee-toolbar h2 {
+  margin: 0;
+}
+
+.restock-review {
+  padding: 1.25rem;
+}
+
+.restock-review > p {
+  margin: 0 0 0.4rem;
+}
+
+.restock-review .employee-order-top {
+  margin-bottom: 0.75rem;
+}
+
+.restock-review label {
+  display: block;
+  margin-top: 0.9rem;
+}
+
+.restock-page .employee-toolbar button,
+.restock-review button {
+  padding: 0.5rem 0.9rem;
+}
+
+.restock-review button.restock-reject {
+  background: #fff;
+  border: 1px solid #b91c1c;
+  color: #b91c1c;
+}
+
+.restock-review button.restock-reject:hover:not(:disabled) {
+  background: #fef2f2;
+}

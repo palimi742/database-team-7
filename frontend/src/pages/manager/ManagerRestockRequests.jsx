@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../../css/employee/EmployeeFulfillment.css";
+import "../../css/manager/ManagerRestockRequests.css";
 
 const API = "/api/manager/restock-requests";
 
@@ -9,6 +10,7 @@ export default function ManagerRestockRequests() {
 
   const [requests, setRequests] = useState([]);
   const [status, setStatus] = useState("Pending");
+  const [selectedId, setSelectedId] = useState(null);
   const [notes, setNotes] = useState({});
   const [loading, setLoading] = useState(true);
   const [busyRequest, setBusyRequest] = useState(null);
@@ -183,12 +185,14 @@ async function receiveStock(request) {
     return value ? new Date(value).toLocaleString() : "—";
   }
 
+  const request = requests.find((item) => item.RequestID === selectedId) ?? requests[0];
+
   return (
-    <div className="employee-page">
+    <main className="restock-page">
       <header className="employee-header">
+        <Link className="restock-back" to="/manager">← Back to Manager Dashboard</Link>
         <h1>Manage Restock Requests</h1>
         <p>Review inventory requests submitted by employees.</p>
-        <Link to="/manager">Back to Manager Dashboard</Link>
       </header>
 
       <section className="employee-panel">
@@ -242,12 +246,42 @@ async function receiveStock(request) {
           <p>No requests found for this status.</p>
         )}
 
-        <div className="employee-order-grid">
-          {requests.map((request) => (
-            <article
-              className="employee-order"
-              key={request.RequestID}
-            >
+        {request && (
+          <div className="restock-layout">
+            <div className="restock-list">
+              <table aria-label="Restock requests">
+                <thead>
+                  <tr>
+                    <th scope="col">Product</th>
+                    <th scope="col">Requested</th>
+                    <th scope="col">On hand</th>
+                    <th scope="col">Target</th>
+                    <th scope="col">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {requests.map((item) => (
+                    <tr key={item.RequestID} className={item === request ? "is-selected" : undefined}>
+                      <th scope="row">
+                        <button
+                          type="button"
+                          aria-pressed={item === request}
+                          onClick={() => setSelectedId(item.RequestID)}
+                        >
+                          {item.InventoryName} (#{item.RequestID})
+                        </button>
+                      </th>
+                      <td>{item.RequestedQuantity}</td>
+                      <td>{item.CurrentStock}</td>
+                      <td>{item.RestockTargetQuantity ?? "—"}</td>
+                      <td>{item.Status}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <article className="restock-review">
               <div className="employee-order-top">
                 <div>
                   <h3>{request.InventoryName}</h3>
@@ -279,6 +313,11 @@ async function receiveStock(request) {
               <p>
                 <strong>Current stock:</strong>{" "}
                 {request.CurrentStock}
+              </p>
+
+              <p>
+                <strong>Restock target:</strong>{" "}
+                {request.RestockTargetQuantity ?? "—"}
               </p>
 
               <p>
@@ -341,7 +380,7 @@ async function receiveStock(request) {
                       onClick={() =>
                         reviewRequest(request.RequestID, "Rejected")
                       }
-                      style={{ backgroundColor: "#b91c1c" }}
+                      className="restock-reject"
                     >
                       Reject
                     </button>
@@ -386,9 +425,9 @@ async function receiveStock(request) {
                 </>
               )}
             </article>
-          ))}
-        </div>
+          </div>
+        )}
       </section>
-    </div>
+    </main>
   );
 }
