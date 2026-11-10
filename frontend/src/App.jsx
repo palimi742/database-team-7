@@ -1,6 +1,10 @@
 import "./css/App.css";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Login from "./pages/auth/Login";
+//import StaffLogin from "./pages/auth/StaffLogin";
+import EmployeeHours from "./pages/employee/EmployeeHours";
+import EmployeePlaceOrder from "./pages/employee/EmployeePlaceOrder";
+import ManagerOrderIssues from "./pages/manager/ManagerOrderIssues";
 import EmployeeDashboard from "./pages/employee/EmployeeDashboard";
 import EmployeeFulfillment from "./pages/employee/EmployeeFulfillment";
 import Signup from "./pages/auth/Signup";
@@ -55,6 +59,8 @@ function App() {
             element={<EmployeeRestockRequests />}
           />
           <Route path="/employee" element={<EmployeeDashboard />} />
+                    <Route path="/employee/hours" element={<EmployeeHours />} />
+          <Route path="/employee/place-order" element={<EmployeePlaceOrder />} />
           <Route path="/employee/inventory"
           element={<EmployeeInventoryReport />}
         />
@@ -70,6 +76,7 @@ function App() {
           <Route path="/loyalty" element={<Loyalty />} />
           <Route element={<ProtectedManagerRoute />}>
             <Route path="/manager" element={<ManagerDashboard />} />
+                        <Route path="/manager/order-issues" element={<ManagerOrderIssues />} />
             <Route
   path="/manager/restock-requests"
   element={<ManagerRestockRequests />}

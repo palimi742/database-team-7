@@ -127,7 +127,7 @@ export default function EmployeeInventoryReport() {
         <h2>Products</h2>
 
         <p>
-          Low: 1–20 | Normal: 21–74 | High: 75+
+          Low: below the product’s reorder threshold | High: at least 75 and at or above the threshold
           | Out of stock: 0
         </p>
 
@@ -236,7 +236,7 @@ export default function EmployeeInventoryReport() {
                           >
                             {item.StockStatus}
                           </span>
-                          {Number(item.StockQuantity) <= 20 && (
+                          {Number(item.StockQuantity) < Number(item.ReorderThreshold) && (
   <div style={{ marginTop: "8px" }}>
     <Link
       to={`/employee/restock-requests?inventoryId=${item.InventoryID}`}

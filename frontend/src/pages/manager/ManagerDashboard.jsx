@@ -149,22 +149,26 @@ function ManagerDashboard() {
   return (
     <div>
       <ManagerSidebar />
-      <div className="manager-main-dashboard manager-order-dashboard">
-        <header className="manager-dashboard-header">
+      <div className="manager-page order-dashboard">
+        <header className="dashboard-header">
           <div>
             <h1>Manager Dashboard</h1>
             <p>Track orders and assign work to your team.</p>
           </div>
-          <Link to="/manager/restock-requests">Manage restock requests</Link>
+          <div className="dashboard-actions">
+            <Link to="/manager/restock-requests">Manage restock requests</Link>
+            <Link to="/manager/order-issues">Review order issues</Link>
+          </div>
         </header>
 
         {employeeError && <p>{employeeError}</p>}
         {orderError && <p role="alert">{orderError}</p>}
 
-        <div className="manager-order-filters" aria-label="Order status" role="group">
+        <div className="order-filters" aria-label="Order status" role="group">
           {orderStatus.map((status) => (
             <button
               key={status}
+              data-status={status}
               aria-pressed={statusFilter === status}
               onClick={() => setStatusFilter(status)}
             >
