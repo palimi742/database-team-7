@@ -159,14 +159,6 @@ function Browse() {
         )}
         <p>Find everything you need for your groceries</p>
 
-        <input
-          className="search-input"
-          type="text"
-          placeholder="Search for Groceries"
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-        />
-
         <div className="category-section">
           <h2>Shop by Category</h2>
 
@@ -256,3 +248,4 @@ function Browse() {
 }
 
 export default Browse;
+
