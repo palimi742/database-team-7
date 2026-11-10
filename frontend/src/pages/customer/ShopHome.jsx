@@ -18,8 +18,8 @@ export default function Home() {
           {products.map((p) => (
             <div className="product" key={p.id}>
               <h3>{p.name}</h3>
-              <p className="note">{p.category}</p>
               <p className="price">{money(p.price)}</p>
+              <p className="note">{p.category}</p>
               {p.stock > 0 ? (
                 <button onClick={() => addItem(p.id)}>Add to Cart</button>
               ) : (
