@@ -102,8 +102,8 @@
 .order-item-thumbnail {
   flex: none;
   box-sizing: border-box;
-  width: 4.25rem;
-  height: 4.25rem;
+  width: 7rem;
+  height: 7rem;
   padding: 0.25rem;
   object-fit: contain;
   border: 1px solid #e1e8dc;
