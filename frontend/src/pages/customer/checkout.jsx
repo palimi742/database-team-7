@@ -15,8 +15,8 @@ export default function Checkout() {
   const navigate = useNavigate();
 
   const [type, setType] = useState(checkoutInfo?.type || "delivery");
-  const [address, setAddress] = useState(
-    checkoutInfo?.address ?? profile?.address ?? "",
+  const [addressOverride, setAddressOverride] = useState(
+    checkoutInfo?.address || null,
   );
   const [summary, setSummary] = useState(null);
   const [error, setError] = useState("");
@@ -28,6 +28,7 @@ export default function Checkout() {
   const submittingRef = useRef(false);
   const [redeemPoints, setRedeemPoints] = useState(false);
   const [pointsToRedeem, setPointsToRedeem] = useState(50);
+  const address = addressOverride ?? contact?.address ?? profile?.address ?? "";
 
   useEffect(() => {
     setContact(null);
@@ -214,7 +215,7 @@ export default function Checkout() {
                       type="text"
                       value={address}
                       required
-                      onChange={(e) => setAddress(e.target.value)}
+                      onChange={(e) => setAddressOverride(e.target.value)}
                     />
                   </label>
                 ) : (

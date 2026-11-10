@@ -6,7 +6,7 @@ function EditProductModal({ product, onClose, onSaved }) {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
   const [saveStatus, setSaveStatus] = useState("");
-  const [savedImageURL, setSavedImageURL] = useState(product.ImageURL);
+  const [savedImageURL, setSavedImageURL] = useState(product.ImageURL?.trim());
   const [selectedImage, setSelectedImage] = useState(null);
   const [previewURL, setPreviewURL] = useState(null);
   const imageDialog = useRef(null);
@@ -51,6 +51,10 @@ function EditProductModal({ product, onClose, onSaved }) {
 
     setSaveError("");
     setSaveStatus("");
+    if (!savedImageURL) {
+      setSaveError("Choose and upload a product image before saving changes.");
+      return;
+    }
     if (Number(productUpdates.restockTargetQuantity) <= Number(productUpdates.reorderThreshold)) {
       setSaveError("Restock target must be greater than the reorder threshold.");
       return;
@@ -141,10 +145,10 @@ function EditProductModal({ product, onClose, onSaved }) {
               <label htmlFor="edit-sku">SKU</label>
               <input
                 id="edit-sku"
-                name="sku"
-                defaultValue={product.SKU}
-                required
+                value={product.SKU}
+                readOnly
               />
+              <small>SKU stays the same if you change the category.</small>
             </div>
 
             <div>
@@ -240,7 +244,7 @@ function EditProductModal({ product, onClose, onSaved }) {
 
             <div className="product-image-section">
               <div className="product-image-heading">
-                <label htmlFor="edit-image">Product Image</label>
+                <label htmlFor="edit-image">Product Image (required)</label>
                 <span
                   className={
                     savedImageURL
@@ -277,7 +281,10 @@ function EditProductModal({ product, onClose, onSaved }) {
                 }}
               />
               <small id="edit-image-help">
-                Choose a JPEG, PNG, or WebP up to 4 MB.
+                {savedImageURL
+                  ? "The current image satisfies this requirement. Upload a new image to replace it."
+                  : "Choose and upload an image before saving changes."}
+                {" JPEG, PNG, or WebP up to 4 MB."}
               </small>
             </div>
           </div>

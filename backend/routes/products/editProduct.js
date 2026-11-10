@@ -57,10 +57,9 @@ router.patch("/:inventoryID", async (req, res) => {
   try {
     const results = await pool.query(
       `UPDATE Inventory
-            SET SKU = ?, InventoryName = ?, Price = ?, CategoryID = ?, StockQuantity = ?, ReorderThreshold = ?, RestockTargetQuantity = ?
-            WHERE InventoryID = ?`,
+            SET InventoryName = ?, Price = ?, CategoryID = ?, StockQuantity = ?, ReorderThreshold = ?, RestockTargetQuantity = ?
+            WHERE InventoryID = ? AND TRIM(ImageURL) <> ''`,
       [
-        product.sku,
         product.name,
         product.price,
         categoryID,
@@ -71,8 +70,15 @@ router.patch("/:inventoryID", async (req, res) => {
       ],
     );
     if (results[0].affectedRows === 0) {
-      return res.status(404).json({
-        message: "Product not found",
+      const [[product]] = await pool.query(
+        "SELECT InventoryID FROM Inventory WHERE InventoryID = ?",
+        [inventoryID],
+      );
+      if (!product) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+      return res.status(400).json({
+        message: "Upload a product image before saving changes.",
       });
     }
     res.json({
@@ -85,13 +91,8 @@ router.patch("/:inventoryID", async (req, res) => {
       });
     }
     if (err.code === "ER_DUP_ENTRY") {
-      const field = (err.sqlMessage || err.message || "").includes(
-        "uq_inventory_name",
-      )
-        ? "name"
-        : "SKU";
       return res.status(409).json({
-        message: `That product ${field} already exists. Enter a unique ${field}.`,
+        message: "That product name already exists. Enter a unique name.",
       });
     }
     console.log(err.message);

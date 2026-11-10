@@ -29,8 +29,16 @@ CREATE TABLE Employee (
 CREATE TABLE Category (
     CategoryID INT AUTO_INCREMENT PRIMARY KEY,
     CategoryName VARCHAR(100) NOT NULL,
-    TableUpdateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
+    SKUPrefix VARCHAR(3) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL,
+    TableUpdateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT uq_category_sku_prefix UNIQUE (SKUPrefix)
+) ENGINE=InnoDB;
+
+CREATE TABLE CategorySKUSequence (
+    CategoryID INT PRIMARY KEY,
+    NextNumber BIGINT UNSIGNED NOT NULL,
+    FOREIGN KEY (CategoryID) REFERENCES Category(CategoryID)
+) ENGINE=InnoDB;
 /* Customer DeliveryType */
 CREATE TABLE DeliveryType (
     DeliveryID INT AUTO_INCREMENT PRIMARY KEY,
@@ -58,7 +66,14 @@ CREATE TABLE Inventory (
 
     FOREIGN KEY (CategoryID)
 	REFERENCES Category(CategoryID)
-);
+) ENGINE=InnoDB;
+CREATE TABLE ProductImages (
+    InventoryID INT PRIMARY KEY,
+    ContentType VARCHAR(32) NOT NULL,
+    ImageData MEDIUMBLOB NOT NULL,
+    FOREIGN KEY (InventoryID) REFERENCES Inventory(InventoryID) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
 /* Customer LoyaltyProgram */
 CREATE TABLE LoyaltyProgram (
     LoyaltyProgramID INT AUTO_INCREMENT PRIMARY KEY,

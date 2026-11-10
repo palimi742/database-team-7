@@ -5,6 +5,8 @@ import { useEffect, useRef, useState } from "react";
 import ManagerSidebar from "../../components/layout/ManagerSidebar";
 import DeleteProductModal from "../../components/products/DeleteProductModal";
 import InsertProductModal from "../../components/products/InsertProductModal";
+import EditCategoryModal from "../../components/products/EditCategoryModal";
+import AddCategoryModal from "../../components/products/AddCategoryModal";
 import EditProductModal from "../../components/products/EditProductModal";
 import "../../css/manager/ManagerDashboard.css";
 import "../../css/manager/ManagerProducts.css";
@@ -12,6 +14,8 @@ import "../../css/manager/ManagerProducts.css";
 function ManagerProducts() {
   const imageDialog = useRef(null);
   const [previewProduct, setPreviewProduct] = useState(null);
+  const [notice, setNotice] = useState("");
+  const [categories, setCategories] = useState([]);
   const [error, setError] = useState("");
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -64,6 +68,13 @@ function ManagerProducts() {
 
   useEffect(() => {
     loadProducts();
+    fetch("/api/categories")
+      .then(async (response) => {
+        if (!response.ok) throw new Error("Unable to load categories.");
+        const rows = await response.json();
+        setCategories(rows);
+      })
+      .catch((error) => setError(error.message));
   }, []);
 
   function openModal(type, product = null) {
@@ -73,21 +84,6 @@ function ManagerProducts() {
   function closeModal() {
     setActiveModal(null);
     setSelectedProduct(null);
-  }
-
-  const categories = [];
-
-  for (const product of products) {
-    const alreadyAdded = categories.some(
-      (category) => category.id === String(product.CategoryID),
-    );
-
-    if (!alreadyAdded) {
-      categories.push({
-        id: String(product.CategoryID),
-        name: product.CategoryName,
-      });
-    }
   }
 
   const searchInput = search.trim().toLowerCase();
@@ -167,14 +163,21 @@ function ManagerProducts() {
       <ManagerSidebar />
       <div className="manager-page manager-products">
         <div className="products-heading">
-          <div><h1>Products</h1><p>Manage your catalog and inventory.</p></div>
+          <div><h1>Products</h1><p>Manage your catalog and inventory.</p>
+            <div role="status">{notice}</div>
+          </div>
           <div className="products-heading-actions">
             <Link to="/manager/restock-requests">Manage restock requests</Link>
+            <button type="button" onClick={() => openModal("edit-category")}>Edit category</button>
+            <button type="button" onClick={() => openModal("category")}>+ Add category</button>
             <button type="button" onClick={() => openModal("insert")}>+ Add product</button>
           </div>
         </div>
         <div className="category-filters" aria-label="Product categories">
-          {[{ id: "all", name: "All" }, ...categories].map((category) => (
+          {[{ id: "all", name: "All" }, ...categories.map((category) => ({
+            id: String(category.CategoryID),
+            name: category.CategoryName,
+          }))].map((category) => (
             <button key={category.id} type="button" aria-pressed={categoryFilter === category.id}
               onClick={() => { setCategoryFilter(category.id); setPage(1); }}>{category.name}</button>
           ))}
@@ -328,8 +331,44 @@ function ManagerProducts() {
             onSaved={loadProducts}
           />
         )}
+        {activeModal === "edit-category" && (
+          <EditCategoryModal
+            categories={categories}
+            onClose={closeModal}
+            onSaved={(category, deleted) => {
+              setCategories((current) => current
+                .filter((item) => item.CategoryID !== category.CategoryID)
+                .concat(deleted ? [] : [category])
+                .sort((a, b) => a.CategoryName.localeCompare(b.CategoryName)));
+              if (deleted && categoryFilter === String(category.CategoryID)) {
+                setCategoryFilter("all");
+              }
+              setNotice(deleted ? "Category deleted." : "Category updated.");
+              closeModal();
+              if (!deleted) loadProducts();
+            }}
+          />
+        )}
+        {activeModal === "category" && (
+          <AddCategoryModal
+            onClose={closeModal}
+            onSaved={(category) => {
+              setCategories((current) => [...current, category].sort(
+                (a, b) => a.CategoryName.localeCompare(b.CategoryName),
+              ));
+              setNotice(`Category added · ${category.CategoryName}`);
+              closeModal();
+            }}
+          />
+        )}
         {activeModal === "insert" && (
-          <InsertProductModal onClose={closeModal} onSaved={loadProducts} />
+          <InsertProductModal
+            onClose={closeModal}
+            onSaved={async (sku) => {
+              setNotice(`Product added · SKU ${sku}`);
+              await loadProducts();
+            }}
+          />
         )}
         {activeModal === "edit" && (
           <EditProductModal

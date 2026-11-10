@@ -254,3 +254,18 @@
 .product-modal .product-modal-actions button {
   margin: 0;
 }
+
+.product-modal .product-modal-actions .category-delete-button {
+  background: #a12932;
+  border-color: #a12932;
+  color: #fff;
+}
+
+.product-modal .product-modal-actions .category-delete-button:hover:not(:disabled) {
+  background: #84222a;
+  border-color: #84222a;
+}
+
+.product-modal .product-modal-actions .category-delete-button:disabled {
+  opacity: 0.5;
+}

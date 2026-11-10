@@ -2,15 +2,15 @@ USE grocery_store;
 
 /* Category */
 INSERT INTO Category
-  (CategoryID, CategoryName, TableUpdateTime)
+  (CategoryID, CategoryName, SKUPrefix, TableUpdateTime)
 VALUES
-  (1, 'Produce', NOW()),
-  (2, 'Dairy', NOW()),
-  (3, 'Bakery', NOW()),
-  (4, 'Meat & Seafood', NOW()),
-  (5, 'Beverages', NOW()),
-  (6, 'Snacks', NOW()),
-  (7, 'Pantry', NOW());
+  (1, 'Produce', 'PRD', NOW()),
+  (2, 'Dairy', 'DAI', NOW()),
+  (3, 'Bakery', 'BAK', NOW()),
+  (4, 'Meat & Seafood', 'MET', NOW()),
+  (5, 'Beverages', 'BEV', NOW()),
+  (6, 'Snacks', 'SNK', NOW()),
+  (7, 'Pantry', 'PAN', NOW());
 
 /* DeliveryType */
 INSERT INTO DeliveryType
@@ -94,6 +94,10 @@ VALUES
   (18, 'PAN-001', 'Spaghetti Pasta (16 oz)', 7, 1.79, 100, 30, NOW()),
   (19, 'PAN-002', 'Marinara Sauce (24 oz)', 7, 3.29, 85, 25, NOW()),
   (20, 'PAN-003', 'Long Grain Rice (5 lb)', 7, 5.49, 60, 20, NOW());
+
+/* Next SKU numbers for the seeded inventory */
+INSERT INTO CategorySKUSequence (CategoryID, NextNumber)
+VALUES (1, 5), (2, 4), (3, 3), (4, 4), (5, 4), (6, 3), (7, 4);
 
 /* Coupons */
 INSERT INTO Coupons

@@ -1,8 +1,10 @@
 import "../../css/products/ProductModal.css";
 import { useEffect, useState } from "react";
+import { managerFetch } from "../../api.js";
 
 function InsertProductModal({ onClose, onSaved }) {
   const [categories, setCategories] = useState([]);
+  const [categoryID, setCategoryID] = useState("");
   const [categoryError, setCategoryError] = useState("");
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
@@ -28,6 +30,7 @@ function InsertProductModal({ onClose, onSaved }) {
   async function handleSubmit(e) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+    formData.set("categoryID", categoryID);
     const product = Object.fromEntries(formData);
     setSaveError("");
     setFieldError(null);
@@ -39,26 +42,27 @@ function InsertProductModal({ onClose, onSaved }) {
       );
       return;
     }
+    if (!product.image?.size || product.image.size > 4_000_000) {
+      setSaveError("Choose a nonempty image up to 4 MB.");
+      return;
+    }
     setSaving(true);
 
     try {
-      const res = await fetch("/api/products", {
+      const res = await managerFetch("/api/products", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(product),
+        body: formData,
       });
       const data = await res.json();
 
       if (!res.ok) {
-        if (["sku", "name"].includes(data.field)) {
+        if (data.field === "name") {
           setFieldError({ field: data.field, message: data.message });
         }
         throw new Error(data.message || "Unable to add product");
       }
 
-      await onSaved();
+      await onSaved(data.sku);
       onClose();
     } catch (err) {
       setSaveError(err.message);
@@ -66,6 +70,10 @@ function InsertProductModal({ onClose, onSaved }) {
       setSaving(false);
     }
   }
+
+  const prefix = categories.find(
+    (category) => String(category.CategoryID) === categoryID,
+  )?.SKUPrefix;
 
   return (
     <div className="modal-overlay">
@@ -76,18 +84,10 @@ function InsertProductModal({ onClose, onSaved }) {
             <label htmlFor="insert-sku">SKU</label>
             <input
               id="insert-sku"
-              name="sku"
-              required
-              aria-invalid={fieldError?.field === "sku"}
-              aria-describedby={
-                fieldError?.field === "sku" ? "insert-sku-error" : undefined
-              }
+              value={prefix ? `${prefix}-…` : "Select a category"}
+              readOnly
             />
-            {fieldError?.field === "sku" && (
-              <p id="insert-sku-error" className="product-field-error">
-                {fieldError.message}
-              </p>
-            )}
+            <small>Full SKU assigned when you save.</small>
           </div>
           <div>
             <label htmlFor="insert-name">Name</label>
@@ -108,7 +108,13 @@ function InsertProductModal({ onClose, onSaved }) {
           </div>
           <div>
             <label htmlFor="insert-category">Category</label>
-            <select id="insert-category" name="categoryID" required>
+            <select
+              id="insert-category"
+              name="categoryID"
+              value={categoryID}
+              onChange={(event) => setCategoryID(event.target.value)}
+              required
+            >
               <option value="">Select category</option>
               {categories.map((category) => (
                 <option key={category.CategoryID} value={category.CategoryID}>
@@ -163,6 +169,19 @@ function InsertProductModal({ onClose, onSaved }) {
               step="1"
               required
             />
+          </div>
+
+          <div className="product-image-section">
+            <label htmlFor="insert-image">Product Image (required)</label>
+            <input
+              id="insert-image"
+              name="image"
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              aria-describedby="insert-image-help"
+              required
+            />
+            <small id="insert-image-help">Choose a JPEG, PNG, or WebP up to 4 MB.</small>
           </div>
 
           <div className="product-modal-actions">
