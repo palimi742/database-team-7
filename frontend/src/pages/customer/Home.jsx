@@ -1,5 +1,6 @@
 import "../../css/App.css";
 import "../../css/customer/Product.css";
+import "../../css/customer/Home.css";
 import { useEffect, useState } from "react";
 import { useShop } from "../../context/ShopContext.jsx";
 import { useNavigate } from "react-router-dom";
@@ -72,18 +73,7 @@ function Home() {
 
   return (
     <div className="browse-page browse-container">
-      <div>
-        <input
-          className="search-input"
-          type="search"
-          aria-label="Search groceries"
-          placeholder="Search for groceries"
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-        />
-      </div>
       <div className="category-section">
-        <h2>Shop by Category</h2>
         <div className="category-buttons">
           <button
             className={
@@ -145,3 +135,4 @@ function Home() {
 }
 
 export default Home;
+
