@@ -5,17 +5,22 @@ const router = Router();
 router.get("/", async (req, res) => {
   const status = req.query.status ?? "Requested";
   if (!["Requested", "Approved", "Rejected"].includes(status)) {
-    return res.status(400).json({ message: "Choose Pending, Approved, or Rejected returns" });
+    return res
+      .status(400)
+      .json({ message: "Choose Pending, Approved, or Rejected returns" });
   }
   try {
     const [returnRequests] = await pool.query(
       `SELECT r.ReturnRequestID, r.TransactionItemID, r.Quantity, r.Reason,
               r.Details, r.ExpectedRefund, r.Status, r.RequestedAt,
+              t.TransactionID, t.CustomerID, c.CartID,
               i.InventoryName AS ProductName, pr.RefundTotal, pr.Disposable,
               DATE_FORMAT(pr.ReturnDate, '%Y-%m-%d') AS ReturnDate,
               DATE_FORMAT(r.TableUpdateTime, '%Y-%m-%d') AS ReviewedDate
        FROM ReturnRequests r
        JOIN TransactionItems ti ON ti.TransactionItemID = r.TransactionItemID
+       JOIN Transactions t ON t.TransactionID = ti.TransactionID
+       LEFT JOIN Cart c ON c.CustomerID = t.CustomerID
        JOIN Inventory i ON i.InventoryID = ti.InventoryID
        LEFT JOIN ProductReturns pr ON pr.ReturnID = r.ReturnID
        WHERE r.Status = ?
@@ -37,7 +42,9 @@ router.patch("/:returnRequestId/approve", async (req, res) => {
 
   const { disposable } = req.body || {};
   if (typeof disposable !== "boolean") {
-    return res.status(400).json({ message: "Choose whether the item should be disposed of" });
+    return res
+      .status(400)
+      .json({ message: "Choose whether the item should be disposed of" });
   }
 
   let connection;
@@ -55,11 +62,9 @@ router.patch("/:returnRequestId/approve", async (req, res) => {
     const returnRequest = requestRows[0];
     if (!returnRequest) {
       await connection.rollback();
-      return res
-        .status(400)
-        .json({
-          message: "Request has already been reviewed or does not exist",
-        });
+      return res.status(400).json({
+        message: "Request has already been reviewed or does not exist",
+      });
     }
 
     // Lock the purchased item so two approvals cannot exceed its quantity.
@@ -144,11 +149,9 @@ router.patch("/:returnRequestId/decline", async (req, res) => {
       [returnRequestId],
     );
     if (!result.affectedRows) {
-      return res
-        .status(400)
-        .json({
-          message: "Request has already been reviewed or does not exist",
-        });
+      return res.status(400).json({
+        message: "Request has already been reviewed or does not exist",
+      });
     }
     res.json({ message: "Return request rejected" });
   } catch (error) {

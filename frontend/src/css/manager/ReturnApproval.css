@@ -64,7 +64,8 @@ dialog.return-approval-modal .return-approval-actions button:focus-visible {
 .return-view-buttons {
   display: flex;
   gap: 0.75rem;
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
 }
 .manager-page .return-view-buttons button {
   margin: 0;
@@ -79,17 +80,101 @@ dialog.return-approval-modal .return-approval-actions button:focus-visible {
   background: #f0f2f5;
   color: #18251c;
 }
-.manager-page .return-view-buttons button[aria-pressed="true"] {
-  background: #e6efe4;
-  color: #171717;
+.manager-page .return-view-buttons button[aria-pressed="true"],
+.manager-page .return-card-actions .return-approve {
+  background: #214e3c;
+  border-color: #214e3c;
+  color: white;
+  font-weight: 600;
 }
 
-.return-view-buttons {
+.manager-page .return-card-actions .return-approve:hover:not(:disabled) {
+  background: #183b2d;
+}
+
+.manager-return-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
+  gap: 0.875rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.manager-return-card,
+.return-empty {
+  padding: 1rem 1.25rem;
+  border: 1px solid #dce5dc;
+  border-radius: 0.625rem;
+  background: white;
+}
+
+.manager-return-card header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.manager-page .manager-return-card h2 {
+  margin: 0.25rem 0 0;
+  font-size: 1.25rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.return-reference,
+.return-details dt {
+  margin: 0;
+  color: #495c50;
+  font-size: 0.95rem;
+}
+
+.return-status {
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  color: #805219;
+  background: #fff1d9;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.return-status[data-status="Approved"] {
+  color: #1e5b3b;
+  background: #e2f3e8;
+}
+
+.return-status[data-status="Rejected"] {
+  color: #8a2931;
+  background: #fce8ea;
+}
+
+.return-details {
+  display: flex;
   flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+  margin: 0.9rem 0 0;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e9eee9;
 }
-.returns-table-scroll {
-  overflow-x: auto;
+
+.return-details dd {
+  margin: 0.15rem 0 0;
+  font-size: 1.05rem;
 }
+
+.return-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.manager-page .return-card-actions button {
+  margin: 0;
+  padding: 0.4rem 0.75rem;
+}
+
 .returns-pagination {
   display: flex;
   align-items: center;
