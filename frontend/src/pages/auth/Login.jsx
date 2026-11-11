@@ -1,19 +1,35 @@
 import "../../css/auth/CustomerLogin.css";
 import { useEffect, useRef, useState } from "react";
 
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import {
+  Link,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 import Navbar from "../../components/layout/Navbar";
 import PasswordInput from "../../components/auth/PasswordInput";
 
 function Login() {
   const navigate = useNavigate();
+  const { state } = useLocation();
   const [loading, setLoading] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
-  const [notice, setNotice] = useState(() => searchParams.get("notice") === "account-inactive"
-    ? { title: "Account is marked as inactive", message: "Your account has been deactivated and you’re now signed out." }
-    : searchParams.get("notice") === "session-ended"
-      ? { title: "Please sign in again", message: "Your session has ended or your account is inactive. You’re now signed out." }
-      : null);
+  const [notice, setNotice] = useState(() =>
+    searchParams.get("notice") === "account-inactive"
+      ? {
+          title: "Account is marked as inactive",
+          message:
+            "Your account has been deactivated and you’re now signed out.",
+        }
+      : searchParams.get("notice") === "session-ended"
+        ? {
+            title: "Please sign in again",
+            message:
+              "Your session has ended or your account is inactive. You’re now signed out.",
+          }
+        : null,
+  );
   const dialog = useRef(null);
   useEffect(() => {
     if (notice && dialog.current && !dialog.current.open) {
@@ -46,7 +62,10 @@ function Login() {
           sessionStorage.removeItem("customer");
         }
         setNotice({
-          title: data.code === "ACCOUNT_INACTIVE" ? "Account is marked as inactive" : "Unable to sign in",
+          title:
+            data.code === "ACCOUNT_INACTIVE"
+              ? "Account is marked as inactive"
+              : "Unable to sign in",
           message: data.message || "Unable to submit the form.",
         });
         return;
@@ -60,10 +79,15 @@ function Login() {
         sessionStorage.removeItem("customer");
         localStorage.removeItem("manager");
         localStorage.setItem("employee", JSON.stringify(data.employee));
-        navigate(data.role === "manager" ? "/manager" : "/employee", { replace: true });
+        navigate(data.role === "manager" ? "/manager" : "/employee", {
+          replace: true,
+        });
       }
     } catch {
-      setNotice({ title: "Unable to sign in", message: "We couldn’t connect. Please try again shortly." });
+      setNotice({
+        title: "Unable to sign in",
+        message: "We couldn’t connect. Please try again shortly.",
+      });
     } finally {
       setLoading(false);
     }
@@ -73,17 +97,36 @@ function Login() {
     <>
       <Navbar />
       {notice && (
-        <dialog ref={dialog} className="customer-login-dialog"
-          aria-labelledby="customer-notice-title" aria-describedby="customer-notice-message"
-          onCancel={event => { event.preventDefault(); dismissNotice(); }}>
+        <dialog
+          ref={dialog}
+          className="customer-login-dialog"
+          aria-labelledby="customer-notice-title"
+          aria-describedby="customer-notice-message"
+          onCancel={(event) => {
+            event.preventDefault();
+            dismissNotice();
+          }}
+        >
           <h2 id="customer-notice-title">{notice.title}</h2>
           <p id="customer-notice-message">{notice.message}</p>
-          <button type="button" className="login-btn" autoFocus onClick={dismissNotice}>OK</button>
+          <button
+            type="button"
+            className="login-btn"
+            autoFocus
+            onClick={dismissNotice}
+          >
+            OK
+          </button>
         </dialog>
       )}
       <main>
         <form className="login-form" onSubmit={handleSubmit}>
           <h1>Sign in to FreshMart</h1>
+          {state?.accountCreated && (
+            <p className="login-success" role="status">
+              Account created successfully. Sign in to get started.
+            </p>
+          )}
           <label className="username-label" htmlFor="username">
             Username
           </label>

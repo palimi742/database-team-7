@@ -13,23 +13,26 @@
 
 .order-modal {
   box-sizing: border-box;
-  width: 23.333rem;
+  width: 30rem;
   max-width: 90%;
-  padding: 1.778rem;
+  padding: clamp(1.25rem, 5vw, 2rem);
+  border-top: 4px solid #496b52;
+  box-shadow: 0 1rem 3rem rgb(0 0 0 / 20%);
   background: white;
   border-radius: 0.667rem;
   text-align: center;
 }
 
 .order-modal h2 {
-  margin-bottom: 0.889rem;
-  color: #315b40;
-  font-size: 1.333rem;
+  margin: 0 0 0.5rem;
+  color: #20452d;
+  font-size: 1.85rem;
 }
 
 .order-modal p {
-  margin-bottom: 1.333rem;
-  color: #647365;
+  margin: 0 0 1.5rem;
+  color: #34443a;
+  font-size: 1.125rem;
 }
 
 .order-modal-btns {
@@ -45,7 +48,7 @@
   border: none;
   border-radius: 0.444rem;
   font: inherit;
-  font-size: 0.889rem;
+  font-size: 1.0625rem;
   cursor: pointer;
 }
 

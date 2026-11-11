@@ -89,6 +89,53 @@ function ManagerReturns() {
   const startIndex = (currentPage - 1) * pageSize;
   const visibleRequests = requests.slice(startIndex, startIndex + pageSize);
 
+  function renderPagination(position) {
+    return (
+      <div className={`returns-pagination returns-pagination-${position}`}>
+        <label htmlFor={`returns-page-size-${position}`}>
+          Returns per page{" "}
+        </label>
+        <select
+          id={`returns-page-size-${position}`}
+          value={pageSize}
+          onChange={(event) => {
+            setPageSize(Number(event.target.value));
+            setPage(1);
+          }}
+        >
+          <option value={5}>5</option>
+          <option value={10}>10</option>
+          <option value={25}>25</option>
+          <option value={50}>50</option>
+        </select>
+        <span aria-live="polite">
+          Showing {requests.length ? startIndex + 1 : 0}–
+          {Math.min(startIndex + pageSize, requests.length)} of{" "}
+          {requests.length} returns
+        </span>
+        <nav aria-label={`Return pages (${position})`}>
+          <button
+            type="button"
+            disabled={currentPage === 1 || saving}
+            onClick={() => setPage(currentPage - 1)}
+          >
+            Previous
+          </button>
+          <span>
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            type="button"
+            disabled={currentPage === totalPages || saving}
+            onClick={() => setPage(currentPage + 1)}
+          >
+            Next
+          </button>
+        </nav>
+      </div>
+    );
+  }
+
   return (
     <div>
       <ManagerSidebar />
@@ -147,7 +194,7 @@ function ManagerReturns() {
       </dialog>
 
       <div className="manager-page">
-        <h1>Return Requests</h1>
+        <h1 className="returns-heading">Return Requests</h1>
         <div
           className="return-view-buttons"
           role="group"
@@ -173,7 +220,7 @@ function ManagerReturns() {
               setPage(1);
             }}
           >
-            Approved returns
+            Approved
           </button>
           <button
             type="button"
@@ -184,13 +231,14 @@ function ManagerReturns() {
               setPage(1);
             }}
           >
-            Rejected returns
+            Rejected
           </button>
         </div>
         {loading && <p>Loading requests...</p>}
         {error && <p>{error}</p>}
         {!loading && !error && (
           <>
+            {visibleRequests.length > 0 && renderPagination("top")}
             {visibleRequests.length > 0 ? (
               <ul className="manager-return-list">
                 {visibleRequests.map((request) => (
@@ -221,12 +269,8 @@ function ManagerReturns() {
                         <dd>{request.TransactionID}</dd>
                       </div>
                       <div>
-                        <dt>Customer ID</dt>
-                        <dd>{request.CustomerID}</dd>
-                      </div>
-                      <div>
-                        <dt>Customer cart ID</dt>
-                        <dd>{request.CartID ?? "—"}</dd>
+                        <dt>Customer</dt>
+                        <dd>{request.CustomerName || "—"}</dd>
                       </div>
                       <div>
                         <dt>Reason</dt>
@@ -268,6 +312,14 @@ function ManagerReturns() {
                           <dd>{fmtDate(request.ReviewedDate)}</dd>
                         </div>
                       )}
+                      <div>
+                        <dt>Customer ID</dt>
+                        <dd>{request.CustomerID}</dd>
+                      </div>
+                      <div>
+                        <dt>Customer cart ID</dt>
+                        <dd>{request.CartID ?? "—"}</dd>
+                      </div>
                     </dl>
 
                     {view === "Requested" && (
@@ -305,46 +357,7 @@ function ManagerReturns() {
                 .
               </p>
             )}
-            <div className="returns-pagination">
-              <label htmlFor="returns-page-size">Returns per page </label>
-              <select
-                id="returns-page-size"
-                value={pageSize}
-                onChange={(event) => {
-                  setPageSize(Number(event.target.value));
-                  setPage(1);
-                }}
-              >
-                <option value={5}>5</option>
-                <option value={10}>10</option>
-                <option value={25}>25</option>
-                <option value={50}>50</option>
-              </select>
-              <span aria-live="polite">
-                Showing {requests.length ? startIndex + 1 : 0}–
-                {Math.min(startIndex + pageSize, requests.length)} of{" "}
-                {requests.length} returns
-              </span>
-              <nav aria-label="Return pages">
-                <button
-                  type="button"
-                  disabled={currentPage === 1 || saving}
-                  onClick={() => setPage(currentPage - 1)}
-                >
-                  Previous
-                </button>
-                <span>
-                  Page {currentPage} of {totalPages}
-                </span>
-                <button
-                  type="button"
-                  disabled={currentPage === totalPages || saving}
-                  onClick={() => setPage(currentPage + 1)}
-                >
-                  Next
-                </button>
-              </nav>
-            </div>
+            {renderPagination("bottom")}
           </>
         )}
       </div>

@@ -398,3 +398,40 @@
   font-size: 0.875em;
   color: var(--manager-text, #18251c);
 }
+
+.product-status {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.35rem;
+  font-weight: 600;
+}
+
+.product-status-active {
+  background: #e5f3e7;
+  color: #23512c;
+}
+
+.product-status-inactive {
+  background: #fff0db;
+  color: #854300;
+}
+
+.product-status-archived {
+  background: #fbe9eb;
+  color: #8f2028;
+}
+
+.product-more-popover {
+  position-area: bottom span-left;
+  position-try-fallbacks: flip-block, flip-inline;
+  margin: 0.3rem 0 0;
+  padding: 0.35rem;
+  border: 1px solid #dce5dc;
+  border-radius: 0.5rem;
+  background: white;
+  box-shadow: 0 0.4rem 1rem rgb(24 37 28 / 15%);
+}
+
+.manager-products .product-more-popover button {
+  margin: 0;
+}

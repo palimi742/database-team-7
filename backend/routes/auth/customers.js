@@ -20,7 +20,8 @@ router.get("/profile", async (req, res) => {
      FROM Customer WHERE CustomerID = ?`,
     [req.customerId],
   );
-  if (!rows.length) return res.status(404).json({ message: "Customer not found." });
+  if (!rows.length)
+    return res.status(404).json({ message: "Customer not found." });
   res.json(rows[0]);
 });
 
@@ -36,24 +37,37 @@ router.post("/profile/deactivate", async (req, res) => {
 });
 
 router.put("/profile", async (req, res) => {
-  const { FirstName, LastName, PhoneNumber, CustomerAddress, ZipCode } = req.body || {};
-  if (!validZipCode(ZipCode)) return res.status(400).json({ message: "Enter a valid ZIP code (12345 or 12345-6789)." });
+  const { FirstName, LastName, PhoneNumber, CustomerAddress, ZipCode } =
+    req.body || {};
+  if (!validZipCode(ZipCode))
+    return res
+      .status(400)
+      .json({ message: "Enter a valid ZIP code (12345 or 12345-6789)." });
   const fields = [FirstName, LastName, PhoneNumber, CustomerAddress];
   const limits = [100, 100, 50, 150];
-  if (fields.some((value, index) =>
-    typeof value !== "string" || !value.trim() || value.trim().length > limits[index]
-  )) {
-    return res.status(400).json({ message: "Enter all fields within the allowed lengths." });
+  if (
+    fields.some(
+      (value, index) =>
+        typeof value !== "string" ||
+        !value.trim() ||
+        value.trim().length > limits[index],
+    )
+  ) {
+    return res
+      .status(400)
+      .json({ message: "Enter all fields within the allowed lengths." });
   }
   const digits = PhoneNumber.replace(/\D/g, "");
   if (digits.length < 7 || digits.length > 15) {
-    return res.status(400).json({ message: "Enter a phone number with 7 to 15 digits." });
+    return res
+      .status(400)
+      .json({ message: "Enter a phone number with 7 to 15 digits." });
   }
   await pool.query(
     `UPDATE Customer
      SET FirstName = ?, LastName = ?, PhoneNumber = ?, CustomerAddress = ?, ZipCode = ?
      WHERE CustomerID = ?`,
-    [...fields.map(value => value.trim()), ZipCode.trim(), req.customerId],
+    [...fields.map((value) => value.trim()), ZipCode.trim(), req.customerId],
   );
   res.json({ message: "Account updated." });
 });
@@ -72,19 +86,23 @@ router.post("/signup", async (req, res) => {
       password,
     } = req.body;
 
-    if (
-      !firstName ||
-      !lastName ||
-      !phoneNumber ||
-      !customerAddress ||
-      !username ||
-      !password
-    ) {
+    if (!firstName || !lastName || !phoneNumber || !username || !password) {
       return res.status(400).json({
         message: "Please fill in all fields",
       });
     }
-    if (!validZipCode(zipCode)) return res.status(400).json({ message: "Enter a valid ZIP code (12345 or 12345-6789)." });
+    const signupPhone =
+      typeof phoneNumber === "string" ? phoneNumber.replace(/ /g, "") : "";
+    if (!/^[0-9]{1,10}$/.test(signupPhone)) {
+      return res
+        .status(400)
+        .json({ message: "Enter a phone number with up to 10 digits." });
+    }
+    const signupZip = typeof zipCode === "string" ? zipCode.trim() : zipCode;
+    if (signupZip != null && signupZip !== "" && !validZipCode(signupZip))
+      return res
+        .status(400)
+        .json({ message: "Enter a valid ZIP code (12345 or 12345-6789)." });
     connection = await pool.getConnection();
     await connection.beginTransaction();
     transactionStarted = true;
@@ -104,24 +122,24 @@ router.post("/signup", async (req, res) => {
 
     const [customerResult] = await connection.query(
       "INSERT INTO Customer(FirstName, LastName, PhoneNumber, CustomerAddress, ZipCode) VALUES(?, ?, ?, ?, ?)",
-      [firstName, lastName, phoneNumber, customerAddress, zipCode.trim()],
+      [
+        firstName,
+        lastName,
+        signupPhone,
+        customerAddress?.trim() ?? "",
+        signupZip || null,
+      ],
     );
 
     await connection.query(
       "INSERT INTO CustomerAccounts(CustomerID, Username, Password) VALUES(?,?,?)",
       [customerResult.insertId, username, password],
     );
-
-    await connection.query(
-      `INSERT INTO LoyaltyProgram
-       (CustomerID, CurrentPoints, DateJoined, TotalPointsEarned, TotalPointsRedeemed, LastActivityDate)
-       VALUES (?, 0, NOW(), 0, 0, NOW())`,
-      [customerResult.insertId],
-    );
     await connection.commit();
+
     transactionStarted = false;
     return res.status(201).json({
-      message: "Account created succesfully!",
+      message: "Account created successfully!",
     });
   } catch (error) {
     if (connection != null && transactionStarted == true) {
@@ -163,7 +181,8 @@ router.post("/login", async (req, res) => {
       clearCustomerSession(res);
       return res.status(403).json({
         code: "ACCOUNT_INACTIVE",
-        message: "Your account is marked as inactive. Please contact FreshMart for assistance.",
+        message:
+          "Your account is marked as inactive. Please contact FreshMart for assistance.",
       });
     }
 

@@ -255,17 +255,42 @@
   margin: 0;
 }
 
-.product-modal .product-modal-actions .category-delete-button {
+.product-modal .product-modal-actions .category-delete-button,
+.product-modal .product-modal-actions .product-delete-confirm {
   background: #a12932;
   border-color: #a12932;
   color: #fff;
 }
 
-.product-modal .product-modal-actions .category-delete-button:hover:not(:disabled) {
+.product-modal
+  .product-modal-actions
+  .category-delete-button:hover:not(:disabled),
+.product-modal
+  .product-modal-actions
+  .product-delete-confirm:hover:not(:disabled) {
   background: #84222a;
   border-color: #84222a;
 }
 
-.product-modal .product-modal-actions .category-delete-button:disabled {
+.product-modal .product-modal-actions .category-delete-button:disabled,
+.product-modal .product-modal-actions .product-delete-confirm:disabled {
   opacity: 0.5;
+}
+
+.product-modal.product-delete-modal {
+  border-top: 4px solid #a1262d;
+}
+
+.product-delete-modal #delete-product-title {
+  color: #8f2028;
+  margin: 0 0 0.75rem;
+}
+
+.product-delete-modal .product-delete-hint {
+  margin-top: 0.75rem;
+}
+
+.product-delete-modal .product-modal-actions {
+  justify-content: flex-end;
+  flex-wrap: wrap;
 }

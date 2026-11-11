@@ -50,6 +50,10 @@
   object-fit: contain;
 }
 
+.browse-page .product-card-image {
+  filter: drop-shadow(0 3px 4px rgb(38 59 43 / 20%));
+}
+
 .product-card h3 {
   color: #496b52;
   margin-bottom: 0.556rem;

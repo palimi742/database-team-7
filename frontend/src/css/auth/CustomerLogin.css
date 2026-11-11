@@ -1,10 +1,11 @@
 .login-form {
+  --login-field-width: 22rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   background-color: #ffffff;
   border: 1px solid #dce4dc;
-  max-width: 450px;
+  max-width: 560px;
   min-height: 25rem;
   margin: 5rem auto;
   padding: 2em 1em 0.5em;
@@ -22,10 +23,18 @@
   color: #263b2b;
   text-align: center;
 }
-.customer-login-dialog::backdrop { background: rgb(0 0 0 / 65%); }
-.customer-login-dialog h2 { margin-top: 0; }
-.customer-login-dialog p { line-height: 1.6; }
-.customer-login-dialog button { margin-top: 1rem; }
+.customer-login-dialog::backdrop {
+  background: rgb(0 0 0 / 65%);
+}
+.customer-login-dialog h2 {
+  margin-top: 0;
+}
+.customer-login-dialog p {
+  line-height: 1.6;
+}
+.customer-login-dialog button {
+  margin-top: 1rem;
+}
 
 .login-form h1 {
   margin: 0 0 1.5rem;
@@ -37,7 +46,7 @@
 }
 
 .login-form input {
-  width: 13.889rem;
+  width: var(--login-field-width);
   padding: 0.6em;
   margin-bottom: 1.2em;
   border: 1px solid #cbd5cb;
@@ -77,4 +86,15 @@
 .login-form input {
   box-sizing: border-box;
   max-width: 100%;
+}
+
+.login-success {
+  align-self: stretch;
+  margin: 0 0 1.25rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid #a9c8ad;
+  border-radius: 0.5rem;
+  background: #e8f4e9;
+  color: #234b2a;
+  text-align: center;
 }

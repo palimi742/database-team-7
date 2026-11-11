@@ -50,15 +50,22 @@ router.patch("/:inventoryID", async (req, res) => {
     restockTargetQuantity > 2147483647
   ) {
     return res.status(400).json({
-      message: "Restock target must be a whole number greater than the reorder threshold.",
+      message:
+        "Restock target must be a whole number greater than the reorder threshold.",
     });
+  }
+
+  const { isActive } = product;
+  if (isActive !== undefined && isActive !== "0" && isActive !== "1") {
+    return res.status(400).json({ message: "Choose Active or Inactive." });
   }
 
   try {
     const results = await pool.query(
       `UPDATE Inventory
-            SET InventoryName = ?, Price = ?, CategoryID = ?, StockQuantity = ?, ReorderThreshold = ?, RestockTargetQuantity = ?
-            WHERE InventoryID = ? AND TRIM(ImageURL) <> ''`,
+            SET InventoryName = ?, Price = ?, CategoryID = ?, StockQuantity = ?, ReorderThreshold = ?, RestockTargetQuantity = ?,
+                IsActive = COALESCE(?, IsActive)
+            WHERE InventoryID = ? AND ArchivedAt IS NULL AND TRIM(ImageURL) <> ''`,
       [
         product.name,
         product.price,
@@ -66,16 +73,22 @@ router.patch("/:inventoryID", async (req, res) => {
         stockQuantity,
         reorderThreshold,
         restockTargetQuantity,
+        isActive === undefined ? null : Number(isActive),
         inventoryID,
       ],
     );
     if (results[0].affectedRows === 0) {
       const [[product]] = await pool.query(
-        "SELECT InventoryID FROM Inventory WHERE InventoryID = ?",
+        "SELECT InventoryID, ArchivedAt FROM Inventory WHERE InventoryID = ?",
         [inventoryID],
       );
       if (!product) {
         return res.status(404).json({ message: "Product not found" });
+      }
+      if (product.ArchivedAt) {
+        return res
+          .status(409)
+          .json({ message: "Restore this product before editing it." });
       }
       return res.status(400).json({
         message: "Upload a product image before saving changes.",

@@ -89,16 +89,6 @@
   color: #8b2020;
 }
 
-.signup-success {
-  text-align: center;
-  padding: 2rem;
-}
-
-.signup-success .signup-btn {
-  color: #fff;
-  text-decoration: none;
-}
-
 .signup-btn:disabled {
   opacity: 0.65;
   cursor: wait;

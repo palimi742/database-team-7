@@ -305,7 +305,7 @@ function ManagerPromotions() {
     });
   }
 
-  function renderPagination(position) {
+  function renderPagination() {
     return (
       <div className="promotion-pagination">
         <label>
@@ -326,7 +326,7 @@ function ManagerPromotions() {
           Showing {rows.length ? startIndex + 1 : 0}–
           {Math.min(startIndex + pageSize, rows.length)} of {rows.length} offers
         </span>
-        <nav aria-label={`Offer pages ${position}`}>
+        <nav aria-label="Offer pages">
           <button
             disabled={currentPage === 1}
             onClick={() => setPage(currentPage - 1)}
@@ -350,28 +350,34 @@ function ManagerPromotions() {
     <div>
       <ManagerSidebar />
       <main className="manager-page manager-promotions">
-        <h1>Coupons</h1>
-        <p>
-          Create coupons for specific products or entire categories. Times use
-          your local time zone.
-        </p>
+        <header className="promotion-heading">
+          <div>
+            <h1>Coupons</h1>
+            <p>
+              Manage product and category offers. Times use your local time
+              zone.
+            </p>
+          </div>
+          <div className="promotion-toolbar">
+            <button disabled={loading || saving} onClick={loadPromotions}>
+              Refresh
+            </button>
+            <button
+              className="coupon-primary"
+              disabled={
+                loading || saving || (!categories.length && !products.length)
+              }
+              onClick={() => openEditor()}
+            >
+              + Add Coupon
+            </button>
+          </div>
+        </header>
         {error && editor === null && <p role="alert">{error}</p>}
         {notice && <p role="status">{notice}</p>}
         {loading && <p>Loading offers...</p>}
         {!loading && (
           <>
-            <div className="promotion-toolbar">
-              <button
-                className="coupon-primary"
-                disabled={saving || (!categories.length && !products.length)}
-                onClick={() => openEditor()}
-              >
-                Add Coupon
-              </button>
-              <button disabled={saving} onClick={loadPromotions}>
-                Refresh
-              </button>
-            </div>
             <div className="promotion-toolbar promotion-filters">
               <label>
                 Search offers
@@ -712,69 +718,121 @@ function ManagerPromotions() {
                 </button>
               </div>
             )}
-            {renderPagination("top")}
+            {totalPages > 1 && renderPagination()}
             <div className="promotion-table">
               <table>
                 <thead>
                   <tr>
-                    <th>Name</th>
-                    <th>Eligible items</th>
+                    <th>Coupon</th>
                     <th>Limit</th>
                     <th>Discount</th>
-                    <th>Starts</th>
-                    <th>Ends</th>
+                    <th>Schedule</th>
                     <th>Status</th>
-                    <th>Actions</th>
+                    <th aria-label="Coupon actions" />
                   </tr>
                 </thead>
                 <tbody>
-                  {visibleRows.map((offer) => (
-                    <tr key={offer.id}>
-                      <td>
-                        <strong>{offer.CouponName}</strong>
-                        {offer.Description && <div>{offer.Description}</div>}
-                      </td>
-                      <td>
-                        {categories
-                          .filter((category) =>
-                            offer.CategoryIDs.includes(category.CategoryID),
+                  {visibleRows.map((offer) => {
+                    const eligibleItems = categories
+                      .filter((category) =>
+                        offer.CategoryIDs.includes(category.CategoryID),
+                      )
+                      .map((category) => category.CategoryName)
+                      .concat(
+                        products
+                          .filter((product) =>
+                            offer.ProductIDs.includes(product.InventoryID),
                           )
-                          .map((category) => category.CategoryName)
-                          .concat(
-                            products
-                              .filter((product) =>
-                                offer.ProductIDs.includes(product.InventoryID),
-                              )
-                              .map((product) => product.InventoryName),
-                          )
-                          .join(", ")}
-                      </td>
-                      <td>{offer.UsesPerClip}</td>
-                      <td>${Number(offer.DiscountAmount).toFixed(2)} off</td>
-                      <td>{formatDate(offer.startsAt)}</td>
-                      <td>{formatDate(offer.endsAt)}</td>
-                      <td>{getOfferStatus(offer)}</td>
-                      <td>
-                        <div className="promotion-actions">
-                          <button
-                            disabled={saving}
-                            onClick={() => openEditor(offer)}
+                          .map((product) => product.InventoryName),
+                      );
+                    return (
+                      <tr key={offer.id}>
+                        <td>
+                          <strong>{offer.CouponName}</strong>
+                          {offer.Description && (
+                            <div className="promotion-secondary">
+                              {offer.Description}
+                            </div>
+                          )}
+                          {eligibleItems.length > 0 && (
+                            <>
+                              <button
+                                type="button"
+                                className="promotion-eligible-more"
+                                popoverTarget={`coupon-eligible-${offer.id}`}
+                                aria-label={`See all eligible items for ${offer.CouponName}`}
+                              >
+                                See more
+                              </button>
+                              <div
+                                id={`coupon-eligible-${offer.id}`}
+                                className="promotion-more promotion-eligible-list"
+                                popover="auto"
+                                aria-label={`Eligible items for ${offer.CouponName}`}
+                              >
+                                <ul>
+                                  {eligibleItems.map((item, index) => (
+                                    <li key={index}>{item}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            </>
+                          )}
+                        </td>
+                        <td>{offer.UsesPerClip}</td>
+                        <td>${Number(offer.DiscountAmount).toFixed(2)} off</td>
+                        <td>
+                          <div>{formatDate(offer.startsAt)}</div>
+                          <div className="promotion-secondary">
+                            to {formatDate(offer.endsAt)}
+                          </div>
+                        </td>
+                        <td>
+                          <span
+                            className={`promotion-status promotion-status-${getOfferStatus(offer).toLowerCase()}`}
                           >
-                            Edit
-                          </button>
-                          <button
-                            disabled={saving}
-                            onClick={() => openDelete(offer)}
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                            {getOfferStatus(offer)}
+                          </span>
+                        </td>
+                        <td>
+                          <div className="promotion-actions">
+                            <button
+                              disabled={saving}
+                              onClick={() => openEditor(offer)}
+                            >
+                              Edit
+                            </button>
+                            <button
+                              type="button"
+                              disabled={saving}
+                              aria-label={`More actions for ${offer.CouponName}`}
+                              popoverTarget={`coupon-actions-${offer.id}`}
+                            >
+                              ⋯
+                            </button>
+                            <div
+                              id={`coupon-actions-${offer.id}`}
+                              popover="auto"
+                              className="promotion-more"
+                            >
+                              <button
+                                type="button"
+                                onClick={(event) => {
+                                  event.currentTarget.parentElement.hidePopover();
+                                  openDelete(offer);
+                                }}
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                   {!rows.length && (
                     <tr>
-                      <td colSpan={8}>
+                      <td colSpan={6}>
                         No coupons match your search or filters.
                       </td>
                     </tr>
@@ -782,7 +840,6 @@ function ManagerPromotions() {
                 </tbody>
               </table>
             </div>
-            {renderPagination("bottom")}
           </>
         )}
       </main>

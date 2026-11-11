@@ -26,15 +26,14 @@ Database features require MySQL with the corresponding schema/data.
 
 This is how you run locally on your machine the frontend and backend.
 However you are still connected to the database. So any imports/updates/modify
-still modify the database. 
+still modify the database.
 
 Have 2 terminals open
+
 1. cd into frontend folder
 2. npm install (to make sure you have the dependencies installed on your local machine)
 3. npm run dev
 
-1. cd into backend folder
-2. npm install
-3. npm start
-
-
+4. cd into backend folder
+5. npm install
+6. npm start

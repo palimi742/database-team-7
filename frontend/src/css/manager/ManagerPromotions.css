@@ -33,9 +33,14 @@
 }
 .manager-promotions .promotion-table {
   overflow-x: auto;
+  background: #fff;
+  border: 1px solid #dce5dc;
+  border-radius: 0.75rem;
 }
 .manager-promotions table {
   width: 100%;
+  min-width: 46rem;
+  border-collapse: collapse;
 }
 .manager-promotions th {
   background: var(--code-bg);
@@ -55,12 +60,6 @@
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
-}
-
-.promotion-filters input {
-  width: 20rem;
-  max-width: 100%;
-  box-sizing: border-box;
 }
 
 .promotion-filters input,
@@ -300,4 +299,102 @@
     padding-left: 0;
     border-left: 0;
   }
+}
+
+.promotion-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.manager-promotions .promotion-heading h1 {
+  margin: 0 0 0.4rem;
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+}
+
+.promotion-heading p,
+.manager-promotions .promotion-heading .promotion-toolbar {
+  margin: 0;
+}
+
+.manager-promotions .promotion-filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  align-items: end;
+  margin: 1.5rem 0;
+}
+
+.manager-promotions .promotion-table th,
+.manager-promotions .promotion-table td {
+  padding: 0.85rem;
+  text-align: left;
+}
+
+.manager-promotions .promotion-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.promotion-secondary {
+  color: #506256;
+  margin-top: 0.2rem;
+}
+
+.promotion-status {
+  display: inline-block;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  background: #eef1ef;
+}
+
+.promotion-status-active {
+  background: #e5f3e7;
+  color: #23512c;
+}
+
+.promotion-status-scheduled {
+  background: #eaf1ff;
+  color: #1e40af;
+}
+
+.promotion-status-expired {
+  background: #fbe9eb;
+  color: #8f2028;
+}
+
+.promotion-more {
+  position-area: bottom span-left;
+  position-try-fallbacks: flip-block, flip-inline;
+  margin: 0.3rem 0 0;
+  padding: 0.35rem;
+  border: 1px solid #dce5dc;
+  border-radius: 0.5rem;
+  background: #fff;
+  box-shadow: 0 0.4rem 1rem rgb(24 37 28 / 15%);
+}
+
+.manager-promotions button.promotion-eligible-more {
+  display: block;
+  margin: 0.35rem 0 0;
+  padding: 0.15rem 0.4rem;
+  color: #1e40af;
+  font-size: 0.85rem;
+}
+
+.promotion-eligible-list {
+  width: min(20rem, calc(100vw - 2rem));
+  max-height: min(18rem, 60vh);
+  overflow: auto;
+}
+
+.promotion-eligible-list ul {
+  margin: 0;
+  padding: 0.4rem 0.75rem 0.4rem 1.75rem;
+}
+
+.promotion-eligible-list li {
+  overflow-wrap: anywhere;
 }
