@@ -19,6 +19,7 @@ function CustomerSignup() {
     try {
       const response = await fetch("/api/customers/signup", {
         method: "POST",
+        signal: AbortSignal.timeout(15000),
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(fields),
       });
@@ -30,8 +31,12 @@ function CustomerSignup() {
         return;
       }
       navigate("/login", { replace: true, state: { accountCreated: true } });
-    } catch {
-      setError("Unable to connect. Please try again in a moment.");
+    } catch (error) {
+      setError(
+        error.name === "TimeoutError"
+          ? "Signup is taking too long. Try signing in before submitting again."
+          : "Unable to connect. Please try again in a moment.",
+      );
     } finally {
       setSubmitting(false);
     }
@@ -43,12 +48,6 @@ function CustomerSignup() {
       <main>
         <form className="signup-form" onSubmit={handleSubmit}>
           <h1 className="signup-heading">Customer Signup</h1>
-
-          {error && (
-            <p className="signup-error" role="alert">
-              {error}
-            </p>
-          )}
 
           <div className="names-row">
             <div className="name-field">
@@ -127,6 +126,11 @@ function CustomerSignup() {
           />
 
           <p>Your account includes free loyalty program membership.</p>
+          {error && (
+            <p className="signup-error" role="alert">
+              {error}
+            </p>
+          )}
           <button className="signup-btn" type="submit" disabled={submitting}>
             {submitting ? "Creating account…" : "Sign up"}
           </button>

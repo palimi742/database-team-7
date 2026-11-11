@@ -47,7 +47,9 @@
 .account-success {
   color: #23512c;
   background: #e5f3e7;
-  border-color: #466645;
+  border: 1px solid #c5dfc9;
+  border-radius: 0.5rem;
+  font-weight: 400;
 }
 
 .account-error {

@@ -193,6 +193,8 @@ export default function Account() {
                   id="phone"
                   name="PhoneNumber"
                   type="tel"
+                  pattern="(?:[^0-9]*[0-9]){7,10}[^0-9]*"
+                  title="Enter 7 to 10 digits. Spaces are allowed."
                   value={customer.PhoneNumber}
                   onChange={change}
                   maxLength={50}
@@ -201,7 +203,9 @@ export default function Account() {
                 />
               </div>
               <div className="account-field">
-                <label htmlFor="address">Default delivery address</label>
+                <label htmlFor="address">
+                  Default delivery address (optional)
+                </label>
                 <input
                   id="address"
                   name="CustomerAddress"
@@ -209,11 +213,10 @@ export default function Account() {
                   onChange={change}
                   maxLength={150}
                   autoComplete="street-address"
-                  required
                 />
               </div>
               <div className="account-field">
-                <label htmlFor="zip-code">ZIP code</label>
+                <label htmlFor="zip-code">ZIP code (optional)</label>
                 <input
                   id="zip-code"
                   name="ZipCode"
@@ -224,7 +227,6 @@ export default function Account() {
                   pattern="[0-9]{5}(-[0-9]{4})?"
                   maxLength={10}
                   title="Enter 5 digits or ZIP+4, such as 77008 or 77008-1234"
-                  required
                 />
               </div>
               <button type="submit" disabled={saving}>

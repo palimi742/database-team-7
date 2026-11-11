@@ -39,12 +39,19 @@ router.post("/profile/deactivate", async (req, res) => {
 router.put("/profile", async (req, res) => {
   const { FirstName, LastName, PhoneNumber, CustomerAddress, ZipCode } =
     req.body || {};
-  if (!validZipCode(ZipCode))
+  const profileZip = typeof ZipCode === "string" ? ZipCode.trim() : ZipCode;
+  if (profileZip != null && profileZip !== "" && !validZipCode(profileZip))
     return res
       .status(400)
       .json({ message: "Enter a valid ZIP code (12345 or 12345-6789)." });
-  const fields = [FirstName, LastName, PhoneNumber, CustomerAddress];
-  const limits = [100, 100, 50, 150];
+  const address = CustomerAddress ?? "";
+  if (typeof address !== "string" || address.trim().length > 150) {
+    return res
+      .status(400)
+      .json({ message: "Street address must be 150 characters or fewer." });
+  }
+  const fields = [FirstName, LastName, PhoneNumber];
+  const limits = [100, 100, 50];
   if (
     fields.some(
       (value, index) =>
@@ -58,17 +65,36 @@ router.put("/profile", async (req, res) => {
       .json({ message: "Enter all fields within the allowed lengths." });
   }
   const digits = PhoneNumber.replace(/\D/g, "");
-  if (digits.length < 7 || digits.length > 15) {
+  if (digits.length < 7 || digits.length > 10) {
     return res
       .status(400)
-      .json({ message: "Enter a phone number with 7 to 15 digits." });
+      .json({ message: "Enter a phone number with 7 to 10 digits." });
   }
-  await pool.query(
-    `UPDATE Customer
+  try {
+    await pool.query(
+      `UPDATE Customer
      SET FirstName = ?, LastName = ?, PhoneNumber = ?, CustomerAddress = ?, ZipCode = ?
      WHERE CustomerID = ?`,
-    [...fields.map((value) => value.trim()), ZipCode.trim(), req.customerId],
-  );
+      [
+        FirstName.trim(),
+        LastName.trim(),
+        digits,
+        address.trim(),
+        profileZip || null,
+        req.customerId,
+      ],
+    );
+  } catch (error) {
+    if (
+      error.code === "ER_DUP_ENTRY" &&
+      error.sqlMessage?.includes("uq_customer_phone")
+    ) {
+      return res
+        .status(409)
+        .json({ message: "This phone number is already in use." });
+    }
+    throw error;
+  }
   res.json({ message: "Account updated." });
 });
 
@@ -104,6 +130,16 @@ router.post("/signup", async (req, res) => {
         .status(400)
         .json({ message: "Enter a valid ZIP code (12345 or 12345-6789)." });
     connection = await pool.getConnection();
+    const [existingPhones] = await connection.execute(
+      "SELECT CustomerID FROM Customer WHERE PhoneNumber = ? LIMIT 1",
+      [signupPhone],
+    );
+    if (existingPhones.length > 0) {
+      return res
+        .status(409)
+        .json({ message: "This phone number is already in use." });
+    }
+
     await connection.beginTransaction();
     transactionStarted = true;
 
@@ -146,9 +182,17 @@ router.post("/signup", async (req, res) => {
       await connection.rollback();
       transactionStarted = false;
     }
+    if (
+      error.code === "ER_DUP_ENTRY" &&
+      error.sqlMessage?.includes("uq_customer_phone")
+    ) {
+      return res
+        .status(409)
+        .json({ message: "This phone number is already in use." });
+    }
     console.error("Signup failed:", error.message);
     return res.status(500).json({
-      message: "Something went wrong during signp.",
+      message: "Something went wrong during signup.",
     });
   } finally {
     if (connection != null) {

@@ -9,6 +9,7 @@ CREATE TABLE Customer (
     PhoneNumber VARCHAR(50) NOT NULL,
     CustomerAddress VARCHAR(150) NOT NULL,
     ZipCode VARCHAR(10) NULL,
+    CONSTRAINT uq_customer_phone UNIQUE (PhoneNumber),
     CONSTRAINT chk_customer_zip CHECK (ZipCode REGEXP '^[0-9]{5}(-[0-9]{4})?$'),
     TableUpdateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
