@@ -20,7 +20,7 @@ router.get("/", async (req, res) => {
       JOIN Customer c ON t.CustomerID = c.CustomerID
       JOIN DeliveryType d ON o.DeliveryID = d.DeliveryID
       LEFT JOIN Employee e ON o.EmployeeID = e.EmployeeID
-      ORDER BY o.FulfillmentID`);
+      ORDER BY o.FulfillmentID DESC`);
     res.json(orders);
   } catch (err) {
     console.error("Failed to load orders:", err.message);
