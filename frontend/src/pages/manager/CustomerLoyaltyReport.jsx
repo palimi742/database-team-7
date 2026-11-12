@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import ReportExport from "../../components/reports/ReportExport.jsx";
+import { useState } from "react";
 import { fmtDate, managerFetch } from "../../api.js";
 import ManagerSidebar from "../../components/layout/ManagerSidebar";
-import ReceiptView from "../../components/orders/receiptview.jsx";
-import "../../css/orders/OrderDetails.css";
+import OrderReceipt from "../../components/orders/ManagerOrderReceipt.jsx";
 import "../../css/manager/ManagerDashboard.css";
 import "../../css/manager/CustomerLoyaltyReport.css";
 
@@ -22,58 +22,6 @@ function formatSavings(order) {
   return currency.format(order.LoyaltyDiscount);
 }
 
-function OrderReceipt({ orderId, onClose }) {
-  const dialog = useRef(null);
-  const [order, setOrder] = useState(null);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    const controller = new AbortController();
-    if (!dialog.current.open) dialog.current.showModal();
-
-    async function loadReceipt() {
-      try {
-        const response = await managerFetch(
-          `/api/reports/loyalty/orders/${orderId}`,
-          { signal: controller.signal },
-        );
-        const data = await response.json();
-        if (!response.ok)
-          throw new Error(data.message || "Unable to load the receipt.");
-        if (!controller.signal.aborted) setOrder(data);
-      } catch (err) {
-        if (!controller.signal.aborted) setError(err.message);
-      }
-    }
-
-    void loadReceipt();
-    return () => controller.abort();
-  }, [orderId]);
-
-  return (
-    <dialog
-      ref={dialog}
-      className="loyalty-receipt"
-      aria-labelledby="loyalty-receipt-title"
-      onClose={onClose}
-    >
-      <div className="loyalty-receipt-heading">
-        <h2 id="loyalty-receipt-title">Order receipt</h2>
-        <form method="dialog">
-          <button type="submit">Close</button>
-        </form>
-      </div>
-      {error && <p role="alert">{error}</p>}
-      {!order && !error && <p role="status">Loading receipt…</p>}
-      {order && (
-        <div className="order-details-card receipt">
-          <ReceiptView order={order} readOnly />
-        </div>
-      )}
-    </dialog>
-  );
-}
-
 function LoyaltyResults({ orders }) {
   const [orderFilter, setOrderFilter] = useState("all");
   const [page, setPage] = useState(1);
@@ -86,7 +34,23 @@ function LoyaltyResults({ orders }) {
 
   const redeemed = orders.filter(redeemedPoints);
   const notRedeemed = orders.filter((order) => !redeemedPoints(order));
-  let visibleOrders = orders;
+  const recordedPointsUsed = redeemed.reduce(
+    (total, order) => total + Number(order.PointsRedeemed ?? 0),
+    0,
+  );
+  const ordersWithRecordedPoints = redeemed.filter(
+    (order) => Number(order.PointsRedeemed) > 0,
+  ).length;
+  const averagePointsUsed = ordersWithRecordedPoints
+    ? (recordedPointsUsed / ordersWithRecordedPoints).toLocaleString("en-US", {
+        maximumFractionDigits: 1,
+      })
+    : "—";
+  const recordedSavings = redeemed.reduce(
+    (total, order) => total + Number(order.LoyaltyDiscount ?? 0),
+    0,
+  );
+  let visibleOrders = [...redeemed, ...notRedeemed];
   if (orderFilter === "redeemed") visibleOrders = redeemed;
   if (orderFilter === "not-redeemed") visibleOrders = notRedeemed;
   const pageCount = Math.ceil(visibleOrders.length / ordersPerPage);
@@ -147,6 +111,31 @@ function LoyaltyResults({ orders }) {
 
   return (
     <>
+      <section aria-labelledby="loyalty-summary-title">
+        <h2 id="loyalty-summary-title">Points Used on Orders</h2>
+        <dl className="loyalty-summary">
+          <div>
+            <dt>Orders that used points</dt>
+            <dd>{redeemed.length}</dd>
+          </div>
+          <div>
+            <dt>Orders that didn’t use points</dt>
+            <dd>{notRedeemed.length}</dd>
+          </div>
+          <div>
+            <dt>Total saved with points</dt>
+            <dd>{currency.format(recordedSavings)}</dd>
+          </div>
+          <div>
+            <dt>Recorded points used</dt>
+            <dd>{recordedPointsUsed.toLocaleString("en-US")}</dd>
+          </div>
+          <div>
+            <dt>Avg. points per order that used points</dt>
+            <dd>{averagePointsUsed}</dd>
+          </div>
+        </dl>
+      </section>
       <h2 id="loyalty-order-details">Orders</h2>
       <div
         className="loyalty-order-views"
@@ -165,14 +154,14 @@ function LoyaltyResults({ orders }) {
           aria-pressed={orderFilter === "redeemed"}
           onClick={() => showOrders("redeemed")}
         >
-          Points redeemed ({redeemed.length})
+          Used points ({redeemed.length})
         </button>
         <button
           type="button"
           aria-pressed={orderFilter === "not-redeemed"}
           onClick={() => showOrders("not-redeemed")}
         >
-          No points redeemed ({notRedeemed.length})
+          Didn’t use points ({notRedeemed.length})
         </button>
       </div>
       {visibleOrders.length === 0 ? (
@@ -188,13 +177,22 @@ function LoyaltyResults({ orders }) {
                   <th scope="col">Customer</th>
                   <th scope="col">Fulfillment</th>
                   <th scope="col">Order total</th>
-                  <th scope="col">Points redeemed</th>
-                  <th scope="col">Receipt</th>
+                  <th scope="col">Points used</th>
+                  <th scope="col" className="report-receipt-column">
+                    Receipt
+                  </th>
                 </tr>
               </thead>
               <tbody>
-                {pageOrders.map((order) => (
-                  <tr key={order.TransactionID}>
+                {visibleOrders.map((order, index) => (
+                  <tr
+                    key={order.TransactionID}
+                    className={
+                      index < pageStart || index >= pageStart + ordersPerPage
+                        ? "report-print-row"
+                        : undefined
+                    }
+                  >
                     <td>
                       <strong>#{order.TransactionID}</strong>
                       <span className="loyalty-order-date">
@@ -227,7 +225,7 @@ function LoyaltyResults({ orders }) {
                         "0"
                       )}
                     </td>
-                    <td>
+                    <td className="report-receipt-column">
                       <button
                         type="button"
                         className="loyalty-view-order"
@@ -292,8 +290,15 @@ export default function CustomerLoyaltyReport() {
   return (
     <div>
       <ManagerSidebar />
-      <main className="manager-page customer-loyalty-report">
+      <main className="manager-page customer-loyalty-report printable-report">
         <h1>Customer Loyalty Report</h1>
+        {orders && (
+          <ReportExport
+            from={dates.from}
+            through={dates.through}
+            dateLabel="Transactions"
+          />
+        )}
         <form className="loyalty-filters" onSubmit={runReport}>
           <label>
             Transaction from
@@ -302,7 +307,8 @@ export default function CustomerLoyaltyReport() {
               required
               disabled={loading}
               value={dates.from}
-              max={dates.through || undefined}
+              min="1000-01-01"
+              max={dates.through || "9999-12-31"}
               onChange={(event) => changeDate("from", event.target.value)}
             />
           </label>
@@ -313,7 +319,8 @@ export default function CustomerLoyaltyReport() {
               required
               disabled={loading}
               value={dates.through}
-              min={dates.from || undefined}
+              min={dates.from || "1000-01-01"}
+              max="9999-12-31"
               onChange={(event) => changeDate("through", event.target.value)}
             />
           </label>

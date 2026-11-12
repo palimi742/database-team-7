@@ -26,6 +26,7 @@ router.get("/", async (req, res) => {
         Inventory.ReorderThreshold,
         Inventory.RestockTargetQuantity,
         Inventory.IsActive,
+        Inventory.ArchivedAt,
         Inventory.CategoryID,
         Category.CategoryName
       FROM Inventory
@@ -34,7 +35,9 @@ router.get("/", async (req, res) => {
     `;
 
     const values = [];
-    sql += req.employee ? " WHERE 1 = 1" : " WHERE Inventory.IsActive = TRUE";
+    sql += req.employee
+      ? " WHERE 1 = 1"
+      : " WHERE Inventory.IsActive = TRUE AND Inventory.ArchivedAt IS NULL";
 
     if (categoryID !== undefined) {
       sql += " AND Inventory.CategoryID = ?";
@@ -44,7 +47,17 @@ router.get("/", async (req, res) => {
     sql += " ORDER BY Inventory.InventoryName";
 
     const [rows] = await pool.query(sql, values);
-    res.json(rows);
+    res.json(
+      req.employee
+        ? rows.map((product) => ({
+            ...product,
+            ImageURL: product.ImageURL?.replace(
+              /^\/api\/products\/(\d+\/image)$/,
+              "/api/manager/products/$1",
+            ),
+          }))
+        : rows,
+    );
   } catch (error) {
     console.error("Query failed:", error.message);
     res.status(500).json({
@@ -58,8 +71,8 @@ router.get("/:inventoryID/image", async (req, res) => {
     `SELECT p.ContentType, p.ImageData
      FROM ProductImages p
      JOIN Inventory i ON i.InventoryID = p.InventoryID
-     WHERE p.InventoryID = ? AND i.IsActive = TRUE`,
-    [req.params.inventoryID],
+     WHERE p.InventoryID = ? AND ((i.IsActive = TRUE AND i.ArchivedAt IS NULL) OR ?)`,
+    [req.params.inventoryID, Boolean(req.employee)],
   );
 
   const image = rows[0];

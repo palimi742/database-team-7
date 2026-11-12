@@ -1,6 +1,10 @@
 import { raw, Router } from "express";
 import pool from "../../db.js";
-import { maxProductImageBytes, productImageError, saveProductImage } from "./productImage.js";
+import {
+  maxProductImageBytes,
+  productImageError,
+  saveProductImage,
+} from "./productImage.js";
 
 const router = Router();
 
@@ -38,7 +42,12 @@ router.put(
         return res.status(404).json({ message: "Product not found." });
       }
 
-      const imageURL = await saveProductImage(connection, inventoryID, contentType, imageData);
+      const imageURL = await saveProductImage(
+        connection,
+        inventoryID,
+        contentType,
+        imageData,
+      );
       await connection.commit();
       return res.json({ message: "Image saved.", imageURL });
     } catch (error) {

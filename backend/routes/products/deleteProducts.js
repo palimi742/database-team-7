@@ -2,7 +2,7 @@ import { Router } from "express";
 import pool from "../../db.js";
 const router = Router();
 
-router.patch("/:inventoryID/delete", async (req, res) => {
+router.patch("/:inventoryID/archive", async (req, res) => {
   const inventoryID = Number(req.params.inventoryID);
 
   if (!Number.isInteger(inventoryID) || inventoryID <= 0) {
@@ -12,11 +12,9 @@ router.patch("/:inventoryID/delete", async (req, res) => {
   }
   try {
     const results = await pool.query(
-      `
-            UPDATE Inventory
-            SET IsActive = FALSE
-            WHERE InventoryID = ?
-            `,
+      `UPDATE Inventory
+       SET IsActive = FALSE, ArchivedAt = COALESCE(ArchivedAt, CURRENT_TIMESTAMP)
+       WHERE InventoryID = ?`,
       [inventoryID],
     );
 
@@ -27,12 +25,12 @@ router.patch("/:inventoryID/delete", async (req, res) => {
     }
 
     res.json({
-      message: "Product deleted",
+      message: "Product archived",
     });
   } catch (err) {
     console.log(err.message);
     res.status(500).json({
-      message: "unable to delete product",
+      message: "Unable to archive product",
     });
   }
 });

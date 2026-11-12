@@ -55,8 +55,13 @@ function EditProductModal({ product, onClose, onSaved }) {
       setSaveError("Choose and upload a product image before saving changes.");
       return;
     }
-    if (Number(productUpdates.restockTargetQuantity) <= Number(productUpdates.reorderThreshold)) {
-      setSaveError("Restock target must be greater than the reorder threshold.");
+    if (
+      Number(productUpdates.restockTargetQuantity) <=
+      Number(productUpdates.reorderThreshold)
+    ) {
+      setSaveError(
+        "Restock target must be greater than the reorder threshold.",
+      );
       return;
     }
     setSaving(true);
@@ -121,7 +126,9 @@ function EditProductModal({ product, onClose, onSaved }) {
         throw new Error(data?.message || "Unable to upload the image.");
       }
 
-      setSavedImageURL(`${data.imageURL}?v=${Date.now()}`);
+      setSavedImageURL(
+        `/api/manager/products/${product.InventoryID}/image?v=${Date.now()}`,
+      );
       setSelectedImage(null);
       setPreviewURL(null);
       imageInput.current.value = "";
@@ -143,11 +150,7 @@ function EditProductModal({ product, onClose, onSaved }) {
           <div className="edit-product-fields">
             <div>
               <label htmlFor="edit-sku">SKU</label>
-              <input
-                id="edit-sku"
-                value={product.SKU}
-                readOnly
-              />
+              <input id="edit-sku" value={product.SKU} readOnly />
               <small>SKU stays the same if you change the category.</small>
             </div>
 
@@ -197,6 +200,19 @@ function EditProductModal({ product, onClose, onSaved }) {
               ) : (
                 <p>{categoryError || "Loading categories…"}</p>
               )}
+            </div>
+
+            <div>
+              <label htmlFor="edit-product-status">Status</label>
+              <select
+                id="edit-product-status"
+                name="isActive"
+                defaultValue={Number(product.IsActive) === 1 ? "1" : "0"}
+              >
+                <option value="1">Active</option>
+                <option value="0">Inactive</option>
+              </select>
+              <small>Inactive products are hidden from shoppers.</small>
             </div>
 
             <div>

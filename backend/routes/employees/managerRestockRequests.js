@@ -1,9 +1,6 @@
 import { Router } from "express";
 import pool from "../../db.js";
-import {
-  requireStaff,
-  requireManager,
-} from "../../auth/staffSession.js";
+import { requireStaff, requireManager } from "../../auth/staffSession.js";
 
 const router = Router();
 
@@ -18,9 +15,7 @@ router.use((req, res, next) => {
 // Managers can view all employees' restock requests.
 router.get("/", async (req, res) => {
   const status =
-    typeof req.query.status === "string"
-      ? req.query.status
-      : "Pending";
+    typeof req.query.status === "string" ? req.query.status : "Pending";
 
   const allowedStatuses = [
     "All",
@@ -37,8 +32,7 @@ router.get("/", async (req, res) => {
   }
 
   try {
-    const whereClause =
-      status === "All" ? "" : "WHERE r.Status = ?";
+    const whereClause = status === "All" ? "" : "WHERE r.Status = ?";
 
     const parameters = status === "All" ? [] : [status];
 
@@ -119,12 +113,7 @@ router.patch("/:requestId/review", async (req, res) => {
            ManagerNote = ?
        WHERE RequestID = ?
          AND Status = 'Pending'`,
-      [
-        decision,
-        req.employee.EmployeeID,
-        note.trim() || null,
-        requestId,
-      ],
+      [decision, req.employee.EmployeeID, note.trim() || null, requestId],
     );
 
     if (result.affectedRows === 0) {
@@ -174,10 +163,7 @@ router.patch("/:requestId/receive", async (req, res) => {
       [requestId],
     );
 
-    if (
-      requests.length === 0 ||
-      requests[0].Status !== "Approved"
-    ) {
+    if (requests.length === 0 || requests[0].Status !== "Approved") {
       await connection.rollback();
 
       return res.status(409).json({

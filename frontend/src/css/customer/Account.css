@@ -47,7 +47,9 @@
 .account-success {
   color: #23512c;
   background: #e5f3e7;
-  border-color: #466645;
+  border: 1px solid #c5dfc9;
+  border-radius: 0.5rem;
+  font-weight: 400;
 }
 
 .account-error {
@@ -62,7 +64,9 @@
   border-top: 1px solid #ddd;
 }
 .account-deactivate-section p,
-.account-deactivate-dialog p { line-height: 1.6; }
+.account-deactivate-dialog p {
+  line-height: 1.6;
+}
 .account-page .account-deactivate-button {
   background: #b42318;
   color: #fff;
@@ -70,7 +74,9 @@
 .account-deactivate-section .account-deactivate-button {
   margin-top: 1rem;
 }
-.account-page .account-deactivate-button:hover { background: #912018; }
+.account-page .account-deactivate-button:hover {
+  background: #912018;
+}
 .account-deactivate-dialog {
   box-sizing: border-box;
   width: min(30rem, calc(100vw - 3rem));
@@ -80,8 +86,12 @@
   background: #fff;
   color: #263b2b;
 }
-.account-deactivate-dialog::backdrop { background: rgb(0 0 0 / 65%); }
-.account-deactivate-dialog h2 { margin-top: 0; }
+.account-deactivate-dialog::backdrop {
+  background: rgb(0 0 0 / 65%);
+}
+.account-deactivate-dialog h2 {
+  margin-top: 0;
+}
 .account-deactivate-actions {
   display: flex;
   flex-wrap: wrap;
@@ -131,6 +141,24 @@
 
 .account-rewards p:last-child {
   margin-bottom: 0;
+}
+
+.account-page .account-logout-button {
+  margin-top: 1.25rem;
+  background: #fff0ef;
+  color: #8f2028;
+  border: 1px solid #c66a70;
+  border-radius: 0.5rem;
+  font-weight: 600;
+}
+
+.account-page .account-logout-button:hover:not(:disabled) {
+  background: #f9dcd9;
+}
+
+.account-page .account-logout-button:focus-visible {
+  outline: 2px solid #8f2028;
+  outline-offset: 3px;
 }
 
 .account-layout {

@@ -1,0 +1,67 @@
+.report-print-dates,
+.report-print-row {
+  display: none;
+}
+
+@media print {
+  body:has(.printable-report) {
+    background: white;
+  }
+
+  body:has(.printable-report) .manager-sidebar,
+  .printable-report form,
+  .printable-report button,
+  .printable-report .loyalty-pagination,
+  .printable-report .loyalty-order-views,
+  .printable-report .report-receipt-column,
+  .printable-report .report-screen-dates,
+  .printable-report dialog {
+    display: none !important;
+  }
+
+  .manager-page.printable-report {
+    margin: 0;
+    padding: 0;
+    color: #111;
+    font-size: 10pt;
+  }
+
+  .printable-report .report-print-dates {
+    display: block;
+  }
+
+  .printable-report .report-print-row {
+    display: table-row;
+  }
+
+  .printable-report .sales-table,
+  .printable-report .loyalty-table,
+  .printable-report .employee-report-table {
+    overflow: visible;
+  }
+
+  .printable-report th,
+  .printable-report td {
+    font-size: 9pt;
+    padding: 0.35rem 0.5rem;
+  }
+
+  .printable-report thead {
+    display: table-header-group;
+  }
+
+  .printable-report tr,
+  .printable-report dl,
+  .printable-report .sales-report,
+  .printable-report .sales-category-chart {
+    break-inside: avoid;
+  }
+
+  .printable-report h2 {
+    break-after: avoid;
+  }
+
+  .printable-report .sales-chart-and-daily {
+    display: block;
+  }
+}

@@ -71,13 +71,17 @@
 }
 
 .manager-theme .manager-logout {
-  background: transparent;
-  color: #18251c;
-  border: none;
+  background: #fff0ef;
+  color: #8f2028;
+  border: 1px solid #c66a70;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
 }
 
-.manager-theme .manager-logout:hover {
-  background: #f0f2f5;
+.manager-theme .manager-logout:hover:not(:disabled) {
+  background: #f9dcd9;
 }
 
 .manager-theme .product-modal {

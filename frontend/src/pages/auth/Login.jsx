@@ -1,26 +1,35 @@
 import "../../css/auth/CustomerLogin.css";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import {
+  Link,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 import Navbar from "../../components/layout/Navbar";
 import PasswordInput from "../../components/auth/PasswordInput";
 
 function Login() {
   const navigate = useNavigate();
+  const { state } = useLocation();
   const [loading, setLoading] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
-  const [notice, setNotice] = useState(() => searchParams.get("notice") === "account-inactive"
-    ? { title: "Account is marked as inactive", message: "Your account has been deactivated and you’re now signed out." }
-    : searchParams.get("notice") === "session-ended"
-      ? { title: "Please sign in again", message: "Your session has ended or your account is inactive. You’re now signed out." }
-      : null);
-  const dialog = useRef(null);
-  useEffect(() => {
-    if (notice && dialog.current && !dialog.current.open) {
-      dialog.current.showModal();
-    }
-  }, [notice]);
-
+  const [notice, setNotice] = useState(() =>
+    searchParams.get("notice") === "account-inactive"
+      ? {
+          title: "Account is marked as inactive",
+          message:
+            "Your account has been deactivated and you’re now signed out.",
+        }
+      : searchParams.get("notice") === "session-ended"
+        ? {
+            title: "Please sign in again",
+            message:
+              "Your session has ended or your account is inactive. You’re now signed out.",
+          }
+        : null,
+  );
   function dismissNotice() {
     setNotice(null);
     if (searchParams.has("notice")) {
@@ -33,6 +42,7 @@ function Login() {
   async function handleSubmit(event) {
     event.preventDefault();
     const fields = Object.fromEntries(new FormData(event.currentTarget));
+    dismissNotice();
     setLoading(true);
     try {
       const response = await fetch("/api/login", {
@@ -46,8 +56,14 @@ function Login() {
           sessionStorage.removeItem("customer");
         }
         setNotice({
-          title: data.code === "ACCOUNT_INACTIVE" ? "Account is marked as inactive" : "Unable to sign in",
-          message: data.message || "Unable to submit the form.",
+          title:
+            data.code === "ACCOUNT_INACTIVE"
+              ? "Account is marked as inactive"
+              : "Unable to sign in",
+          message:
+            response.status === 401 && !data.code
+              ? "Invalid credentials. Check your username and password."
+              : data.message || "Unable to submit the form.",
         });
         return;
       }
@@ -60,10 +76,15 @@ function Login() {
         sessionStorage.removeItem("customer");
         localStorage.removeItem("manager");
         localStorage.setItem("employee", JSON.stringify(data.employee));
-        navigate(data.role === "manager" ? "/manager" : "/employee", { replace: true });
+        navigate(data.role === "manager" ? "/manager" : "/employee", {
+          replace: true,
+        });
       }
     } catch {
-      setNotice({ title: "Unable to sign in", message: "We couldn’t connect. Please try again shortly." });
+      setNotice({
+        title: "Unable to sign in",
+        message: "We couldn’t connect. Please try again shortly.",
+      });
     } finally {
       setLoading(false);
     }
@@ -72,18 +93,19 @@ function Login() {
   return (
     <>
       <Navbar />
-      {notice && (
-        <dialog ref={dialog} className="customer-login-dialog"
-          aria-labelledby="customer-notice-title" aria-describedby="customer-notice-message"
-          onCancel={event => { event.preventDefault(); dismissNotice(); }}>
-          <h2 id="customer-notice-title">{notice.title}</h2>
-          <p id="customer-notice-message">{notice.message}</p>
-          <button type="button" className="login-btn" autoFocus onClick={dismissNotice}>OK</button>
-        </dialog>
-      )}
       <main>
         <form className="login-form" onSubmit={handleSubmit}>
           <h1>Sign in to FreshMart</h1>
+          {notice && (
+            <p className="login-error" role="alert">
+              {notice.message}
+            </p>
+          )}
+          {!notice && state?.accountCreated && (
+            <p className="login-success" role="status">
+              Account created successfully. Sign in to get started.
+            </p>
+          )}
           <label className="username-label" htmlFor="username">
             Username
           </label>

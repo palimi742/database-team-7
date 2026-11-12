@@ -3,11 +3,11 @@ import "../../css/customer/Product.css";
 import "../../css/customer/Home.css";
 import { useEffect, useState } from "react";
 import { useShop } from "../../context/ShopContext.jsx";
-import { useNavigate } from "react-router-dom";
+import SignInModal from "../../components/auth/SignInModal.jsx";
 
 function Home() {
-  const { addItem, cartId, error: cartError } = useShop();
-  const navigate = useNavigate();
+  const { addItem, cartId, isSignedIn, updating, error: cartError } = useShop();
+  const [showSignIn, setShowSignIn] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [search, setSearch] = useState("");
   const [categories, setCategories] = useState([]);
@@ -73,6 +73,7 @@ function Home() {
 
   return (
     <div className="browse-page browse-container">
+      {showSignIn && <SignInModal onClose={() => setShowSignIn(false)} />}
       <div>
         <input
           className="search-input"
@@ -136,8 +137,11 @@ function Home() {
               <h3>{product.InventoryName}</h3>
               <p>${Number(product.Price).toFixed(2)}</p>
               <button
+                disabled={updating || (isSignedIn && !cartId)}
                 onClick={() =>
-                  cartId ? addItem(product.InventoryID) : navigate("/login")
+                  isSignedIn
+                    ? addItem(product.InventoryID)
+                    : setShowSignIn(true)
                 }
               >
                 Add to cart

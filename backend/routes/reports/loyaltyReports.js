@@ -90,7 +90,12 @@ router.get("/orders/:orderId", async (req, res) => {
 
     const [items] = await pool.query(
       `SELECT ti.TransactionItemID AS id, i.InventoryName AS name,
-              i.ImageURL AS imageURL, ti.Quantity AS quantity, ti.UnitPrice AS unitPrice
+              CASE
+                WHEN i.ImageURL = CONCAT('/api/products/', i.InventoryID, '/image')
+                  THEN CONCAT('/api/manager/products/', i.InventoryID, '/image')
+                ELSE i.ImageURL
+              END AS imageURL,
+              ti.Quantity AS quantity, ti.UnitPrice AS unitPrice
        FROM TransactionItems AS ti
        JOIN Inventory AS i ON i.InventoryID = ti.InventoryID
        WHERE ti.TransactionID = ?

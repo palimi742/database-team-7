@@ -11,16 +11,20 @@ import { validZipCode } from "../../validation/zipCode.js";
 
 const router = Router();
 
+const normalizedPhoneSql = "REGEXP_REPLACE(PhoneNumber, '[^0-9]', '')";
+
 // Identity comes from the verified cookie, never a customer ID in the form.
 router.use("/profile", requireCustomer);
 
 router.get("/profile", async (req, res) => {
   const [rows] = await pool.query(
-    `SELECT CustomerID, FirstName, LastName, PhoneNumber, CustomerAddress, ZipCode
+    `SELECT CustomerID, FirstName, LastName, PhoneNumber, CustomerAddress, ZipCode,
+            DATE_FORMAT(BirthDate, '%Y-%m-%d') AS BirthDate
      FROM Customer WHERE CustomerID = ?`,
     [req.customerId],
   );
-  if (!rows.length) return res.status(404).json({ message: "Customer not found." });
+  if (!rows.length)
+    return res.status(404).json({ message: "Customer not found." });
   res.json(rows[0]);
 });
 
@@ -36,25 +40,98 @@ router.post("/profile/deactivate", async (req, res) => {
 });
 
 router.put("/profile", async (req, res) => {
-  const { FirstName, LastName, PhoneNumber, CustomerAddress, ZipCode } = req.body || {};
-  if (!validZipCode(ZipCode)) return res.status(400).json({ message: "Enter a valid ZIP code (12345 or 12345-6789)." });
-  const fields = [FirstName, LastName, PhoneNumber, CustomerAddress];
-  const limits = [100, 100, 50, 150];
-  if (fields.some((value, index) =>
-    typeof value !== "string" || !value.trim() || value.trim().length > limits[index]
-  )) {
-    return res.status(400).json({ message: "Enter all fields within the allowed lengths." });
+  const {
+    FirstName,
+    LastName,
+    PhoneNumber,
+    CustomerAddress,
+    ZipCode,
+    BirthDate,
+  } = req.body || {};
+  if (BirthDate != null) {
+    const today = new Date().toISOString().slice(0, 10);
+    if (
+      typeof BirthDate !== "string" ||
+      BirthDate < "1000-01-01" ||
+      BirthDate > today ||
+      new Date(`${BirthDate}T00:00:00Z`).toJSON()?.slice(0, 10) !== BirthDate
+    ) {
+      return res
+        .status(400)
+        .json({ message: "Enter a valid birthdate that is today or earlier." });
+    }
+  }
+  const profileZip = typeof ZipCode === "string" ? ZipCode.trim() : ZipCode;
+  if (profileZip != null && profileZip !== "" && !validZipCode(profileZip))
+    return res
+      .status(400)
+      .json({ message: "Enter a valid ZIP code (12345 or 12345-6789)." });
+  const address = CustomerAddress ?? "";
+  if (typeof address !== "string" || address.trim().length > 150) {
+    return res
+      .status(400)
+      .json({ message: "Street address must be 150 characters or fewer." });
+  }
+  const fields = [FirstName, LastName, PhoneNumber];
+  const limits = [100, 100, 50];
+  if (
+    fields.some(
+      (value, index) =>
+        typeof value !== "string" ||
+        !value.trim() ||
+        value.trim().length > limits[index],
+    )
+  ) {
+    return res
+      .status(400)
+      .json({ message: "Enter all fields within the allowed lengths." });
   }
   const digits = PhoneNumber.replace(/\D/g, "");
-  if (digits.length < 7 || digits.length > 15) {
-    return res.status(400).json({ message: "Enter a phone number with 7 to 15 digits." });
+  if (digits.length < 7 || digits.length > 10) {
+    return res
+      .status(400)
+      .json({ message: "Enter a phone number with 7 to 10 digits." });
   }
-  await pool.query(
-    `UPDATE Customer
-     SET FirstName = ?, LastName = ?, PhoneNumber = ?, CustomerAddress = ?, ZipCode = ?
+  try {
+    const [[existingPhone]] = await pool.execute(
+      `SELECT CustomerID FROM Customer
+       WHERE ${normalizedPhoneSql} = ? AND CustomerID <> ?
+       LIMIT 1`,
+      [digits, req.customerId],
+    );
+    if (existingPhone) {
+      return res
+        .status(409)
+        .json({ message: "This phone number is already in use." });
+    }
+
+    await pool.query(
+      `UPDATE Customer
+     SET FirstName = ?, LastName = ?, PhoneNumber = ?, CustomerAddress = ?, ZipCode = ?,
+         BirthDate = CASE WHEN ? THEN ? ELSE BirthDate END
      WHERE CustomerID = ?`,
-    [...fields.map(value => value.trim()), ZipCode.trim(), req.customerId],
-  );
+      [
+        FirstName.trim(),
+        LastName.trim(),
+        digits,
+        address.trim(),
+        profileZip || null,
+        BirthDate !== undefined,
+        BirthDate ?? null,
+        req.customerId,
+      ],
+    );
+  } catch (error) {
+    if (
+      error.code === "ER_DUP_ENTRY" &&
+      error.sqlMessage?.includes("uq_customer_phone")
+    ) {
+      return res
+        .status(409)
+        .json({ message: "This phone number is already in use." });
+    }
+    throw error;
+  }
   res.json({ message: "Account updated." });
 });
 
@@ -70,22 +147,44 @@ router.post("/signup", async (req, res) => {
       zipCode,
       username,
       password,
+      birthDate,
     } = req.body;
 
     if (
       !firstName ||
       !lastName ||
       !phoneNumber ||
-      !customerAddress ||
       !username ||
-      !password
+      !password ||
+      !birthDate
     ) {
       return res.status(400).json({
         message: "Please fill in all fields",
       });
     }
-    if (!validZipCode(zipCode)) return res.status(400).json({ message: "Enter a valid ZIP code (12345 or 12345-6789)." });
+    const signupPhone =
+      typeof phoneNumber === "string" ? phoneNumber.replace(/[ -]/g, "") : "";
+    if (!/^[0-9]{1,10}$/.test(signupPhone)) {
+      return res
+        .status(400)
+        .json({ message: "Enter a phone number with up to 10 digits." });
+    }
+    const signupZip = typeof zipCode === "string" ? zipCode.trim() : zipCode;
+    if (signupZip != null && signupZip !== "" && !validZipCode(signupZip))
+      return res
+        .status(400)
+        .json({ message: "Enter a valid ZIP code (12345 or 12345-6789)." });
     connection = await pool.getConnection();
+    const [existingPhones] = await connection.execute(
+      `SELECT CustomerID FROM Customer WHERE ${normalizedPhoneSql} = ? LIMIT 1`,
+      [signupPhone],
+    );
+    if (existingPhones.length > 0) {
+      return res
+        .status(409)
+        .json({ message: "This phone number is already in use." });
+    }
+
     await connection.beginTransaction();
     transactionStarted = true;
 
@@ -103,34 +202,43 @@ router.post("/signup", async (req, res) => {
     }
 
     const [customerResult] = await connection.query(
-      "INSERT INTO Customer(FirstName, LastName, PhoneNumber, CustomerAddress, ZipCode) VALUES(?, ?, ?, ?, ?)",
-      [firstName, lastName, phoneNumber, customerAddress, zipCode.trim()],
+      "INSERT INTO Customer (FirstName, LastName, PhoneNumber, CustomerAddress, ZipCode, BirthDate) VALUES (?, ?, ?, ?, ?, ?)",
+      [
+        firstName,
+        lastName,
+        signupPhone,
+        customerAddress?.trim() ?? "",
+        signupZip || null,
+        birthDate,
+      ],
     );
 
     await connection.query(
       "INSERT INTO CustomerAccounts(CustomerID, Username, Password) VALUES(?,?,?)",
       [customerResult.insertId, username, password],
     );
-
-    await connection.query(
-      `INSERT INTO LoyaltyProgram
-       (CustomerID, CurrentPoints, DateJoined, TotalPointsEarned, TotalPointsRedeemed, LastActivityDate)
-       VALUES (?, 0, NOW(), 0, 0, NOW())`,
-      [customerResult.insertId],
-    );
     await connection.commit();
+
     transactionStarted = false;
     return res.status(201).json({
-      message: "Account created succesfully!",
+      message: "Account created successfully!",
     });
   } catch (error) {
     if (connection != null && transactionStarted == true) {
       await connection.rollback();
       transactionStarted = false;
     }
+    if (
+      error.code === "ER_DUP_ENTRY" &&
+      error.sqlMessage?.includes("uq_customer_phone")
+    ) {
+      return res
+        .status(409)
+        .json({ message: "This phone number is already in use." });
+    }
     console.error("Signup failed:", error.message);
     return res.status(500).json({
-      message: "Something went wrong during signp.",
+      message: "Something went wrong during signup.",
     });
   } finally {
     if (connection != null) {
@@ -163,7 +271,8 @@ router.post("/login", async (req, res) => {
       clearCustomerSession(res);
       return res.status(403).json({
         code: "ACCOUNT_INACTIVE",
-        message: "Your account is marked as inactive. Please contact FreshMart for assistance.",
+        message:
+          "Your account is marked as inactive. Please contact FreshMart for assistance.",
       });
     }
 

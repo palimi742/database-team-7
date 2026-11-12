@@ -1,13 +1,13 @@
 import "../../css/auth/CustomerSignup.css";
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../../components/layout/Navbar";
 import PasswordInput from "../../components/auth/PasswordInput";
 
 function CustomerSignup() {
   const [error, setError] = useState("");
-  const [created, setCreated] = useState(false);
+  const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
 
   async function handleSubmit(event) {
@@ -19,17 +19,24 @@ function CustomerSignup() {
     try {
       const response = await fetch("/api/customers/signup", {
         method: "POST",
+        signal: AbortSignal.timeout(15000),
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(fields),
       });
       const data = await response.json();
       if (!response.ok) {
-        setError(data.message || "Unable to create your account. Please try again.");
+        setError(
+          data.message || "Unable to create your account. Please try again.",
+        );
         return;
       }
-      setCreated(true);
-    } catch {
-      setError("Unable to connect. Please try again in a moment.");
+      navigate("/login", { replace: true, state: { accountCreated: true } });
+    } catch (error) {
+      setError(
+        error.name === "TimeoutError"
+          ? "Signup is taking too long. Try signing in before submitting again."
+          : "Unable to connect. Please try again in a moment.",
+      );
     } finally {
       setSubmitting(false);
     }
@@ -39,19 +46,8 @@ function CustomerSignup() {
     <>
       <Navbar />
       <main>
-        {created ? (
-          <section className="signup-form signup-success" aria-labelledby="signup-success-heading">
-            <div role="status">
-              <h1 id="signup-success-heading" className="signup-heading">Your account is ready!</h1>
-              <p>You’re automatically enrolled in Freshmart Rewards with 0 points. Log in to start shopping and earning rewards.</p>
-            </div>
-            <Link className="signup-btn" to="/login">Continue to log in</Link>
-          </section>
-        ) : (
         <form className="signup-form" onSubmit={handleSubmit}>
           <h1 className="signup-heading">Customer Signup</h1>
-
-          {error && <p className="signup-error" role="alert">{error}</p>}
 
           <div className="names-row">
             <div className="name-field">
@@ -81,10 +77,13 @@ function CustomerSignup() {
             Phone Number
           </label>
           <input
-            placeholder="555-123-4567"
+            placeholder="555 123 4567"
             id="phoneNumber"
             name="phoneNumber"
             type="tel"
+            inputMode="numeric"
+            pattern="[ \x2D]*(?:[0-9][ \x2D]*){1,10}"
+            title="Enter up to 10 digits. Spaces and dashes are allowed."
             required
           ></input>
 
@@ -104,23 +103,47 @@ function CustomerSignup() {
           </label>
           <PasswordInput autoComplete="new-password" />
 
+          <label className="single-row-labels" htmlFor="birthDate">
+            Birthdate
+          </label>
+          <input
+            id="birthDate"
+            name="birthDate"
+            type="date"
+            min="1000-01-01"
+            max={new Date().toISOString().slice(0, 10)}
+            autoComplete="bday"
+            required
+          />
+
           <label className="single-row-labels" htmlFor="address">
-            Address
+            Street address (optional)
           </label>
           <input
             id="address"
             name="customerAddress"
             type="text"
             placeholder="123 main street"
-            required
           ></input>
 
-          <label htmlFor="zipCode">ZIP code</label>
-          <input id="zipCode" name="zipCode" type="text" autoComplete="postal-code"
-            placeholder="77008" pattern="[0-9]{5}(-[0-9]{4})?" maxLength={10}
-            title="Enter 5 digits or ZIP+4, such as 77008 or 77008-1234" required />
+          <label htmlFor="zipCode">ZIP code (optional)</label>
+          <input
+            id="zipCode"
+            name="zipCode"
+            type="text"
+            autoComplete="postal-code"
+            placeholder="77008"
+            pattern="[0-9]{5}(-[0-9]{4})?"
+            maxLength={10}
+            title="Enter 5 digits or ZIP+4, such as 77008 or 77008-1234"
+          />
 
           <p>Your account includes free loyalty program membership.</p>
+          {error && (
+            <p className="signup-error" role="alert">
+              {error}
+            </p>
+          )}
           <button className="signup-btn" type="submit" disabled={submitting}>
             {submitting ? "Creating account…" : "Sign up"}
           </button>
@@ -128,7 +151,6 @@ function CustomerSignup() {
             Already have an account? <Link to="/login">Log in</Link>
           </p>
         </form>
-        )}
       </main>
     </>
   );

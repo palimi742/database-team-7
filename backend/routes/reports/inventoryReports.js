@@ -1,23 +1,23 @@
-import { Router } from 'express';
+import { Router } from "express";
 import { requireStaff } from "../../auth/staffSession.js";
-import pool from '../../db.js'
+import pool from "../../db.js";
 
 const router = Router();
 
-router.get('/lowStock', async (req, res) => {
-    try{
-        const [rows] = await pool.query(
-           ` select * from low_inventory_report
-           order by StockQuantity asc;`
-        );
+router.get("/lowStock", async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      ` select * from low_inventory_report
+           order by StockQuantity asc;`,
+    );
 
-        res.json(rows);
-    } catch(error) {
-        console.error('Error gettng low inventory:', error.message);
-        res.status(500).json({
-            message : `Unable to fetch low inventory report`
-        });
-    }
+    res.json(rows);
+  } catch (error) {
+    console.error("Error gettng low inventory:", error.message);
+    res.status(500).json({
+      message: `Unable to fetch low inventory report`,
+    });
+  }
 });
 
 // Inventory report for signed-in staff.
@@ -26,22 +26,12 @@ router.get("/stock", requireStaff, async (req, res) => {
   res.set("Cache-Control", "no-store");
 
   const search =
-    typeof req.query.search === "string"
-      ? req.query.search.trim()
-      : "";
+    typeof req.query.search === "string" ? req.query.search.trim() : "";
 
   const status =
-    typeof req.query.status === "string"
-      ? req.query.status
-      : "All";
+    typeof req.query.status === "string" ? req.query.status : "All";
 
-  const allowedStatuses = [
-    "All",
-    "Out of stock",
-    "Low",
-    "Normal",
-    "High",
-  ];
+  const allowedStatuses = ["All", "Out of stock", "Low", "Normal", "High"];
 
   if (!allowedStatuses.includes(status)) {
     return res.status(400).json({
@@ -60,9 +50,7 @@ router.get("/stock", requireStaff, async (req, res) => {
     const parameters = [];
 
     if (search) {
-      conditions.push(
-        "(InventoryName LIKE ? OR SKU LIKE ?)",
-      );
+      conditions.push("(InventoryName LIKE ? OR SKU LIKE ?)");
       parameters.push(`%${search}%`, `%${search}%`);
     }
 
@@ -108,10 +96,7 @@ router.get("/stock", requireStaff, async (req, res) => {
     );
 
     const summary = Object.fromEntries(
-      Object.entries(counts[0]).map(([key, value]) => [
-        key,
-        Number(value),
-      ]),
+      Object.entries(counts[0]).map(([key, value]) => [key, Number(value)]),
     );
 
     res.json({

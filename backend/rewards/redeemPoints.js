@@ -12,9 +12,15 @@ export function calculateRedemption(currentPoints, subtotal, requestedPoints) {
   if (requestedPoints === undefined) {
     return { discount, pointsUsed: maximumPoints };
   }
-  if (!Number.isSafeInteger(requestedPoints) || requestedPoints < 50 ||
-      requestedPoints % POINTS_PER_REWARD_DOLLAR !== 0 || requestedPoints > maximumPoints) {
-    throw new Error("Choose points in groups of 50, within your balance and order subtotal.");
+  if (
+    !Number.isSafeInteger(requestedPoints) ||
+    requestedPoints < 50 ||
+    requestedPoints % POINTS_PER_REWARD_DOLLAR !== 0 ||
+    requestedPoints > maximumPoints
+  ) {
+    throw new Error(
+      "Choose points in groups of 50, within your balance and order subtotal.",
+    );
   }
   return {
     discount: requestedPoints / POINTS_PER_REWARD_DOLLAR,

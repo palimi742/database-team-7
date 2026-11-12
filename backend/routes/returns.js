@@ -14,12 +14,14 @@ router.get("/", async (req, res) => {
       `SELECT r.ReturnRequestID, r.TransactionItemID, r.Quantity, r.Reason,
               r.Details, r.ExpectedRefund, r.Status, r.RequestedAt,
               t.TransactionID, t.CustomerID, c.CartID,
+              CONCAT_WS(' ', customer.FirstName, customer.LastName) AS CustomerName,
               i.InventoryName AS ProductName, pr.RefundTotal, pr.Disposable,
               DATE_FORMAT(pr.ReturnDate, '%Y-%m-%d') AS ReturnDate,
               DATE_FORMAT(r.TableUpdateTime, '%Y-%m-%d') AS ReviewedDate
        FROM ReturnRequests r
        JOIN TransactionItems ti ON ti.TransactionItemID = r.TransactionItemID
        JOIN Transactions t ON t.TransactionID = ti.TransactionID
+       LEFT JOIN Customer customer ON customer.CustomerID = t.CustomerID
        LEFT JOIN Cart c ON c.CustomerID = t.CustomerID
        JOIN Inventory i ON i.InventoryID = ti.InventoryID
        LEFT JOIN ProductReturns pr ON pr.ReturnID = r.ReturnID

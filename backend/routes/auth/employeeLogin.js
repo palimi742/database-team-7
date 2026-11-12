@@ -48,8 +48,7 @@ router.post("/login", async (req, res) => {
     }
 
     const employee = employees[0];
-    const isManager =
-      String(employee.EmployeeRole).toLowerCase() === "manager";
+    const isManager = String(employee.EmployeeRole).toLowerCase() === "manager";
 
     if (loginType === "admin" && !isManager) {
       return res.status(403).json({

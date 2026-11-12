@@ -32,5 +32,4 @@ export function registerShoppingRoutes(router, pool) {
       res.json(rows);
     }),
   );
-
 }

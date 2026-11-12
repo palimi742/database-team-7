@@ -60,7 +60,9 @@ router.patch("/:fulfillmentID/assign", async (req, res) => {
     );
     if (activeOrders.length >= 5) {
       await connection.rollback();
-      return res.status(409).json({ message: "This employee already has five active orders" });
+      return res
+        .status(409)
+        .json({ message: "This employee already has five active orders" });
     }
 
     const [orders] = await connection.query(
@@ -79,10 +81,15 @@ router.patch("/:fulfillmentID/assign", async (req, res) => {
     // Earlier checkouts used the first employee (a manager) as a placeholder.
     // Recover those pending orders without permitting reassignment of a real
     // employee's order or changes to ready/completed orders.
-    if (order.FulfillmentTime != null || Number(order.ReadyStatus) !== 0 ||
-        (order.EmployeeID != null && order.EmployeeRole !== 'Manager')) {
+    if (
+      order.FulfillmentTime != null ||
+      Number(order.ReadyStatus) !== 0 ||
+      (order.EmployeeID != null && order.EmployeeRole !== "Manager")
+    ) {
       await connection.rollback();
-      return res.status(409).json({ message: "Order already completed or assigned" });
+      return res
+        .status(409)
+        .json({ message: "Order already completed or assigned" });
     }
 
     await connection.query(
@@ -92,7 +99,11 @@ router.patch("/:fulfillmentID/assign", async (req, res) => {
       [employeeID, fulfillmentID],
     );
     await connection.commit();
-    res.json({ message: "Employee assigned to order", fulfillmentID, employeeID });
+    res.json({
+      message: "Employee assigned to order",
+      fulfillmentID,
+      employeeID,
+    });
   } catch (err) {
     if (connection) await connection.rollback();
     console.error("Assignment failed:", err.message);

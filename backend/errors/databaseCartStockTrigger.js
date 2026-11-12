@@ -2,11 +2,21 @@ import { getCartItems } from "../routes/cart/cartHelpers.js";
 
 // Read availability only after checkout has rolled back its stock deductions.
 export async function handleDatabaseTriggerError(err, res, db, cartId) {
+  if (err.errno === 30021) {
+    res.status(403).json({
+      code: "ALCOHOL_AGE_RESTRICTED",
+      error: err.sqlMessage,
+    });
+    return true;
+  }
   if (err.code !== "ER_SIGNAL_EXCEPTION") return false;
 
   const items = await getCartItems(db, cartId);
   const stockIssues = items
-    .filter((item) => !Number(item.isActive) || Number(item.quantity) > Number(item.stock))
+    .filter(
+      (item) =>
+        !Number(item.isActive) || Number(item.quantity) > Number(item.stock),
+    )
     .map((item) => ({
       productId: item.productId,
       name: item.name,

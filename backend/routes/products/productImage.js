@@ -10,8 +10,11 @@ export function productImageError(contentType, imageData) {
 
   const matchesType = {
     "image/jpeg": imageData.subarray(0, 3).equals(Buffer.from("ffd8ff", "hex")),
-    "image/png": imageData.subarray(0, 8).equals(Buffer.from("89504e470d0a1a0a", "hex")),
-    "image/webp": imageData.toString("latin1", 0, 4) === "RIFF" &&
+    "image/png": imageData
+      .subarray(0, 8)
+      .equals(Buffer.from("89504e470d0a1a0a", "hex")),
+    "image/webp":
+      imageData.toString("latin1", 0, 4) === "RIFF" &&
       imageData.toString("latin1", 8, 12) === "WEBP",
   };
 
@@ -24,7 +27,12 @@ export function productImageError(contentType, imageData) {
   return null;
 }
 
-export async function saveProductImage(connection, inventoryID, contentType, imageData) {
+export async function saveProductImage(
+  connection,
+  inventoryID,
+  contentType,
+  imageData,
+) {
   const imageURL = `/api/products/${inventoryID}/image`;
   await connection.execute(
     `INSERT INTO ProductImages (InventoryID, ContentType, ImageData)

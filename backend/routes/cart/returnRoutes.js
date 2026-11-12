@@ -38,7 +38,9 @@ export function registerReturnRoutes(router, pool) {
         );
         if (!item) {
           await connection.rollback();
-          return res.status(404).json({ error: "Item not found in this order." });
+          return res
+            .status(404)
+            .json({ error: "Item not found in this order." });
         }
         const [rejectedRequests] = await connection.query(
           `SELECT ReturnRequestID FROM ReturnRequests
@@ -47,32 +49,49 @@ export function registerReturnRoutes(router, pool) {
         );
         if (rejectedRequests.length) {
           await connection.rollback();
-          return res.status(400).json({ error: "This item's return request was rejected and cannot be resubmitted." });
+          return res.status(400).json({
+            error:
+              "This item's return request was rejected and cannot be resubmitted.",
+          });
         }
         const [[availability]] = await connection.query(
-          `SELECT ${returnedQtySql("?")} AS reserved`, [item.id, item.id],
+          `SELECT ${returnedQtySql("?")} AS reserved`,
+          [item.id, item.id],
         );
         const remaining = Number(item.quantity) - Number(availability.reserved);
         const [[fulfillment]] = await connection.query(
           `SELECT FulfillmentID FROM OrderFulfillment
-           WHERE TransactionID = ? AND FulfillmentTime IS NULL`, [order.id],
+           WHERE TransactionID = ? AND FulfillmentTime IS NULL`,
+          [order.id],
         );
         if (fulfillment) {
           await connection.rollback();
-          return res.status(400).json({ error: "Returns are available after your order is completed." });
+          return res.status(400).json({
+            error: "Returns are available after your order is completed.",
+          });
         }
         const refund = (Math.round(Number(item.unitPrice) * 100) * qty) / 100;
         await connection.query(
           `INSERT INTO ReturnRequests (TransactionItemID, Quantity, Reason, Details, ExpectedRefund)
            VALUES (?, ?, ?, ?, ?)`,
-          [item.id, qty, String(reason).slice(0, 50), String(details || "").trim().slice(0, 500) || null, refund],
+          [
+            item.id,
+            qty,
+            String(reason).slice(0, 50),
+            String(details || "")
+              .trim()
+              .slice(0, 500) || null,
+            refund,
+          ],
         );
         // Let the database trigger validate the purchased-quantity limit first.
         // Before committing, also account for previous returns, which the
         // simple trigger does not check. Rollback removes this new request.
         if (qty > remaining) {
           await connection.rollback();
-          return res.status(400).json({ error: `You can return at most ${Math.max(0, remaining)} more item(s).` });
+          return res.status(400).json({
+            error: `You can return at most ${Math.max(0, remaining)} more item(s).`,
+          });
         }
         await connection.commit();
       } catch (err) {
@@ -87,5 +106,4 @@ export function registerReturnRoutes(router, pool) {
       res.json({ ok: true });
     }),
   );
-
 }

@@ -95,7 +95,7 @@
 }
 
 .manager-theme .order-filters button[data-status] {
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .order-filters button[data-status="Needs Assignment"] {
@@ -116,8 +116,12 @@
   --filter-border: #a7cfb4;
 }
 
-.manager-theme .order-filters button:hover,
-.manager-theme .order-filters button[aria-pressed="true"] {
+.manager-theme .order-filters:not(.fulfillment-filters) button:hover {
+  background: color-mix(
+    in srgb,
+    var(--filter-background),
+    var(--filter-ink) 8%
+  );
   border-color: var(--filter-ink);
 }
 
@@ -130,7 +134,7 @@
   background: var(--filter-ink);
   border-color: var(--filter-ink);
   color: #fff;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .order-dashboard .fulfillment-filters {
@@ -155,7 +159,25 @@
   color: var(--fulfillment-selected);
 }
 
-.manager-theme .order-dashboard .fulfillment-filters button[aria-pressed="true"] {
+.manager-theme .order-dashboard .fulfillment-filters button,
+.manager-theme
+  .order-dashboard
+  .fulfillment-filters
+  button[aria-pressed="true"] {
+  font-weight: 500;
+}
+
+.manager-theme
+  .order-dashboard
+  .fulfillment-filters
+  button[data-fulfillment="All"] {
+  background-color: transparent;
+}
+
+.manager-theme
+  .order-dashboard
+  .fulfillment-filters
+  button[data-fulfillment][aria-pressed="true"] {
   background-color: var(--fulfillment-selected, #234e3a);
   border-color: var(--fulfillment-selected, #234e3a);
   color: #fff;

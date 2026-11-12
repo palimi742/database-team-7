@@ -1,3 +1,4 @@
+import ReportExport from "../../components/reports/ReportExport.jsx";
 import { useState } from "react";
 import { managerFetch } from "../../api.js";
 import ManagerSidebar from "../../components/layout/ManagerSidebar";
@@ -27,25 +28,36 @@ function EmployeeResults({ employees }) {
     0,
   );
 
+  const estimatedWeeklyWages = employees.reduce(
+    (total, employee) =>
+      total + (employee.WeeklyScheduledSeconds / 3600) * employee.EmployeePay,
+    0,
+  );
+
   return (
-    <section aria-labelledby="employee-report-summary">
-      <h2 id="employee-report-summary" className="employee-report-summary">
-        <span>
-          <strong>{employees.length}</strong>{" "}
-          {employees.length === 1 ? "employee" : "employees"}
-        </span>{" "}
-        <span>
-          <strong>{hours.format(totalHundredths / 100)}</strong> weekly schedule
-          hours
-        </span>
-      </h2>
+    <section aria-label="Employee report results">
+      <dl className="employee-report-summary" aria-label="Report summary">
+        <div>
+          <dt>{employees.length === 1 ? "Hire" : "Hires"}</dt>
+          <dd>{employees.length}</dd>
+        </div>
+        <div>
+          <dt>Scheduled hours/week</dt>
+          <dd>{hours.format(totalHundredths / 100)}</dd>
+        </div>
+        <div>
+          <dt>Estimated base wages/week</dt>
+          <dd>{payRate.format(estimatedWeeklyWages)}</dd>
+        </div>
+      </dl>
       <p id="employee-report-hours-note" className="employee-report-note">
         The dates filter by hire date. Hours come from each employee’s recurring
-        weekly schedule.
+        weekly schedule. Estimated base wages use scheduled hours and hourly
+        pay.
       </p>
       <div className="employee-report-table">
         <table
-          aria-labelledby="employee-report-summary"
+          aria-label="Employees hired in the selected date range"
           aria-describedby="employee-report-hours-note"
         >
           <thead>
@@ -119,8 +131,15 @@ export default function EmployeeWorkloadReport() {
   return (
     <div>
       <ManagerSidebar />
-      <main className="manager-page employee-workload-report">
+      <main className="manager-page employee-workload-report printable-report">
         <h1>Employee Report</h1>
+        {employees && (
+          <ReportExport
+            from={dates.hiredSince}
+            through={dates.asOf}
+            dateLabel="Hired"
+          />
+        )}
         <form className="employee-hire-filters" onSubmit={runReport}>
           <div>
             <label htmlFor="hired-since">Hired from</label>
@@ -130,7 +149,8 @@ export default function EmployeeWorkloadReport() {
               required
               disabled={loading}
               value={dates.hiredSince}
-              max={dates.asOf || undefined}
+              min="1000-01-01"
+              max={dates.asOf || "9999-12-31"}
               onChange={(event) => changeDate("hiredSince", event.target.value)}
             />
           </div>
@@ -142,7 +162,8 @@ export default function EmployeeWorkloadReport() {
               required
               disabled={loading}
               value={dates.asOf}
-              min={dates.hiredSince || undefined}
+              min={dates.hiredSince || "1000-01-01"}
+              max="9999-12-31"
               onChange={(event) => changeDate("asOf", event.target.value)}
             />
           </div>
