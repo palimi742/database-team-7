@@ -53,7 +53,9 @@ router.post("/clock-in", async (req, res, next) => {
     res.status(201).json({ message: "You clocked in." });
   } catch (error) {
     if (error.code === "ER_DUP_ENTRY") {
-      return res.status(409).json({ message: "You already have an open shift." });
+      return res
+        .status(409)
+        .json({ message: "You already have an open shift." });
     }
     next(error);
   }
@@ -72,7 +74,9 @@ router.post("/clock-out", async (req, res, next) => {
       [req.employee.EmployeeID, timeEntryId],
     );
     if (!result.affectedRows) {
-      return res.status(409).json({ message: "There is no open shift to clock out of." });
+      return res
+        .status(409)
+        .json({ message: "There is no open shift to clock out of." });
     }
     res.json({ message: "You clocked out." });
   } catch (error) {

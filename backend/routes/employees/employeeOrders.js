@@ -5,7 +5,9 @@ import { requireStaff } from "../../auth/staffSession.js";
 import { applyClippedCoupons, calcTotals } from "../cart/cartHelpers.js";
 
 const router = Router();
-const businessDay = new Intl.DateTimeFormat("sv-SE", { timeZone: "America/Chicago" });
+const businessDay = new Intl.DateTimeFormat("sv-SE", {
+  timeZone: "America/Chicago",
+});
 router.use(requireStaff, (_req, res, next) => {
   res.set("Cache-Control", "no-store");
   next();
@@ -19,9 +21,12 @@ class OrderError extends Error {
 }
 
 function respondError(error, res, next) {
-  if (error instanceof OrderError) return res.status(error.status).json({ message: error.message });
+  if (error instanceof OrderError)
+    return res.status(error.status).json({ message: error.message });
   if (error.code === "ER_SIGNAL_EXCEPTION") {
-    return res.status(409).json({ message: "Stock changed. Update the cart and try again." });
+    return res
+      .status(409)
+      .json({ message: "Stock changed. Update the cart and try again." });
   }
   return next(error);
 }
@@ -34,9 +39,13 @@ function readOrder(body) {
   if (!["curbside", "delivery"].includes(fulfillmentType)) {
     throw new OrderError(400, "Choose curbside pickup or delivery.");
   }
-  const address = typeof deliveryAddress === "string" ? deliveryAddress.trim() : "";
+  const address =
+    typeof deliveryAddress === "string" ? deliveryAddress.trim() : "";
   if (fulfillmentType === "delivery" && (!address || address.length > 150)) {
-    throw new OrderError(400, "Enter a delivery address of up to 150 characters.");
+    throw new OrderError(
+      400,
+      "Enter a delivery address of up to 150 characters.",
+    );
   }
   if (!Array.isArray(items) || !items.length || items.length > 100) {
     throw new OrderError(400, "Add between 1 and 100 different products.");
@@ -45,13 +54,27 @@ function readOrder(body) {
   const quantities = new Map();
   for (const item of items) {
     const { productId, quantity } = item ?? {};
-    if (!Number.isSafeInteger(productId) || productId < 1 || quantities.has(productId) ||
-        !Number.isSafeInteger(quantity) || quantity < 1 || quantity > 10000) {
-      throw new OrderError(400, "Enter a valid whole-number quantity for each product.");
+    if (
+      !Number.isSafeInteger(productId) ||
+      productId < 1 ||
+      quantities.has(productId) ||
+      !Number.isSafeInteger(quantity) ||
+      quantity < 1 ||
+      quantity > 10000
+    ) {
+      throw new OrderError(
+        400,
+        "Enter a valid whole-number quantity for each product.",
+      );
     }
     quantities.set(productId, quantity);
   }
-  return { customerId, fulfillmentType, address: fulfillmentType === "delivery" ? address : null, quantities };
+  return {
+    customerId,
+    fulfillmentType,
+    address: fulfillmentType === "delivery" ? address : null,
+    quantities,
+  };
 }
 
 async function getQuote(db, order, lock = false) {
@@ -73,24 +96,39 @@ async function getQuote(db, order, lock = false) {
   const items = products.map((product) => {
     const quantity = order.quantities.get(product.productId);
     if (quantity > product.stock) {
-      throw new OrderError(409, `${product.name} has only ${product.stock} available.`);
+      throw new OrderError(
+        409,
+        `${product.name} has only ${product.stock} available.`,
+      );
     }
     return { ...product, quantity };
   });
   const priced = await applyClippedCoupons(db, order.customerId, items);
   const totals = calcTotals(priced, order.fulfillmentType);
-  if (totals.total > 99999999.99) throw new OrderError(400, "This order exceeds the maximum total.");
-  const reviewKey = createHash("sha256").update(JSON.stringify([
-    order.customerId, order.fulfillmentType, order.address,
-    priced.map(({ productId, quantity, price }) => [productId, quantity, price]),
-    totals.total,
-  ])).digest("hex");
+  if (totals.total > 99999999.99)
+    throw new OrderError(400, "This order exceeds the maximum total.");
+  const reviewKey = createHash("sha256")
+    .update(
+      JSON.stringify([
+        order.customerId,
+        order.fulfillmentType,
+        order.address,
+        priced.map(({ productId, quantity, price }) => [
+          productId,
+          quantity,
+          price,
+        ]),
+        totals.total,
+      ]),
+    )
+    .digest("hex");
   return { items: priced, totals, reviewKey };
 }
 
 router.get("/customers", async (req, res, next) => {
   const search = String(req.query.q ?? "").trim();
-  if (search.length < 2 || search.length > 100) return res.json({ customers: [] });
+  if (search.length < 2 || search.length > 100)
+    return res.json({ customers: [] });
   const term = `%${search}%`;
   try {
     const [customers] = await pool.query(
@@ -101,7 +139,9 @@ router.get("/customers", async (req, res, next) => {
       [term, term],
     );
     res.json({ customers });
-  } catch (error) { next(error); }
+  } catch (error) {
+    next(error);
+  }
 });
 
 router.get("/products", async (req, res, next) => {
@@ -116,13 +156,17 @@ router.get("/products", async (req, res, next) => {
       [`%${search}%`, `%${search}%`],
     );
     res.json({ products });
-  } catch (error) { next(error); }
+  } catch (error) {
+    next(error);
+  }
 });
 
 router.post("/quote", async (req, res, next) => {
   try {
     res.json(await getQuote(pool, readOrder(req.body)));
-  } catch (error) { respondError(error, res, next); }
+  } catch (error) {
+    respondError(error, res, next);
+  }
 });
 
 router.get("/", async (req, res, next) => {
@@ -161,8 +205,15 @@ router.get("/", async (req, res, next) => {
         [employeeId],
       ),
     ]);
-    res.json({ ordersToday: Number(today.count), recent, assigned, restockUpdate: restocks[0] ?? null });
-  } catch (error) { next(error); }
+    res.json({
+      ordersToday: Number(today.count),
+      recent,
+      assigned,
+      restockUpdate: restocks[0] ?? null,
+    });
+  } catch (error) {
+    next(error);
+  }
 });
 
 async function findPlacedOrder(db, employeeId, requestKey) {
@@ -178,9 +229,15 @@ async function findPlacedOrder(db, employeeId, requestKey) {
 router.post("/", async (req, res, next) => {
   const employeeId = req.employee.EmployeeID;
   const { requestKey, reviewKey } = req.body ?? {};
-  if (typeof requestKey !== "string" || !/^[a-f0-9-]{36}$/i.test(requestKey) ||
-      typeof reviewKey !== "string" || !/^[a-f0-9]{64}$/.test(reviewKey)) {
-    return res.status(400).json({ message: "Review the order before placing it." });
+  if (
+    typeof requestKey !== "string" ||
+    !/^[a-f0-9-]{36}$/i.test(requestKey) ||
+    typeof reviewKey !== "string" ||
+    !/^[a-f0-9]{64}$/.test(reviewKey)
+  ) {
+    return res
+      .status(400)
+      .json({ message: "Review the order before placing it." });
   }
 
   let conn;
@@ -192,7 +249,10 @@ router.post("/", async (req, res, next) => {
     conn = await pool.getConnection();
     await conn.beginTransaction();
     // Serialize retries from this employee before taking customer and stock locks.
-    await conn.query("SELECT EmployeeID FROM Employee WHERE EmployeeID = ? FOR UPDATE", [employeeId]);
+    await conn.query(
+      "SELECT EmployeeID FROM Employee WHERE EmployeeID = ? FOR UPDATE",
+      [employeeId],
+    );
     const retry = await findPlacedOrder(conn, employeeId, requestKey);
     if (retry) {
       await conn.commit();
@@ -200,27 +260,47 @@ router.post("/", async (req, res, next) => {
     }
     const quote = await getQuote(conn, order, true);
     if (quote.reviewKey !== reviewKey) {
-      throw new OrderError(409, "Prices changed. Review the updated total before placing the order.");
+      throw new OrderError(
+        409,
+        "Prices changed. Review the updated total before placing the order.",
+      );
     }
     const delivery = order.fulfillmentType === "delivery";
     const [[type]] = await conn.query(
       "SELECT DeliveryID FROM DeliveryType WHERE DeliveryName LIKE ? ORDER BY DeliveryID LIMIT 1",
       [delivery ? "%deliver%" : "%curb%"],
     );
-    if (!type) throw new OrderError(409, "This fulfillment method has not been configured.");
+    if (!type)
+      throw new OrderError(
+        409,
+        "This fulfillment method has not been configured.",
+      );
 
     const { totals, items } = quote;
     const [sale] = await conn.query(
       `INSERT INTO Transactions
        (CustomerID, TransactionMethod, TotalPrice, TransactionDate, PointsEarned, DeliveryFee, LoyaltyDiscount, PointsRedeemed)
        VALUES (?, ?, ?, ?, ?, ?, 0, 0)`,
-      [order.customerId, delivery ? "Pay on delivery" : "Pay at pickup", totals.total,
-        businessDay.format(new Date()), totals.points, totals.deliveryFee],
+      [
+        order.customerId,
+        delivery ? "Pay on delivery" : "Pay at pickup",
+        totals.total,
+        businessDay.format(new Date()),
+        totals.points,
+        totals.deliveryFee,
+      ],
     );
     const orderId = sale.insertId;
     await conn.query(
       "INSERT INTO TransactionItems (TransactionID, InventoryID, Quantity, UnitPrice) VALUES ?",
-      [items.map((item) => [orderId, item.productId, item.quantity, item.price])],
+      [
+        items.map((item) => [
+          orderId,
+          item.productId,
+          item.quantity,
+          item.price,
+        ]),
+      ],
     );
 
     // TransactionItems uses the existing stock trigger. Verify its effect before committing.
@@ -228,9 +308,19 @@ router.post("/", async (req, res, next) => {
       "SELECT InventoryID, StockQuantity FROM Inventory WHERE InventoryID IN (?)",
       [[...order.quantities.keys()]],
     );
-    const remaining = new Map(stocks.map((row) => [row.InventoryID, Number(row.StockQuantity)]));
-    if (items.some((item) => remaining.get(item.productId) !== Number(item.stock) - item.quantity)) {
-      throw new OrderError(503, "Stock was not updated. Check the database order stock trigger.");
+    const remaining = new Map(
+      stocks.map((row) => [row.InventoryID, Number(row.StockQuantity)]),
+    );
+    if (
+      items.some(
+        (item) =>
+          remaining.get(item.productId) !== Number(item.stock) - item.quantity,
+      )
+    ) {
+      throw new OrderError(
+        503,
+        "Stock was not updated. Check the database order stock trigger.",
+      );
     }
 
     await conn.query(
@@ -252,7 +342,11 @@ router.post("/", async (req, res, next) => {
     res.status(201).json({ orderId, total: totals.total });
   } catch (error) {
     if (conn) {
-      try { await conn.rollback(); } catch (rollbackError) { console.error(rollbackError); }
+      try {
+        await conn.rollback();
+      } catch (rollbackError) {
+        console.error(rollbackError);
+      }
     }
     respondError(error, res, next);
   } finally {

@@ -3,7 +3,13 @@ import pool from "../../db.js";
 import { requireStaff } from "../../auth/staffSession.js";
 
 const router = Router();
-const issueTypes = new Set(["Missing item", "Damaged product", "Pickup no-show", "Delivery problem", "Other"]);
+const issueTypes = new Set([
+  "Missing item",
+  "Damaged product",
+  "Pickup no-show",
+  "Delivery problem",
+  "Other",
+]);
 
 function validId(id) {
   return Number.isSafeInteger(id) && id > 0;
@@ -27,7 +33,9 @@ async function changePacking(req, res, next, change) {
     );
     if (!order || order.ReadyStatus || order.FulfillmentTime) {
       await connection.rollback();
-      return res.status(409).json({ message: "This order is unavailable for packing." });
+      return res
+        .status(409)
+        .json({ message: "This order is unavailable for packing." });
     }
     const result = await change(connection, orderId, order.TransactionID);
     if (result.status >= 400) {
@@ -118,7 +126,9 @@ router.get("/", async (req, res) => {
     const assignedOrders = orders.map((order) => ({
       ...order,
       items: items.filter((item) => item.FulfillmentID === order.FulfillmentID),
-      issues: issues.filter((issue) => issue.FulfillmentID === order.FulfillmentID),
+      issues: issues.filter(
+        (issue) => issue.FulfillmentID === order.FulfillmentID,
+      ),
       status: order.FulfillmentTime
         ? "Completed"
         : Number(order.ReadyStatus) === 1
@@ -146,27 +156,33 @@ router.patch("/orders/:orderId/items/:itemId", (req, res, next) => {
     return res.status(400).json({ message: "Invalid packing update." });
   }
 
-  return changePacking(req, res, next, async (connection, orderId, transactionId) => {
-    const [[item]] = await connection.query(
-      "SELECT TransactionItemID FROM TransactionItems WHERE TransactionItemID = ? AND TransactionID = ?",
-      [itemId, transactionId],
-    );
-    if (!item) return { status: 404, message: "This item is not part of the order." };
+  return changePacking(
+    req,
+    res,
+    next,
+    async (connection, orderId, transactionId) => {
+      const [[item]] = await connection.query(
+        "SELECT TransactionItemID FROM TransactionItems WHERE TransactionItemID = ? AND TransactionID = ?",
+        [itemId, transactionId],
+      );
+      if (!item)
+        return { status: 404, message: "This item is not part of the order." };
 
-    if (packed) {
-      await connection.query(
-        `INSERT INTO OrderPackedItems (FulfillmentID, TransactionItemID) VALUES (?, ?)
+      if (packed) {
+        await connection.query(
+          `INSERT INTO OrderPackedItems (FulfillmentID, TransactionItemID) VALUES (?, ?)
          ON DUPLICATE KEY UPDATE TransactionItemID = TransactionItemID`,
-        [orderId, itemId],
-      );
-    } else {
-      await connection.query(
-        "DELETE FROM OrderPackedItems WHERE FulfillmentID = ? AND TransactionItemID = ?",
-        [orderId, itemId],
-      );
-    }
-    return { status: 200, message: "Packing checklist saved." };
-  });
+          [orderId, itemId],
+        );
+      } else {
+        await connection.query(
+          "DELETE FROM OrderPackedItems WHERE FulfillmentID = ? AND TransactionItemID = ?",
+          [orderId, itemId],
+        );
+      }
+      return { status: 200, message: "Packing checklist saved." };
+    },
+  );
 });
 
 router.patch("/orders/:orderId/ready", (req, res, next) =>
@@ -180,7 +196,11 @@ router.patch("/orders/:orderId/ready", (req, res, next) =>
        LIMIT 1`,
       [orderId, transactionId],
     );
-    if (unpacked) return { status: 409, message: "Pack every item before marking the order ready." };
+    if (unpacked)
+      return {
+        status: 409,
+        message: "Pack every item before marking the order ready.",
+      };
 
     await connection.query(
       "UPDATE OrderFulfillment SET ReadyStatus = 1, TableUpdateTime = NOW() WHERE FulfillmentID = ?",
@@ -193,9 +213,19 @@ router.patch("/orders/:orderId/ready", (req, res, next) =>
 router.post("/orders/:orderId/issues", async (req, res, next) => {
   const orderId = Number(req.params.orderId);
   const { issueType } = req.body ?? {};
-  const details = typeof req.body?.details === "string" ? req.body.details.trim() : "";
-  if (!validId(orderId) || !issueTypes.has(issueType) || !details || details.length > 500) {
-    return res.status(400).json({ message: "Choose an issue type and enter up to 500 characters." });
+  const details =
+    typeof req.body?.details === "string" ? req.body.details.trim() : "";
+  if (
+    !validId(orderId) ||
+    !issueTypes.has(issueType) ||
+    !details ||
+    details.length > 500
+  ) {
+    return res
+      .status(400)
+      .json({
+        message: "Choose an issue type and enter up to 500 characters.",
+      });
   }
   try {
     const [result] = await pool.query(
@@ -205,7 +235,9 @@ router.post("/orders/:orderId/issues", async (req, res, next) => {
       [issueType, details, orderId, req.employee.EmployeeID],
     );
     if (!result.affectedRows) {
-      return res.status(409).json({ message: "This order is unavailable for issue reporting." });
+      return res
+        .status(409)
+        .json({ message: "This order is unavailable for issue reporting." });
     }
     res.status(201).json({ message: "Issue reported to the manager." });
   } catch (error) {

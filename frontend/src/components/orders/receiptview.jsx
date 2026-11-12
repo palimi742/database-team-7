@@ -60,10 +60,14 @@ export default function ReceiptView({ order, readOnly = false }) {
           <div className="order-item-summary">
             {orderItem.imageURL && (
               <img
+                key={orderItem.imageURL}
                 className="order-item-thumbnail"
                 src={orderItem.imageURL}
                 alt=""
                 loading="lazy"
+                onError={(event) => {
+                  event.currentTarget.hidden = true;
+                }}
               />
             )}
             <span>

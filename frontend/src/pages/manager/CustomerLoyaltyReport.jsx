@@ -1,8 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { fmtDate, managerFetch } from "../../api.js";
 import ManagerSidebar from "../../components/layout/ManagerSidebar";
-import ReceiptView from "../../components/orders/receiptview.jsx";
-import "../../css/orders/OrderDetails.css";
+import OrderReceipt from "../../components/orders/ManagerOrderReceipt.jsx";
 import "../../css/manager/ManagerDashboard.css";
 import "../../css/manager/CustomerLoyaltyReport.css";
 
@@ -20,58 +19,6 @@ function formatSavings(order) {
     return "Not recorded";
   }
   return currency.format(order.LoyaltyDiscount);
-}
-
-function OrderReceipt({ orderId, onClose }) {
-  const dialog = useRef(null);
-  const [order, setOrder] = useState(null);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    const controller = new AbortController();
-    if (!dialog.current.open) dialog.current.showModal();
-
-    async function loadReceipt() {
-      try {
-        const response = await managerFetch(
-          `/api/reports/loyalty/orders/${orderId}`,
-          { signal: controller.signal },
-        );
-        const data = await response.json();
-        if (!response.ok)
-          throw new Error(data.message || "Unable to load the receipt.");
-        if (!controller.signal.aborted) setOrder(data);
-      } catch (err) {
-        if (!controller.signal.aborted) setError(err.message);
-      }
-    }
-
-    void loadReceipt();
-    return () => controller.abort();
-  }, [orderId]);
-
-  return (
-    <dialog
-      ref={dialog}
-      className="loyalty-receipt"
-      aria-labelledby="loyalty-receipt-title"
-      onClose={onClose}
-    >
-      <div className="loyalty-receipt-heading">
-        <h2 id="loyalty-receipt-title">Order receipt</h2>
-        <form method="dialog">
-          <button type="submit">Close</button>
-        </form>
-      </div>
-      {error && <p role="alert">{error}</p>}
-      {!order && !error && <p role="status">Loading receipt…</p>}
-      {order && (
-        <div className="order-details-card receipt">
-          <ReceiptView order={order} readOnly />
-        </div>
-      )}
-    </dialog>
-  );
 }
 
 function LoyaltyResults({ orders }) {
@@ -302,7 +249,8 @@ export default function CustomerLoyaltyReport() {
               required
               disabled={loading}
               value={dates.from}
-              max={dates.through || undefined}
+              min="1000-01-01"
+              max={dates.through || "9999-12-31"}
               onChange={(event) => changeDate("from", event.target.value)}
             />
           </label>
@@ -313,7 +261,8 @@ export default function CustomerLoyaltyReport() {
               required
               disabled={loading}
               value={dates.through}
-              min={dates.from || undefined}
+              min={dates.from || "1000-01-01"}
+              max="9999-12-31"
               onChange={(event) => changeDate("through", event.target.value)}
             />
           </label>

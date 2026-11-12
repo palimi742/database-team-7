@@ -4,21 +4,33 @@
 }
 
 .employee-workload-report .employee-report-summary {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.25rem 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+  gap: 0.75rem;
   margin: 0 0 0.35rem;
-  padding: 0.65rem 1rem;
-  border-radius: 0.375rem;
-  background: #367759;
-  color: #f6fcf8;
-  font-size: 1.25rem;
 }
 
-.employee-report-summary strong {
-  font-size: 1.5em;
-  font-weight: 750;
+.employee-report-summary > div {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 0.35rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid #dce7df;
+  border-radius: 0.625rem;
+  background: #f7faf8;
+  color: #224936;
+}
+
+.employee-report-summary dt {
+  color: #4a6154;
+  font-size: 0.875rem;
+}
+
+.employee-report-summary dd {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 550;
+  line-height: 1.2;
   font-variant-numeric: tabular-nums;
 }
 

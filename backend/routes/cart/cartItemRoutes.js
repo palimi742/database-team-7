@@ -122,5 +122,4 @@ export function registerCartItemRoutes(router, pool) {
       res.json(await cartResponse(req.cart.id));
     }),
   );
-
 }

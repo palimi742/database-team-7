@@ -52,10 +52,7 @@ router.get("/", async (req, res) => {
 
 // Submit a request for a low-stock or out-of-stock product.
 router.post("/", async (req, res) => {
-  const {
-    inventoryId,
-    note = "",
-  } = req.body ?? {};
+  const { inventoryId, note = "" } = req.body ?? {};
 
   // Expect numbers from the frontend.
   if (!Number.isSafeInteger(inventoryId) || inventoryId <= 0) {
@@ -101,8 +98,7 @@ router.post("/", async (req, res) => {
       await connection.rollback();
 
       return res.status(409).json({
-        message:
-          "This product is already at or above its reorder threshold.",
+        message: "This product is already at or above its reorder threshold.",
       });
     }
 

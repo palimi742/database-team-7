@@ -6,7 +6,10 @@ export async function handleDatabaseTriggerError(err, res, db, cartId) {
 
   const items = await getCartItems(db, cartId);
   const stockIssues = items
-    .filter((item) => !Number(item.isActive) || Number(item.quantity) > Number(item.stock))
+    .filter(
+      (item) =>
+        !Number(item.isActive) || Number(item.quantity) > Number(item.stock),
+    )
     .map((item) => ({
       productId: item.productId,
       name: item.name,
