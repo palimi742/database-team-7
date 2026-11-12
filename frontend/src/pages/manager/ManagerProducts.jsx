@@ -175,7 +175,9 @@ function ManagerProducts() {
           <div>
             <h1>Products</h1>
             <p>Manage your catalog and inventory.</p>
-            <div role="status">{notice}</div>
+            <div className="manager-products-success" role="status">
+              <strong>Success</strong> {notice}
+            </div>
           </div>
           <div className="products-heading-actions">
             <Link to="/manager/restock-requests">Manage restock requests</Link>
@@ -478,7 +480,7 @@ function ManagerProducts() {
                   a.CategoryName.localeCompare(b.CategoryName),
                 ),
               );
-              setNotice(`Category added · ${category.CategoryName}`);
+              setNotice(`Added category ${category.CategoryName}`);
               closeModal();
             }}
           />
@@ -487,7 +489,7 @@ function ManagerProducts() {
           <InsertProductModal
             onClose={closeModal}
             onSaved={async (sku) => {
-              setNotice(`Product added · SKU ${sku}`);
+              setNotice(`Product added with SKU ${sku}`);
               await loadProducts();
             }}
           />

@@ -18,7 +18,8 @@ router.use("/profile", requireCustomer);
 
 router.get("/profile", async (req, res) => {
   const [rows] = await pool.query(
-    `SELECT CustomerID, FirstName, LastName, PhoneNumber, CustomerAddress, ZipCode
+    `SELECT CustomerID, FirstName, LastName, PhoneNumber, CustomerAddress, ZipCode,
+            DATE_FORMAT(BirthDate, '%Y-%m-%d') AS BirthDate
      FROM Customer WHERE CustomerID = ?`,
     [req.customerId],
   );
@@ -39,8 +40,27 @@ router.post("/profile/deactivate", async (req, res) => {
 });
 
 router.put("/profile", async (req, res) => {
-  const { FirstName, LastName, PhoneNumber, CustomerAddress, ZipCode } =
-    req.body || {};
+  const {
+    FirstName,
+    LastName,
+    PhoneNumber,
+    CustomerAddress,
+    ZipCode,
+    BirthDate,
+  } = req.body || {};
+  if (BirthDate != null) {
+    const today = new Date().toISOString().slice(0, 10);
+    if (
+      typeof BirthDate !== "string" ||
+      BirthDate < "1000-01-01" ||
+      BirthDate > today ||
+      new Date(`${BirthDate}T00:00:00Z`).toJSON()?.slice(0, 10) !== BirthDate
+    ) {
+      return res
+        .status(400)
+        .json({ message: "Enter a valid birthdate that is today or earlier." });
+    }
+  }
   const profileZip = typeof ZipCode === "string" ? ZipCode.trim() : ZipCode;
   if (profileZip != null && profileZip !== "" && !validZipCode(profileZip))
     return res
@@ -87,7 +107,8 @@ router.put("/profile", async (req, res) => {
 
     await pool.query(
       `UPDATE Customer
-     SET FirstName = ?, LastName = ?, PhoneNumber = ?, CustomerAddress = ?, ZipCode = ?
+     SET FirstName = ?, LastName = ?, PhoneNumber = ?, CustomerAddress = ?, ZipCode = ?,
+         BirthDate = CASE WHEN ? THEN ? ELSE BirthDate END
      WHERE CustomerID = ?`,
       [
         FirstName.trim(),
@@ -95,6 +116,8 @@ router.put("/profile", async (req, res) => {
         digits,
         address.trim(),
         profileZip || null,
+        BirthDate !== undefined,
+        BirthDate ?? null,
         req.customerId,
       ],
     );
@@ -124,9 +147,17 @@ router.post("/signup", async (req, res) => {
       zipCode,
       username,
       password,
+      birthDate,
     } = req.body;
 
-    if (!firstName || !lastName || !phoneNumber || !username || !password) {
+    if (
+      !firstName ||
+      !lastName ||
+      !phoneNumber ||
+      !username ||
+      !password ||
+      !birthDate
+    ) {
       return res.status(400).json({
         message: "Please fill in all fields",
       });
@@ -171,13 +202,14 @@ router.post("/signup", async (req, res) => {
     }
 
     const [customerResult] = await connection.query(
-      "INSERT INTO Customer(FirstName, LastName, PhoneNumber, CustomerAddress, ZipCode) VALUES(?, ?, ?, ?, ?)",
+      "INSERT INTO Customer (FirstName, LastName, PhoneNumber, CustomerAddress, ZipCode, BirthDate) VALUES (?, ?, ?, ?, ?, ?)",
       [
         firstName,
         lastName,
         signupPhone,
         customerAddress?.trim() ?? "",
         signupZip || null,
+        birthDate,
       ],
     );
 

@@ -103,6 +103,19 @@ function CustomerSignup() {
           </label>
           <PasswordInput autoComplete="new-password" />
 
+          <label className="single-row-labels" htmlFor="birthDate">
+            Birthdate
+          </label>
+          <input
+            id="birthDate"
+            name="birthDate"
+            type="date"
+            min="1000-01-01"
+            max={new Date().toISOString().slice(0, 10)}
+            autoComplete="bday"
+            required
+          />
+
           <label className="single-row-labels" htmlFor="address">
             Street address (optional)
           </label>

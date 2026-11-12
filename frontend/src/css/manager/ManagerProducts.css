@@ -435,3 +435,16 @@
 .manager-products .product-more-popover button {
   margin: 0;
 }
+
+.manager-products-success {
+  margin-top: 0.5rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid #a9cfb2;
+  border-radius: 6px;
+  background: #e4f3e7;
+  color: #245331;
+}
+
+.manager-products-success strong {
+  margin-right: 0.5rem;
+}

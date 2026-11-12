@@ -80,7 +80,10 @@ export default function Account() {
     setMessage("");
     setSaved(false);
     try {
-      await api("/api/customers/profile", "PUT", customer);
+      await api("/api/customers/profile", "PUT", {
+        ...customer,
+        BirthDate: customer.BirthDate || null,
+      });
       setCheckoutInfo(null);
       // Refresh the default contact information used by future checkouts.
       await loadProfile().catch(() => {});
@@ -227,6 +230,19 @@ export default function Account() {
                   pattern="[0-9]{5}(-[0-9]{4})?"
                   maxLength={10}
                   title="Enter 5 digits or ZIP+4, such as 77008 or 77008-1234"
+                />
+              </div>
+              <div className="account-field">
+                <label htmlFor="account-birthdate">Birthdate</label>
+                <input
+                  id="account-birthdate"
+                  name="BirthDate"
+                  type="date"
+                  min="1000-01-01"
+                  max={new Date().toISOString().slice(0, 10)}
+                  value={customer.BirthDate ?? ""}
+                  onChange={change}
+                  autoComplete="bday"
                 />
               </div>
               <button type="submit" disabled={saving}>

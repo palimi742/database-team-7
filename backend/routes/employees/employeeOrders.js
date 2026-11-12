@@ -23,6 +23,8 @@ class OrderError extends Error {
 function respondError(error, res, next) {
   if (error instanceof OrderError)
     return res.status(error.status).json({ message: error.message });
+  if (error.errno === 30021)
+    return res.status(403).json({ message: error.sqlMessage });
   if (error.code === "ER_SIGNAL_EXCEPTION") {
     return res
       .status(409)
