@@ -4,6 +4,8 @@ import pool from "../../db.js";
 import { requireStaff } from "../../auth/staffSession.js";
 import { applyClippedCoupons, calcTotals } from "../cart/cartHelpers.js";
 
+import { requireOpenShift } from "../../auth/employeeShift.js";
+
 const router = Router();
 const businessDay = new Intl.DateTimeFormat("sv-SE", { timeZone: "America/Chicago" });
 router.use(requireStaff, (_req, res, next) => {
@@ -19,7 +21,10 @@ class OrderError extends Error {
 }
 
 function respondError(error, res, next) {
-  if (error instanceof OrderError) return res.status(error.status).json({ message: error.message });
+  if (error instanceof OrderError || error.code === "CLOCK_IN_REQUIRED") return res.status(error.status).json({ message: error.message });
+  if (error.code === "ER_SIGNAL_EXCEPTION" && /clock in/i.test(error.sqlMessage || error.message)) {
+    return res.status(409).json({ message: "Please clock in before placing an order or requesting restock." });
+  }
   if (error.code === "ER_SIGNAL_EXCEPTION") {
     return res.status(409).json({ message: "Stock changed. Update the cart and try again." });
   }
@@ -107,13 +112,20 @@ router.get("/customers", async (req, res, next) => {
 router.get("/products", async (req, res, next) => {
   const search = String(req.query.q ?? "").trim();
   if (search.length > 100) return res.json({ products: [] });
+  const categoryId = req.query.categoryId ? Number(req.query.categoryId) : null;
+  if (categoryId !== null && (!Number.isSafeInteger(categoryId) || categoryId < 1)) {
+    return res.status(400).json({ message: "Invalid category." });
+  }
   try {
     const [products] = await pool.query(
-      `SELECT InventoryID AS id, InventoryName AS name, Price AS price, StockQuantity AS stock
-       FROM Inventory WHERE IsActive = TRUE AND StockQuantity > 0
-         AND (InventoryName LIKE ? OR SKU LIKE ?)
-       ORDER BY InventoryName, InventoryID LIMIT 20`,
-      [`%${search}%`, `%${search}%`],
+      `SELECT i.InventoryID AS id, i.InventoryName AS name, i.Price AS price, i.StockQuantity AS stock,
+              i.ImageURL, i.CategoryID, c.CategoryName
+       FROM Inventory i JOIN Category c ON c.CategoryID = i.CategoryID
+       WHERE i.IsActive = TRUE AND i.StockQuantity > 0
+         AND (i.InventoryName LIKE ? OR i.SKU LIKE ?)
+         AND (? IS NULL OR i.CategoryID = ?)
+       ORDER BY i.InventoryName, i.InventoryID`,
+      [`%${search}%`, `%${search}%`, categoryId, categoryId],
     );
     res.json({ products });
   } catch (error) { next(error); }
@@ -165,6 +177,43 @@ router.get("/", async (req, res, next) => {
   } catch (error) { next(error); }
 });
 
+router.get("/recent", async (req, res, next) => {
+  const page = Number(req.query.page || 1);
+  if (!Number.isSafeInteger(page) || page < 1 || page > 100000) {
+    return res.status(400).json({ message: "Invalid page." });
+  }
+  try {
+    const [orders] = await pool.query(
+      `SELECT t.TransactionID AS orderId, t.TotalPrice AS total, t.TransactionDate AS date,
+              CONCAT(c.FirstName, ' ', c.LastName) AS customer, d.DeliveryName AS method,
+              CASE WHEN f.FulfillmentTime IS NOT NULL THEN 'Completed'
+                   WHEN f.ReadyStatus = 1 THEN 'Ready'
+                   WHEN f.EmployeeID IS NOT NULL THEN 'Assigned' ELSE 'Needs assignment' END AS status
+       FROM EmployeePlacedOrders p JOIN Transactions t ON t.TransactionID = p.TransactionID
+       JOIN Customer c ON c.CustomerID = t.CustomerID
+       JOIN OrderFulfillment f ON f.TransactionID = t.TransactionID
+       JOIN DeliveryType d ON d.DeliveryID = f.DeliveryID
+       WHERE p.EmployeeID = ? ORDER BY p.TransactionID DESC LIMIT 21 OFFSET ?`,
+      [req.employee.EmployeeID, (page - 1) * 20],
+    );
+    const hasMore = orders.length > 20;
+    orders.splice(20);
+    let items = [];
+    if (orders.length) {
+      [items] = await pool.query(
+        `SELECT ti.TransactionID AS orderId, ti.TransactionItemID, ti.InventoryID,
+                i.InventoryName, i.ImageURL, ti.Quantity, ti.UnitPrice
+         FROM TransactionItems ti JOIN Inventory i ON i.InventoryID = ti.InventoryID
+         JOIN EmployeePlacedOrders p ON p.TransactionID = ti.TransactionID
+         WHERE p.EmployeeID = ? AND ti.TransactionID IN (?) ORDER BY ti.TransactionItemID`,
+        [req.employee.EmployeeID, orders.map((order) => order.orderId)],
+      );
+    }
+    res.json({ orders: orders.map((order) => ({ ...order,
+      items: items.filter((item) => item.orderId === order.orderId) })), page, hasMore });
+  } catch (error) { next(error); }
+});
+
 async function findPlacedOrder(db, employeeId, requestKey) {
   const [[order]] = await db.query(
     `SELECT p.TransactionID AS orderId, t.TotalPrice AS total
@@ -192,7 +241,7 @@ router.post("/", async (req, res, next) => {
     conn = await pool.getConnection();
     await conn.beginTransaction();
     // Serialize retries from this employee before taking customer and stock locks.
-    await conn.query("SELECT EmployeeID FROM Employee WHERE EmployeeID = ? FOR UPDATE", [employeeId]);
+    await requireOpenShift(conn, employeeId);
     const retry = await findPlacedOrder(conn, employeeId, requestKey);
     if (retry) {
       await conn.commit();

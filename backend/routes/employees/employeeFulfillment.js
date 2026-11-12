@@ -91,7 +91,7 @@ router.get("/", async (req, res) => {
     if (fulfillmentIds.length) {
       const [[itemRows], [issueRows]] = await Promise.all([
         pool.query(
-          `SELECT o.FulfillmentID, ti.TransactionItemID, i.InventoryName, ti.Quantity,
+          `SELECT o.FulfillmentID, ti.TransactionItemID, i.InventoryName, i.InventoryID, i.ImageURL, ti.Quantity,
                   p.TransactionItemID IS NOT NULL AS Packed
            FROM OrderFulfillment o
            JOIN TransactionItems ti ON ti.TransactionID = o.TransactionID

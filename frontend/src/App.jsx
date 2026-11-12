@@ -34,6 +34,7 @@ import Receipt from "./pages/customer/receipt";
 import ReturnRequest from "./pages/customer/return_request";
 import EmployeeInventoryReport from "./pages/employee/EmployeeInventoryReport";
 import EmployeeRestockRequests from "./pages/employee/EmployeeRestockRequests";
+import EmployeeRecentOrders from "./pages/employee/EmployeeRecentOrders";
 
 function App() {
   const { search } = useLocation();
@@ -59,6 +60,7 @@ function App() {
             element={<EmployeeRestockRequests />}
           />
           <Route path="/employee" element={<EmployeeDashboard />} />
+          <Route path="/employee/recent-orders" element={<EmployeeRecentOrders />} />
                     <Route path="/employee/hours" element={<EmployeeHours />} />
           <Route path="/employee/place-order" element={<EmployeePlaceOrder />} />
           <Route path="/employee/inventory"

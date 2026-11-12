@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { employeeApi, money } from "./employeeApi";
 import "../../css/employee/EmployeeShiftHub.css";
+import { ProductImage, CategoryFilters, useCategories, ShiftNotice } from "./EmployeeProductTools";
 
 function Search({ label, value, onChange, onSearch, busy, minLength }) {
   return (
@@ -20,6 +21,10 @@ export default function EmployeePlaceOrder() {
   const [productQuery, setProductQuery] = useState("");
   const [customers, setCustomers] = useState(null);
   const [products, setProducts] = useState([]);
+  const { categories, categoryError } = useCategories();
+  const [categoryId, setCategoryId] = useState("");
+  const [search, setSearch] = useState("");
+  const [productLoading, setProductLoading] = useState(false);
   const [customer, setCustomer] = useState(null);
   const [items, setItems] = useState([]);
   const [fulfillmentType, setFulfillment] = useState("curbside");
@@ -32,11 +37,13 @@ export default function EmployeePlaceOrder() {
 
   useEffect(() => {
     const controller = new AbortController();
-    employeeApi("orders/products", { signal: controller.signal })
+    setProductLoading(true);
+    employeeApi("orders/products?" + new URLSearchParams({ q: search, categoryId }), { signal: controller.signal })
       .then((data) => setProducts(data.products))
-      .catch((err) => { if (err.name !== "AbortError") setError(err.message); });
+      .catch((err) => { if (err.name !== "AbortError") setError(err.message); })
+      .finally(() => { if (!controller.signal.aborted) setProductLoading(false); });
     return () => controller.abort();
-  }, []);
+  }, [search, categoryId]);
 
   async function run(action, task) {
     setBusy(action);
@@ -72,6 +79,9 @@ export default function EmployeePlaceOrder() {
   };
 
   function review() {
+    if (!customer) { setError("Search for a customer, then click their name to select them before reviewing."); return; }
+    if (!items.length) { setError("Add at least one product before reviewing."); return; }
+    if (fulfillmentType === "delivery" && !address.trim()) { setError("Enter a delivery address before reviewing."); return; }
     return run("review", async () => {
       setQuote(await employeeApi("orders/quote", { method: "POST", body: JSON.stringify(order) }));
     });
@@ -96,6 +106,8 @@ export default function EmployeePlaceOrder() {
           <h1>Place a customer order</h1>
           <p>Choose a customer, build their cart, then review and submit.</p>
         </section>
+        <ShiftNotice />
+        {categoryError && <p className="hub-error" role="alert">Categories: {categoryError}</p>}
         {error && <p className="hub-error" role="alert">{error}</p>}
         {receipt ? (
           <section className="hub-panel" role="status">
@@ -112,7 +124,8 @@ export default function EmployeePlaceOrder() {
                   busy={Boolean(busy)} minLength={2} onSearch={() => run("customers", async () => {
                     setCustomers((await employeeApi("orders/customers?q=" + encodeURIComponent(customerQuery))).customers);
                   })} />
-                {customers?.length === 0 && <p>No matching customers.</p>}
+                {!customer && <p className="emp-help">Search, then click a customer below to select them. Typing a name alone does not select an account.</p>}
+                {customers?.length === 0 && <p>No matching customers. Try their phone number.</p>}
                 {customers?.map((entry) => (
                   <button key={entry.id} type="button" className="hub-choice" disabled={Boolean(busy)}
                     aria-pressed={customer?.id === entry.id} onClick={() => {
@@ -128,14 +141,15 @@ export default function EmployeePlaceOrder() {
               <section className="hub-panel">
                 <h2>2. Add products</h2>
                 <Search label="Product name or SKU" value={productQuery} onChange={setProductQuery}
-                  busy={Boolean(busy)} onSearch={() => run("products", async () => {
-                    setProducts((await employeeApi("orders/products?q=" + encodeURIComponent(productQuery))).products);
-                  })} />
+                  busy={Boolean(busy) || productLoading} onSearch={() => setSearch(productQuery.trim())} />
+                <CategoryFilters categories={categories} value={categoryId} onChange={setCategoryId} disabled={Boolean(busy)} />
+                {productLoading && <p role="status">Loading products…</p>}
                 {!products.length && <p>No products to show.</p>}
                 <ul className="hub-list">
                   {products.map((product) => (
                     <li key={product.id}>
-                      <div><strong>{product.name}</strong><br /><small>{money.format(product.price)} · {product.stock} in stock</small></div>
+                      <div className="emp-product-line"><div><strong>{product.name}</strong><br /><small>{money.format(product.price)} · {product.stock} in stock</small></div>
+                        <ProductImage id={product.id} url={product.ImageURL} name={product.name} /></div>
                       <button className="hub-button hub-secondary" aria-label={`Add ${product.name}`}
                         disabled={Boolean(busy) || (items.find((item) => item.id === product.id)?.quantity ?? 0) >= Math.min(product.stock, 10000)}
                         onClick={() => changeQuantity(product, 1)}>Add</button>
@@ -150,7 +164,8 @@ export default function EmployeePlaceOrder() {
               <ul className="hub-list">
                 {items.map((item) => (
                   <li key={item.id}>
-                    <div><strong>{item.name}</strong><br /><small>{item.quantity} × {money.format(item.price)}</small></div>
+                    <div className="emp-product-line"><div><strong>{item.name}</strong><br /><small>{item.quantity} × {money.format(item.price)}</small></div>
+                      <ProductImage id={item.id} url={item.ImageURL} name={item.name} /></div>
                     <div className="hub-quantity">
                       <button className="hub-button hub-secondary" aria-label={`Remove one ${item.name}`}
                         disabled={Boolean(busy)} onClick={() => changeQuantity(item, -1)}>−</button>
@@ -186,9 +201,9 @@ export default function EmployeePlaceOrder() {
                   <p><strong>Total: {money.format(quote.totals.total)}</strong></p>
                 </div>
               )}
+              {!customer && <p className="emp-help">Next: select a customer in step 1 to review this cart.</p>}
               <div className="hub-quantity">
-                <button className="hub-button hub-secondary" disabled={Boolean(busy) || !customer || !items.length ||
-                  (fulfillmentType === "delivery" && !address.trim())} onClick={review}>
+                <button className="hub-button hub-secondary" disabled={Boolean(busy)} onClick={review}>
                   {busy === "review" ? "Reviewing…" : quote ? "Refresh review" : "Review total"}
                 </button>
                 {quote && <button className="hub-button" disabled={Boolean(busy)} onClick={place}>

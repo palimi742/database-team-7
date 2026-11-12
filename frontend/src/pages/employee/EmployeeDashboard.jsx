@@ -70,7 +70,7 @@ export default function EmployeeDashboard() {
   const duration = `${Math.floor(seconds / 3600)}h ${Math.floor(seconds / 60) % 60}m`;
   const shortcuts = [
     ["box", "blue", "My Orders", activeOrders == null ? "Assigned fulfillment" : `${activeOrders} active`, "/employee/fulfillment"],
-    ["history", "green", "Recent Orders", "Orders you placed", "#recent-orders"],
+    ["history", "green", "Recent Orders", "Orders you placed", "/employee/recent-orders"],
     ["inventory", "lemon", "Inventory", "Check stock levels", "/employee/inventory"],
     ["restock", "lilac", "Restock Requests", orders?.restockUpdate ? "Latest decision available" : "View requests", "/employee/restock-requests"],
   ];
@@ -92,11 +92,13 @@ export default function EmployeeDashboard() {
   }
 
   async function signOut() {
+    if (activeShift) { setError("Please clock out to log out."); return; }
     setBusy(true);
     setError("");
     try {
       const response = await fetch("/api/employees/logout", { method: "POST" });
-      if (!response.ok) throw new Error("Could not sign out. Try again.");
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "Could not sign out. Try again.");
       localStorage.removeItem("employee");
       setEmployee(null);
 navigate("/login", { replace: true });
@@ -107,9 +109,9 @@ navigate("/login", { replace: true });
   return (
     <main className="shift-hub">
       <header className="hub-header">
-        <Link to="/" className="hub-brand"><span className="hub-icon"><Icon name="leaf" /></span>
+        <div className="hub-brand"><span className="hub-icon"><Icon name="leaf" /></span>
           <span>FreshMart<small>Employee workspace</small></span>
-        </Link>
+        </div>
         {employee && <button className="hub-button hub-secondary" disabled={busy} onClick={signOut}>Sign out</button>}
       </header>
       <div className="hub-shell">
@@ -164,7 +166,7 @@ navigate("/login", { replace: true });
               </section>
             </div>
             <section className="hub-panel hub-recent" id="recent-orders">
-              <h2>Recent customer orders</h2>
+              <h2><Link to="/employee/recent-orders">Recent customer orders →</Link></h2>
               {orders?.recent.length ? (
                 <ul className="hub-list">{orders.recent.map((order) => (
                   <li key={order.orderId}><div><strong>Order #{order.orderId}</strong> · {order.method}</div>

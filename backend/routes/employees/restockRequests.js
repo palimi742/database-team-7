@@ -2,6 +2,8 @@ import { Router } from "express";
 import pool from "../../db.js";
 import { requireStaff } from "../../auth/staffSession.js";
 
+import { requireOpenShift } from "../../auth/employeeShift.js";
+
 const router = Router();
 
 // All requests require a verified staff login.
@@ -21,6 +23,9 @@ router.get("/", async (req, res) => {
          r.InventoryID,
          i.InventoryName,
          i.SKU,
+         i.ImageURL,
+         i.CategoryID,
+         c.CategoryName,
          r.RequestedQuantity,
          r.StockAtRequest,
          r.EmployeeNote,
@@ -33,6 +38,7 @@ router.get("/", async (req, res) => {
          reviewer.LastName AS ManagerLastName
        FROM RestockRequests r
        JOIN Inventory i ON i.InventoryID = r.InventoryID
+       JOIN Category c ON c.CategoryID = i.CategoryID
        LEFT JOIN Employee reviewer
          ON reviewer.EmployeeID = r.ReviewedByEmployeeID
        WHERE r.RequestedByEmployeeID = ?
@@ -75,6 +81,7 @@ router.post("/", async (req, res) => {
   try {
     connection = await pool.getConnection();
     await connection.beginTransaction();
+    await requireOpenShift(connection, req.employee.EmployeeID);
 
     // Lock the product while checking stock and saving the request.
     const [products] = await connection.query(
@@ -155,6 +162,11 @@ router.post("/", async (req, res) => {
       } catch (rollbackError) {
         console.error("Restock rollback failed:", rollbackError.message);
       }
+    }
+
+    if (error.code === "CLOCK_IN_REQUIRED" ||
+        (error.code === "ER_SIGNAL_EXCEPTION" && /clock in/i.test(error.sqlMessage || error.message))) {
+      return res.status(409).json({ message: "Please clock in before requesting restock." });
     }
 
     // The database unique constraint also prevents simultaneous duplicates.

@@ -1,316 +1,111 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import "../../css/employee/EmployeeFulfillment.css";
-
-const API = "/api/employee/restock-requests";
+import { Link, useSearchParams } from "react-router-dom";
+import { employeeApi } from "./employeeApi";
+import { ProductImage, CategoryFilters, useCategories, ShiftNotice, StockBadge } from "./EmployeeProductTools";
+import "../../css/employee/EmployeeShiftHub.css";
 
 export default function EmployeeRestockRequests() {
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-
+  const [params] = useSearchParams();
+  const { categories, categoryError } = useCategories();
   const [products, setProducts] = useState([]);
   const [requests, setRequests] = useState([]);
-  const [inventoryId, setInventoryId] = useState(
-    searchParams.get("inventoryId") || "",
-  );
+  const [inventoryId, setInventoryId] = useState(params.get("inventoryId") || "");
+  const [search, setSearch] = useState("");
+  const [categoryId, setCategoryId] = useState("");
+  const [requestStatus, setRequestStatus] = useState("All");
+  const [historySearch, setHistorySearch] = useState("");
   const [note, setNote] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
-  const selectedProduct = products.find((product) => String(product.InventoryID) === inventoryId);
-  const requestedQuantity = selectedProduct
-    ? Number(selectedProduct.ReorderThreshold) - Number(selectedProduct.StockQuantity)
-    : 0;
-
-  const loadData = useCallback(async (signal) => {
-    setLoading(true);
-    setError("");
-
+  const load = useCallback(async (signal) => {
+    setLoading(true); setError("");
     try {
-      const responses = await Promise.all([
-        fetch("/api/reports/inventory/stock", {
-          credentials: "same-origin",
-          cache: "no-store",
-          signal,
-        }),
-        fetch(API, {
-          credentials: "same-origin",
-          cache: "no-store",
-          signal,
-        }),
+      const [inventory, history] = await Promise.all([
+        employeeApi("inventory", { signal }), employeeApi("restock-requests", { signal }),
       ]);
-
-      if (responses.some((response) => response.status === 401)) {
-        setProducts([]);
-        setRequests([]);
-        localStorage.removeItem("employee");
-        navigate("/login", { replace: true });
-        return;
-      }
-
-      const [inventoryData, requestData] = await Promise.all(
-        responses.map((response) => response.json()),
-      );
-
-      if (!responses[0].ok) {
-        throw new Error(
-          inventoryData.message || "Unable to load products.",
-        );
-      }
-
-      if (!responses[1].ok) {
-        throw new Error(
-          requestData.message || "Unable to load your requests.",
-        );
-      }
-
-      setProducts(
-        inventoryData.items.filter(
-          (item) => Number(item.StockQuantity) < Number(item.ReorderThreshold),
-        ),
-      );
-      setRequests(requestData.requests);
-    } catch (err) {
-      if (err.name !== "AbortError") {
-        setError(err.message);
-        setProducts([]);
-        setRequests([]);
-      }
-    } finally {
-      if (!signal?.aborted) {
-        setLoading(false);
-      }
-    }
-  }, [navigate]);
-
+      setProducts(inventory.items.filter((item) => Number(item.StockQuantity) < Number(item.ReorderThreshold)));
+      setRequests(history.requests);
+    } catch (err) { if (err.name !== "AbortError") setError(err.message); }
+    finally { if (!signal?.aborted) setLoading(false); }
+  }, []);
   useEffect(() => {
-    const controller = new AbortController();
-    loadData(controller.signal);
-
+    const controller = new AbortController(); load(controller.signal);
     return () => controller.abort();
-  }, [loadData]);
-
-  async function submitRequest(event) {
-    event.preventDefault();
-    setError("");
-    setMessage("");
-
-    const productId = Number(inventoryId);
-
-    if (!selectedProduct || requestedQuantity <= 0) {
-      setError("Please select a product.");
-      return;
-    }
-
+  }, [load]);
+  const matches = (product, query) => (!categoryId || String(product.CategoryID) === categoryId) &&
+    `${product.InventoryName} ${product.SKU}`.toLowerCase().includes(query.toLowerCase().trim());
+  const visibleProducts = products.filter((item) => matches(item, search));
+  const selected = visibleProducts.find((item) => String(item.InventoryID) === inventoryId);
+  const quantity = selected ? Number(selected.ReorderThreshold) - Number(selected.StockQuantity) : 0;
+  const visibleRequests = requests.filter((item) => matches(item, historySearch) && (requestStatus === "All" || item.Status === requestStatus));
+  const pending = selected && requests.some((item) => item.InventoryID === selected.InventoryID && ["Pending", "Approved"].includes(item.Status));
+  const date = (value) => value ? new Date(value).toLocaleString() : "—";
+  async function submit(event) {
+    event.preventDefault(); setError(""); setMessage("");
+    if (!selected || quantity <= 0) { setError("Select an eligible product."); return; }
     setSaving(true);
-
     try {
-      const response = await fetch(API, {
-        method: "POST",
-        credentials: "same-origin",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          inventoryId: productId,
-          note: note.trim(),
-        }),
-      });
-
-      if (response.status === 401) {
-        setProducts([]);
-        setRequests([]);
-        localStorage.removeItem("employee");
-        navigate("/login", { replace: true });
-        return;
-      }
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.message || "Unable to submit your request.",
-        );
-      }
-
-      setInventoryId("");
-      setNote("");
-      await loadData();
-      setMessage(`Request submitted for ${data.requestedQuantity} units.`);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setSaving(false);
-    }
+      const result = await employeeApi("restock-requests", { method: "POST",
+        body: JSON.stringify({ inventoryId: Number(inventoryId), note: note.trim() }) });
+      setNote(""); setInventoryId(""); await load();
+      setMessage(`Request #${result.requestId} submitted for ${result.requestedQuantity} units.`);
+    } catch (err) { setError(err.message); }
+    finally { setSaving(false); }
   }
-
-  function formatDate(value) {
-    if (!value) return "—";
-    return new Date(value).toLocaleString();
-  }
-
-  return (
-    <div className="employee-page">
-      <header className="employee-header">
-        <h1>Restock Requests</h1>
-        <p>Request stock and track your manager’s decision.</p>
-        <Link to="/employee">Back to Employee Dashboard</Link>
-        {" | "}
-        <Link to="/employee/inventory">Inventory Report</Link>
-      </header>
-
-      <section className="employee-panel">
-        <h2>Submit a Request</h2>
-        <p>
-          Requests top up a product to its reorder threshold.
-          Approval does not change stock until items are received.
-        </p>
-
-        {loading && <p role="status">Loading...</p>}
-
-        {error && (
-          <p className="employee-error" role="alert">
-            {error}
-          </p>
-        )}
-
-        {message && (
-          <p className="employee-success" role="status">
-            {message}
-          </p>
-        )}
-
-        <form onSubmit={submitRequest}>
-          <div style={{ marginBottom: "16px" }}>
-            <label htmlFor="restock-product">Product</label>
-            <br />
-            <select
-              id="restock-product"
-              required
-              value={inventoryId}
-              disabled={loading || saving}
-              onChange={(event) => setInventoryId(event.target.value)}
-              style={{ padding: "10px", maxWidth: "100%" }}
-            >
-              <option value="">Select a product</option>
-              {products.map((product) => (
-                <option
-                  key={product.InventoryID}
-                  value={product.InventoryID}
-                >
-                  {product.InventoryName} ({product.SKU}) —
-                  {" "}{product.StockQuantity} remaining
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div style={{ marginBottom: "16px" }}>
-            <label htmlFor="restock-quantity">
-              Quantity to Request
-            </label>
-            <br />
-            <input id="restock-quantity" readOnly value={selectedProduct ? requestedQuantity : ""} />
-            {selectedProduct && (
-              <p>In stock: {selectedProduct.StockQuantity} · Reorder threshold: {selectedProduct.ReorderThreshold}</p>
-            )}
-          </div>
-
-          <div style={{ marginBottom: "16px" }}>
-            <label htmlFor="restock-note">Note (optional)</label>
-            <br />
-            <textarea
-              id="restock-note"
-              maxLength={500}
-              rows={3}
-              value={note}
-              disabled={loading || saving}
-              onChange={(event) => setNote(event.target.value)}
-              placeholder="Why is this item needed?"
-              style={{
-                padding: "10px",
-                width: "100%",
-                boxSizing: "border-box",
-              }}
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading || saving || !selectedProduct || requestedQuantity <= 0}
-          >
-            {saving ? "Submitting..." : "Submit Request"}
-          </button>
+  return <main className="shift-hub"><div className="hub-shell">
+    <Link className="hub-back" to="/employee">← Employee Dashboard</Link>
+    <section className="emp-report-hero"><span className="hub-eyebrow">FreshMart · Stock replenishment</span><h1>Restock requests</h1>
+      <p>Find products that need attention. Request stock and track the decision.</p></section>
+    <ShiftNotice />
+    {error && <p className="hub-error" role="alert">{error}</p>}
+    {categoryError && <p className="hub-error" role="alert">Categories: {categoryError}</p>}
+    {message && <p className="emp-success" role="status">{message}</p>}
+    <section className="hub-panel"><h2>Browse by category</h2>
+      <CategoryFilters categories={categories} value={categoryId} disabled={saving || loading}
+        onChange={(value) => { setCategoryId(value); setInventoryId(""); }} />
+      <p className="hub-muted">Category applies to the product selector and your request history.</p></section>
+    <div className="emp-restock-layout">
+      <section className="hub-panel"><span className="hub-eyebrow">New request</span><h2>Top up a product</h2>
+        <p className="hub-muted">Quantity = reorder threshold − current stock. Stock changes when the approved delivery is received.</p>
+        <form className="emp-restock-form" onSubmit={submit}>
+          <label className="hub-field">Search eligible products<input value={search} maxLength={100} disabled={saving || loading}
+            onChange={(event) => { setSearch(event.target.value); setInventoryId(""); }} placeholder="Product name or SKU" /></label>
+          <label className="hub-field">Product<select required value={selected ? inventoryId : ""} disabled={saving || loading}
+            onChange={(event) => setInventoryId(event.target.value)}><option value="">Select a product</option>
+            {visibleProducts.map((item) => <option key={item.InventoryID} value={item.InventoryID}>{item.InventoryName} · {item.StockQuantity} left</option>)}
+          </select></label>
+          {!loading && !visibleProducts.length && <p>No eligible products match these filters.</p>}
+          {selected && <div className="emp-selected-product"><div className="emp-product-line"><div><strong>{selected.InventoryName}</strong><small>{selected.SKU} · {selected.CategoryName}</small></div>
+            <ProductImage id={selected.InventoryID} url={selected.ImageURL} name={selected.InventoryName} /></div>
+            <div className="emp-toolbar"><StockBadge status={selected.StockStatus} /><span>{selected.StockQuantity} in stock · threshold {selected.ReorderThreshold}</span></div></div>}
+          <label className="hub-field">Quantity to request<input readOnly value={selected ? quantity : ""} placeholder="Select a product first" /></label>
+          <label className="hub-field">Note (optional)<textarea rows={3} value={note} maxLength={500} disabled={saving || loading}
+            onChange={(event) => setNote(event.target.value)} placeholder="Why is this stock needed?" /></label>
+          {pending && <p className="emp-help">You already have a pending or approved request for this product.</p>}
+          <button className="hub-button" disabled={saving || loading || !selected || pending}>{saving ? "Submitting…" : "Submit request →"}</button>
+          <Link to="/employee/inventory">Open inventory report →</Link>
         </form>
-
-        {!loading && !error && products.length === 0 && (
-          <p>No low-stock products are currently available.</p>
-        )}
       </section>
-
-      <section className="employee-panel">
-        <div className="employee-toolbar">
-          <h2>My Requests</h2>
-          <button
-            onClick={() => loadData()}
-            disabled={loading || saving}
-          >
-            Refresh
-          </button>
-        </div>
-
-        {!loading && !error && requests.length === 0 && (
-          <p>You haven’t submitted any restock requests.</p>
-        )}
-
-        <div className="employee-order-grid">
-          {requests.map((request) => (
-            <article
-              className="employee-order"
-              key={request.RequestID}
-            >
-              <h3>{request.InventoryName}</h3>
-              <p>Request #{request.RequestID}</p>
-              <p><strong>Status:</strong> {request.Status}</p>
-              <p>
-                <strong>Requested quantity:</strong>{" "}
-                {request.RequestedQuantity}
-              </p>
-              <p>
-                <strong>Stock when requested:</strong>{" "}
-                {request.StockAtRequest}
-              </p>
-              <p>
-                <strong>Your note:</strong>{" "}
-                {request.EmployeeNote || "—"}
-              </p>
-              <p>
-                <strong>Submitted:</strong>{" "}
-                {formatDate(request.CreatedAt)}
-              </p>
-              <p>
-                <strong>Reviewed:</strong>{" "}
-                {formatDate(request.ReviewedAt)}
-              </p>
-              {request.ManagerFirstName && (
-                <p>
-                  <strong>Reviewed by:</strong>{" "}
-                  {request.ManagerFirstName} {request.ManagerLastName}
-                </p>
-              )}
-              <p>
-                <strong>Manager note:</strong>{" "}
-                {request.ManagerNote || "—"}
-              </p>
-              {request.FulfilledAt && (
-                <p>
-                  <strong>Received:</strong>{" "}
-                  {formatDate(request.FulfilledAt)}
-                </p>
-              )}
-            </article>
-          ))}
-        </div>
+      <section className="hub-panel"><div className="emp-toolbar"><div><span className="hub-eyebrow">Request history</span><h2>My requests</h2></div>
+        <button className="hub-button hub-secondary" disabled={loading || saving} onClick={() => load()}>Refresh</button></div>
+        <div className="emp-history-filters"><label className="hub-field">Search requests<input value={historySearch} maxLength={100}
+          onChange={(event) => setHistorySearch(event.target.value)} placeholder="Product name or SKU" /></label>
+          <label className="hub-field">Decision<select value={requestStatus} onChange={(event) => setRequestStatus(event.target.value)}>
+            {["All", "Pending", "Approved", "Rejected", "Fulfilled"].map((value) => <option key={value}>{value}</option>)}</select></label></div>
+        {loading && <p role="status">Loading requests…</p>}
+        {!loading && !visibleRequests.length && <p className="emp-empty">No requests match these filters.</p>}
+        <div className="emp-request-list">{visibleRequests.map((item) => <article className="emp-request-card" key={item.RequestID}>
+          <div className="emp-product-line"><div><strong>{item.InventoryName}</strong><small>Request #{item.RequestID} · {item.CategoryName}</small></div>
+            <ProductImage id={item.InventoryID} url={item.ImageURL} name={item.InventoryName} /></div>
+          <div className="emp-toolbar"><StockBadge status={item.Status} /><strong>{item.RequestedQuantity} units requested</strong></div>
+          <p className="hub-muted">Stock at request: {item.StockAtRequest} · Submitted {date(item.CreatedAt)}</p>
+          <details><summary>Notes and decision details</summary><p>Your note: {item.EmployeeNote || "—"}</p>
+            <p>Reviewed: {date(item.ReviewedAt)}</p><p>Reviewed by: {item.ManagerFirstName ? `${item.ManagerFirstName} ${item.ManagerLastName}` : "—"}</p>
+            <p>Manager note: {item.ManagerNote || "—"}</p><p>Received: {date(item.FulfilledAt)}</p></details>
+        </article>)}</div>
       </section>
     </div>
-  );
+  </div></main>;
 }

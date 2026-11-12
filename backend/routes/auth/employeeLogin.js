@@ -6,6 +6,8 @@ import {
   requireStaff,
 } from "../../auth/staffSession.js";
 
+import { lockEmployee, hasOpenShift } from "../../auth/employeeShift.js";
+
 const router = Router();
 
 // Sign in through the existing FreshMart staff login.
@@ -89,13 +91,44 @@ router.get("/session", requireStaff, (req, res) => {
 });
 
 // Remove the staff login cookie.
-router.post("/logout", (req, res) => {
-  clearStaffSession(res);
+router.post("/logout", requireStaff, async (req, res, next) => {
   res.set("Cache-Control", "no-store");
 
-  res.json({
-    message: "Signed out successfully.",
-  });
+  let conn;
+
+  try {
+    // Employees must clock out before signing out.
+    if (String(req.employee.EmployeeRole).toLowerCase() !== "manager") {
+      conn = await pool.getConnection();
+      await conn.beginTransaction();
+
+      await lockEmployee(conn, req.employee.EmployeeID);
+
+      if (await hasOpenShift(conn, req.employee.EmployeeID)) {
+        await conn.rollback();
+
+        return res.status(409).json({
+          message: "Please clock out to log out.",
+        });
+      }
+
+      await conn.commit();
+    }
+
+    clearStaffSession(res);
+
+    res.json({
+      message: "Signed out successfully.",
+    });
+  } catch (error) {
+    if (conn) {
+      await conn.rollback();
+    }
+
+    next(error);
+  } finally {
+    conn?.release();
+  }
 });
 
 export default router;
