@@ -1,3 +1,4 @@
+import ReportExport from "../../components/reports/ReportExport.jsx";
 import OrderReceipt from "../../components/orders/ManagerOrderReceipt.jsx";
 import { managerFetch } from "../../api.js";
 import ManagerSidebar from "../../components/layout/ManagerSidebar";
@@ -80,7 +81,9 @@ function SalesTransactions({ transactions }) {
               <th scope="col">Customer</th>
               <th scope="col">Transaction date</th>
               <th scope="col">Order total</th>
-              <th scope="col">Receipt</th>
+              <th scope="col" className="report-receipt-column">
+                Receipt
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -93,8 +96,15 @@ function SalesTransactions({ transactions }) {
                 </td>
               </tr>
             )}
-            {visible.map((transaction) => (
-              <tr key={transaction.TransactionID}>
+            {transactions?.map((transaction, index) => (
+              <tr
+                key={transaction.TransactionID}
+                className={
+                  index < start || index >= start + pageSize
+                    ? "report-print-row"
+                    : undefined
+                }
+              >
                 <th scope="row">#{transaction.TransactionID}</th>
                 <td>
                   {[transaction.FirstName, transaction.LastName]
@@ -103,7 +113,7 @@ function SalesTransactions({ transactions }) {
                 </td>
                 <td>{displayDate(transaction.TransactionDate)}</td>
                 <td>${Number(transaction.TotalPrice).toFixed(2)}</td>
-                <td>
+                <td className="report-receipt-column">
                   <button
                     type="button"
                     aria-label={`View order #${transaction.TransactionID}`}
@@ -206,8 +216,15 @@ function SalesPerformanceReport() {
   return (
     <div>
       <ManagerSidebar />
-      <div className="manager-page sales-performance-report">
+      <div className="manager-page sales-performance-report printable-report">
         <h1>Sales Performance Report</h1>
+        {report && requestedRange && (
+          <ReportExport
+            from={requestedRange.startDate}
+            through={requestedRange.endDate}
+            dateLabel="Transactions"
+          />
+        )}
         <form className="sales-report-form" onSubmit={runReport}>
           <div>
             <label htmlFor="sales-from">From</label>
@@ -272,7 +289,7 @@ function SalesPerformanceReport() {
                 </p>
               </div>
             </div>
-            <p className="sales-comparison-note">
+            <p className="sales-comparison-note report-screen-dates">
               Showing {displayDate(requestedRange.startDate)} through{" "}
               {displayDate(requestedRange.endDate)}.
             </p>

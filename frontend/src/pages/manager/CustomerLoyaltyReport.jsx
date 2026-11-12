@@ -1,3 +1,4 @@
+import ReportExport from "../../components/reports/ReportExport.jsx";
 import { useState } from "react";
 import { fmtDate, managerFetch } from "../../api.js";
 import ManagerSidebar from "../../components/layout/ManagerSidebar";
@@ -177,12 +178,21 @@ function LoyaltyResults({ orders }) {
                   <th scope="col">Fulfillment</th>
                   <th scope="col">Order total</th>
                   <th scope="col">Points used</th>
-                  <th scope="col">Receipt</th>
+                  <th scope="col" className="report-receipt-column">
+                    Receipt
+                  </th>
                 </tr>
               </thead>
               <tbody>
-                {pageOrders.map((order) => (
-                  <tr key={order.TransactionID}>
+                {visibleOrders.map((order, index) => (
+                  <tr
+                    key={order.TransactionID}
+                    className={
+                      index < pageStart || index >= pageStart + ordersPerPage
+                        ? "report-print-row"
+                        : undefined
+                    }
+                  >
                     <td>
                       <strong>#{order.TransactionID}</strong>
                       <span className="loyalty-order-date">
@@ -215,7 +225,7 @@ function LoyaltyResults({ orders }) {
                         "0"
                       )}
                     </td>
-                    <td>
+                    <td className="report-receipt-column">
                       <button
                         type="button"
                         className="loyalty-view-order"
@@ -280,8 +290,15 @@ export default function CustomerLoyaltyReport() {
   return (
     <div>
       <ManagerSidebar />
-      <main className="manager-page customer-loyalty-report">
+      <main className="manager-page customer-loyalty-report printable-report">
         <h1>Customer Loyalty Report</h1>
+        {orders && (
+          <ReportExport
+            from={dates.from}
+            through={dates.through}
+            dateLabel="Transactions"
+          />
+        )}
         <form className="loyalty-filters" onSubmit={runReport}>
           <label>
             Transaction from

@@ -1,3 +1,4 @@
+import ReportExport from "../../components/reports/ReportExport.jsx";
 import { useState } from "react";
 import { managerFetch } from "../../api.js";
 import ManagerSidebar from "../../components/layout/ManagerSidebar";
@@ -51,7 +52,8 @@ function EmployeeResults({ employees }) {
       </dl>
       <p id="employee-report-hours-note" className="employee-report-note">
         The dates filter by hire date. Hours come from each employee’s recurring
-        weekly schedule. Estimated base wages use scheduled hours and hourly pay.
+        weekly schedule. Estimated base wages use scheduled hours and hourly
+        pay.
       </p>
       <div className="employee-report-table">
         <table
@@ -129,8 +131,15 @@ export default function EmployeeWorkloadReport() {
   return (
     <div>
       <ManagerSidebar />
-      <main className="manager-page employee-workload-report">
+      <main className="manager-page employee-workload-report printable-report">
         <h1>Employee Report</h1>
+        {employees && (
+          <ReportExport
+            from={dates.hiredSince}
+            through={dates.asOf}
+            dateLabel="Hired"
+          />
+        )}
         <form className="employee-hire-filters" onSubmit={runReport}>
           <div>
             <label htmlFor="hired-since">Hired from</label>
