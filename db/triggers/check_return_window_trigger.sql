@@ -14,11 +14,11 @@ BEGIN
           AND DATEDIFF(
               DATE(NEW.ReturnDate),
               t.TransactionDate
-          ) > 14
+          ) > 3
     ) THEN
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT =
-            'Return rejected: the 14-day return window has expired.';
+            'Return rejected: the 3-day return window has expired.';
     END IF;
 
 END //

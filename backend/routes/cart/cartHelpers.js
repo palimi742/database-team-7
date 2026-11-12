@@ -3,7 +3,7 @@ const TAX_RATE = 0; // taxes
 const DELIVERY_FEE = 5.99;
 const FREE_DELIVERY_OVER = 50; // free delivery at or above this subtotal
 const POINTS_PER_DOLLAR = 1;
-export const RETURN_WINDOW_DAYS = 14;
+export const RETURN_WINDOW_DAYS = 3;
 
 export function calcTotals(items, type) {
   const subtotal = items.reduce(
