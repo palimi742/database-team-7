@@ -1,6 +1,6 @@
 import ReportExport from "../../components/reports/ReportExport.jsx";
 import OrderReceipt from "../../components/orders/ManagerOrderReceipt.jsx";
-import { managerFetch } from "../../api.js";
+import { managerFetch, money } from "../../api.js";
 import ManagerSidebar from "../../components/layout/ManagerSidebar";
 import "../../css/manager/ManagerDashboard.css";
 import "../../css/manager/SalesPerformanceReport.css";
@@ -112,7 +112,7 @@ function SalesTransactions({ transactions }) {
                     .join(" ") || "Unavailable"}
                 </td>
                 <td>{displayDate(transaction.TransactionDate)}</td>
-                <td>${Number(transaction.TotalPrice).toFixed(2)}</td>
+                <td>{money(transaction.TotalPrice)}</td>
                 <td className="report-receipt-column">
                   <button
                     type="button"
@@ -273,7 +273,7 @@ function SalesPerformanceReport() {
                 <p>
                   {report === null
                     ? "N/A"
-                    : `$${Number(report.TotalRevenue).toFixed(2)}`}
+                    : money(report.TotalRevenue)}
                 </p>
               </div>
               <div className="sales-report-data">
@@ -285,7 +285,7 @@ function SalesPerformanceReport() {
                 <p>
                   {report === null
                     ? "N/A"
-                    : `$${Number(report.AverageTransactionValue).toFixed(2)}`}
+                    : money(report.AverageTransactionValue)}
                 </p>
               </div>
             </div>
@@ -326,7 +326,7 @@ function SalesPerformanceReport() {
                                 ? (Number(value) / categoryTotal) * 100
                                 : 0;
                             return [
-                              `$${Number(value).toFixed(2)} (${percent.toFixed(1)}%)`,
+                              `${money(value)} (${percent.toFixed(1)}%)`,
                               name,
                             ];
                           }}
@@ -349,8 +349,7 @@ function SalesPerformanceReport() {
                                 : 0;
                             return (
                               <span style={{ color: "#18251c" }}>
-                                {name}: {percent.toFixed(1)}% ($
-                                {value.toFixed(2)})
+                                {name}: {percent.toFixed(1)}% ({money(value)})
                               </span>
                             );
                           }}
@@ -397,10 +396,10 @@ function SalesPerformanceReport() {
                         topSalesDays.map((day) => (
                           <tr key={day.TransactionDate}>
                             <td>{displayDate(day.TransactionDate)}</td>
-                            <td>${Number(day.TotalRevenue).toFixed(2)}</td>
+                            <td>{money(day.TotalRevenue)}</td>
                             <td>{day.TransactionCount}</td>
                             <td>
-                              ${Number(day.AverageTransactionValue).toFixed(2)}
+                              {money(day.AverageTransactionValue)}
                             </td>
                           </tr>
                         ))

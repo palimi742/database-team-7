@@ -19,6 +19,7 @@ Vite forwards `/api` requests to the backend on port 3000.
 
 The backend loads `backend/.env` regardless of the working directory.
 Supply `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, and `DB_NAME` when ready.
+
 The SQL scripts use the database name `grocery_store`.
 Database features require MySQL with the corresponding schema/data.
 `GET /api/health` checks the API without accessing MySQL.
