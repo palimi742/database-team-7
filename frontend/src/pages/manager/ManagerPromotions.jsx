@@ -527,6 +527,8 @@ function ManagerPromotions() {
                                   {label} date
                                   <input
                                     type="date"
+                                    min="1000-01-01"
+                                    max="9999-12-31"
                                     name={`${field}-date`}
                                     defaultValue={date}
                                     required
@@ -780,7 +782,11 @@ function ManagerPromotions() {
                           )}
                         </td>
                         <td>{offer.UsesPerClip}</td>
-                        <td>${Number(offer.DiscountAmount).toFixed(2)} off</td>
+                        <td>
+                          <span className="promotion-discount">
+                            ${Number(offer.DiscountAmount).toFixed(2)} off
+                          </span>
+                        </td>
                         <td>
                           <div>{formatDate(offer.startsAt)}</div>
                           <div className="promotion-secondary">

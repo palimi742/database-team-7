@@ -33,7 +33,23 @@ function LoyaltyResults({ orders }) {
 
   const redeemed = orders.filter(redeemedPoints);
   const notRedeemed = orders.filter((order) => !redeemedPoints(order));
-  let visibleOrders = orders;
+  const recordedPointsUsed = redeemed.reduce(
+    (total, order) => total + Number(order.PointsRedeemed ?? 0),
+    0,
+  );
+  const ordersWithRecordedPoints = redeemed.filter(
+    (order) => Number(order.PointsRedeemed) > 0,
+  ).length;
+  const averagePointsUsed = ordersWithRecordedPoints
+    ? (recordedPointsUsed / ordersWithRecordedPoints).toLocaleString("en-US", {
+        maximumFractionDigits: 1,
+      })
+    : "—";
+  const recordedSavings = redeemed.reduce(
+    (total, order) => total + Number(order.LoyaltyDiscount ?? 0),
+    0,
+  );
+  let visibleOrders = [...redeemed, ...notRedeemed];
   if (orderFilter === "redeemed") visibleOrders = redeemed;
   if (orderFilter === "not-redeemed") visibleOrders = notRedeemed;
   const pageCount = Math.ceil(visibleOrders.length / ordersPerPage);
@@ -94,6 +110,31 @@ function LoyaltyResults({ orders }) {
 
   return (
     <>
+      <section aria-labelledby="loyalty-summary-title">
+        <h2 id="loyalty-summary-title">Points Used on Orders</h2>
+        <dl className="loyalty-summary">
+          <div>
+            <dt>Orders that used points</dt>
+            <dd>{redeemed.length}</dd>
+          </div>
+          <div>
+            <dt>Orders that didn’t use points</dt>
+            <dd>{notRedeemed.length}</dd>
+          </div>
+          <div>
+            <dt>Total saved with points</dt>
+            <dd>{currency.format(recordedSavings)}</dd>
+          </div>
+          <div>
+            <dt>Recorded points used</dt>
+            <dd>{recordedPointsUsed.toLocaleString("en-US")}</dd>
+          </div>
+          <div>
+            <dt>Avg. points per order that used points</dt>
+            <dd>{averagePointsUsed}</dd>
+          </div>
+        </dl>
+      </section>
       <h2 id="loyalty-order-details">Orders</h2>
       <div
         className="loyalty-order-views"
@@ -112,14 +153,14 @@ function LoyaltyResults({ orders }) {
           aria-pressed={orderFilter === "redeemed"}
           onClick={() => showOrders("redeemed")}
         >
-          Points redeemed ({redeemed.length})
+          Used points ({redeemed.length})
         </button>
         <button
           type="button"
           aria-pressed={orderFilter === "not-redeemed"}
           onClick={() => showOrders("not-redeemed")}
         >
-          No points redeemed ({notRedeemed.length})
+          Didn’t use points ({notRedeemed.length})
         </button>
       </div>
       {visibleOrders.length === 0 ? (
@@ -135,7 +176,7 @@ function LoyaltyResults({ orders }) {
                   <th scope="col">Customer</th>
                   <th scope="col">Fulfillment</th>
                   <th scope="col">Order total</th>
-                  <th scope="col">Points redeemed</th>
+                  <th scope="col">Points used</th>
                   <th scope="col">Receipt</th>
                 </tr>
               </thead>

@@ -337,8 +337,18 @@
 }
 
 .promotion-secondary {
-  color: #506256;
+  color: #263c30;
   margin-top: 0.2rem;
+}
+
+.promotion-discount {
+  display: inline-block;
+  padding: 0.25rem 0.55rem;
+  border-radius: 0.375rem;
+  background: #e8f4eb;
+  color: #194e37;
+  font-weight: 650;
+  white-space: nowrap;
 }
 
 .promotion-status {

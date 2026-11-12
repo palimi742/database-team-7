@@ -206,3 +206,54 @@
   color: #111;
   border-radius: 0.375rem;
 }
+
+.loyalty-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  gap: 0.75rem;
+  margin: 0.75rem 0 1.5rem;
+}
+
+.loyalty-summary > div {
+  --card-accent: #386d9e;
+  --card-tint: #edf5ff;
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: flex-end;
+  gap: 0.4rem;
+  padding: 0.95rem 1rem;
+  border: 1px solid #dce7df;
+  border-inline-start: 0.25rem solid var(--card-accent);
+  border-radius: 0.65rem;
+  background: var(--card-tint);
+  box-shadow: 0 2px 4px rgb(25 50 37 / 5%);
+}
+
+.loyalty-summary > div:nth-child(2) {
+  --card-accent: #77619c;
+  --card-tint: #f5effb;
+}
+
+.loyalty-summary > div:nth-child(3) {
+  --card-accent: #a4772a;
+  --card-tint: #fff6e4;
+}
+
+.loyalty-summary > div:nth-child(4) {
+  --card-accent: #39755a;
+  --card-tint: #edf7ef;
+}
+
+.loyalty-summary dt {
+  color: #495b50;
+  font-size: 0.875rem;
+}
+
+.loyalty-summary dd {
+  margin: 0;
+  color: var(--card-accent);
+  font-size: 1.625rem;
+  font-weight: 550;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
