@@ -2,6 +2,8 @@ import { Router } from "express";
 import pool from "../../db.js";
 import { requireStaff } from "../../auth/staffSession.js";
 
+import { lockEmployee } from "../../auth/employeeShift.js";
+
 const router = Router();
 router.use(requireStaff, (_req, res, next) => {
   res.set("Cache-Control", "no-store");
@@ -43,22 +45,28 @@ router.get("/", async (req, res, next) => {
 });
 
 router.post("/clock-in", async (req, res, next) => {
+  let conn;
   try {
+    conn = await pool.getConnection();
+    await conn.beginTransaction();
+    await lockEmployee(conn, req.employee.EmployeeID);
     // The unique generated column prevents concurrent open shifts.
-    await pool.query(
+    await conn.query(
       `INSERT INTO EmployeeTimeEntries (EmployeeID, ClockInUtc, HourlyRate)
        SELECT EmployeeID, UTC_TIMESTAMP(6), EmployeePay FROM Employee WHERE EmployeeID = ?`,
       [req.employee.EmployeeID],
     );
+    await conn.commit();
     res.status(201).json({ message: "You clocked in." });
   } catch (error) {
+    if (conn) await conn.rollback();
     if (error.code === "ER_DUP_ENTRY") {
       return res
         .status(409)
         .json({ message: "You already have an open shift." });
     }
     next(error);
-  }
+  } finally { conn?.release(); }
 });
 
 router.post("/clock-out", async (req, res, next) => {
@@ -66,13 +74,18 @@ router.post("/clock-out", async (req, res, next) => {
   if (!Number.isSafeInteger(timeEntryId) || timeEntryId <= 0) {
     return res.status(400).json({ message: "Select a valid open shift." });
   }
+  let conn;
   try {
-    const [result] = await pool.query(
+    conn = await pool.getConnection();
+    await conn.beginTransaction();
+    await lockEmployee(conn, req.employee.EmployeeID);
+    const [result] = await conn.query(
       `UPDATE EmployeeTimeEntries
        SET ClockOutUtc = GREATEST(UTC_TIMESTAMP(6), ClockInUtc)
        WHERE OpenEmployeeID = ? AND TimeEntryID = ?`,
       [req.employee.EmployeeID, timeEntryId],
     );
+    await conn.commit();
     if (!result.affectedRows) {
       return res
         .status(409)
@@ -80,8 +93,9 @@ router.post("/clock-out", async (req, res, next) => {
     }
     res.json({ message: "You clocked out." });
   } catch (error) {
+    if (conn) await conn.rollback();
     next(error);
-  }
+  } finally { conn?.release(); }
 });
 
 export default router;

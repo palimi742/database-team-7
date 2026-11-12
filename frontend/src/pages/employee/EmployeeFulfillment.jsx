@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { ProductImage } from "./EmployeeProductTools";
 import OrderIssueForm from "./OrderIssueForm";
 import "../../css/employee/EmployeeFulfillment.css";
 import "../../css/employee/EmployeeWorkspace.css";
@@ -234,9 +235,11 @@ export default function EmployeeFulfillment() {
                                 onChange={(event) => updateOrder(
                                   order.FulfillmentID, `items/${item.TransactionItemID}`, { packed: event.target.checked },
                                 )} />
-                              {item.InventoryName} × {item.Quantity}
+                              <span>{item.InventoryName} × {item.Quantity}</span>
+                              <ProductImage id={item.InventoryID} url={item.ImageURL} name={item.InventoryName} />
                             </label>
-                          ) : `${item.InventoryName} × ${item.Quantity}`}
+                           ) : <div className="emp-product-line"><span>{item.InventoryName} × {item.Quantity}</span>
+                            <ProductImage id={item.InventoryID} url={item.ImageURL} name={item.InventoryName} /></div>}
                         </li>
                       ))}
                     </ul>
