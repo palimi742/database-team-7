@@ -1,3 +1,4 @@
+import DismissButton from "../../components/layout/DismissButton.jsx";
 import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../../css/employee/EmployeeFulfillment.css";
@@ -47,9 +48,7 @@ export default function ManagerRestockRequests() {
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(
-            data.message || "Unable to load restock requests.",
-          );
+          throw new Error(data.message || "Unable to load restock requests.");
         }
 
         setRequests(data.requests);
@@ -80,18 +79,15 @@ export default function ManagerRestockRequests() {
     setMessage("");
 
     try {
-      const response = await fetch(
-        `${API}/${requestId}/review`,
-        {
-          method: "PATCH",
-          credentials: "same-origin",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            decision,
-            note: notes[requestId] || "",
-          }),
-        },
-      );
+      const response = await fetch(`${API}/${requestId}/review`, {
+        method: "PATCH",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          decision,
+          note: notes[requestId] || "",
+        }),
+      });
 
       if (response.status === 401) {
         setRequests([]);
@@ -109,9 +105,7 @@ export default function ManagerRestockRequests() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(
-          data.message || "Unable to review this request.",
-        );
+        throw new Error(data.message || "Unable to review this request.");
       }
 
       setNotes((previous) => {
@@ -129,68 +123,66 @@ export default function ManagerRestockRequests() {
     }
   }
 
-async function receiveStock(request) {
-  const confirmed = window.confirm(
-    `Confirm that all ${request.RequestedQuantity} units of ` +
-    `${request.InventoryName} have arrived? ` +
-    "This will increase inventory.",
-  );
-
-  if (!confirmed) return;
-
-  setBusyRequest(request.RequestID);
-  setError("");
-  setMessage("");
-
-  try {
-    const response = await fetch(
-      `${API}/${request.RequestID}/receive`,
-      {
-        method: "PATCH",
-        credentials: "same-origin",
-      },
+  async function receiveStock(request) {
+    const confirmed = window.confirm(
+      `Confirm that all ${request.RequestedQuantity} units of ` +
+        `${request.InventoryName} have arrived? ` +
+        "This will increase inventory.",
     );
 
-    if (response.status === 401) {
-      setRequests([]);
-      localStorage.removeItem("employee");
-      navigate("/login", { replace: true });
-      return;
+    if (!confirmed) return;
+
+    setBusyRequest(request.RequestID);
+    setError("");
+    setMessage("");
+
+    try {
+      const response = await fetch(`${API}/${request.RequestID}/receive`, {
+        method: "PATCH",
+        credentials: "same-origin",
+      });
+
+      if (response.status === 401) {
+        setRequests([]);
+        localStorage.removeItem("employee");
+        navigate("/login", { replace: true });
+        return;
+      }
+
+      if (response.status === 403) {
+        setRequests([]);
+        navigate("/employee", { replace: true });
+        return;
+      }
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Unable to record received stock.");
+      }
+
+      await loadRequests();
+      setMessage(data.message);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusyRequest(null);
     }
-
-    if (response.status === 403) {
-      setRequests([]);
-      navigate("/employee", { replace: true });
-      return;
-    }
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(
-        data.message || "Unable to record received stock.",
-      );
-    }
-
-    await loadRequests();
-    setMessage(data.message);
-  } catch (err) {
-    setError(err.message);
-  } finally {
-    setBusyRequest(null);
   }
-}
 
   function formatDate(value) {
     return value ? new Date(value).toLocaleString() : "—";
   }
 
-  const request = requests.find((item) => item.RequestID === selectedId) ?? requests[0];
+  const request =
+    requests.find((item) => item.RequestID === selectedId) ?? requests[0];
 
   return (
     <main className="restock-page">
       <header className="employee-header">
-        <Link className="restock-back" to="/manager">← Back to Manager Dashboard</Link>
+        <Link className="restock-back" to="/manager">
+          ← Back to Manager Dashboard
+        </Link>
         <h1>Manage Restock Requests</h1>
         <p>Review inventory requests submitted by employees.</p>
       </header>
@@ -226,9 +218,7 @@ async function receiveStock(request) {
           </div>
         </div>
 
-        {loading && (
-          <p role="status">Loading requests...</p>
-        )}
+        {loading && <p role="status">Loading requests...</p>}
 
         {error && (
           <p className="employee-error" role="alert">
@@ -238,7 +228,7 @@ async function receiveStock(request) {
 
         {message && (
           <p className="employee-success" role="status">
-            {message}
+            {message} <DismissButton onClick={() => setMessage("")} />
           </p>
         )}
 
@@ -261,7 +251,10 @@ async function receiveStock(request) {
                 </thead>
                 <tbody>
                   {requests.map((item) => (
-                    <tr key={item.RequestID} className={item === request ? "is-selected" : undefined}>
+                    <tr
+                      key={item.RequestID}
+                      className={item === request ? "is-selected" : undefined}
+                    >
                       <th scope="row">
                         <button
                           type="button"
@@ -289,30 +282,24 @@ async function receiveStock(request) {
                   <p>SKU: {request.SKU}</p>
                 </div>
 
-                <span className="employee-status">
-                  {request.Status}
-                </span>
+                <span className="employee-status">{request.Status}</span>
               </div>
 
               <p>
-                <strong>Requested by:</strong>{" "}
-                {request.EmployeeFirstName}{" "}
+                <strong>Requested by:</strong> {request.EmployeeFirstName}{" "}
                 {request.EmployeeLastName}
               </p>
 
               <p>
-                <strong>Requested quantity:</strong>{" "}
-                {request.RequestedQuantity}
+                <strong>Requested quantity:</strong> {request.RequestedQuantity}
               </p>
 
               <p>
-                <strong>Stock when requested:</strong>{" "}
-                {request.StockAtRequest}
+                <strong>Stock when requested:</strong> {request.StockAtRequest}
               </p>
 
               <p>
-                <strong>Current stock:</strong>{" "}
-                {request.CurrentStock}
+                <strong>Current stock:</strong> {request.CurrentStock}
               </p>
 
               <p>
@@ -321,13 +308,11 @@ async function receiveStock(request) {
               </p>
 
               <p>
-                <strong>Employee note:</strong>{" "}
-                {request.EmployeeNote || "—"}
+                <strong>Employee note:</strong> {request.EmployeeNote || "—"}
               </p>
 
               <p>
-                <strong>Submitted:</strong>{" "}
-                {formatDate(request.CreatedAt)}
+                <strong>Submitted:</strong> {formatDate(request.CreatedAt)}
               </p>
 
               {request.Status === "Pending" ? (
@@ -389,33 +374,30 @@ async function receiveStock(request) {
               ) : (
                 <>
                   <p>
-                    <strong>Manager note:</strong>{" "}
-                    {request.ManagerNote || "—"}
+                    <strong>Manager note:</strong> {request.ManagerNote || "—"}
                   </p>
 
                   {request.ManagerFirstName && (
                     <p>
-                      <strong>Reviewed by:</strong>{" "}
-                      {request.ManagerFirstName}{" "}
+                      <strong>Reviewed by:</strong> {request.ManagerFirstName}{" "}
                       {request.ManagerLastName}
                     </p>
                   )}
 
                   <p>
-                    <strong>Reviewed:</strong>{" "}
-                    {formatDate(request.ReviewedAt)}
+                    <strong>Reviewed:</strong> {formatDate(request.ReviewedAt)}
                   </p>
-                  
+
                   {request.Status === "Approved" && (
-  <button
-    disabled={loading || busyRequest !== null}
-    onClick={() => receiveStock(request)}
-  >
-    {busyRequest === request.RequestID
-      ? "Saving..."
-      : "Confirm Stock Received"}
-  </button>
-)}
+                    <button
+                      disabled={loading || busyRequest !== null}
+                      onClick={() => receiveStock(request)}
+                    >
+                      {busyRequest === request.RequestID
+                        ? "Saving..."
+                        : "Confirm Stock Received"}
+                    </button>
+                  )}
                   {request.FulfilledAt && (
                     <p>
                       <strong>Received:</strong>{" "}

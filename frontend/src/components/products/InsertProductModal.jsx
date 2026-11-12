@@ -77,7 +77,7 @@ function InsertProductModal({ onClose, onSaved }) {
 
   return (
     <div className="modal-overlay">
-      <div className="product-modal">
+      <div className="product-modal add-product-modal">
         <h2>Add Product</h2>
         <form onSubmit={handleSubmit} inert={saveError ? true : undefined}>
           <div>
@@ -181,7 +181,9 @@ function InsertProductModal({ onClose, onSaved }) {
               aria-describedby="insert-image-help"
               required
             />
-            <small id="insert-image-help">Choose a JPEG, PNG, or WebP up to 4 MB.</small>
+            <small id="insert-image-help">
+              Choose a JPEG, PNG, or WebP up to 4 MB.
+            </small>
           </div>
 
           <div className="product-modal-actions">

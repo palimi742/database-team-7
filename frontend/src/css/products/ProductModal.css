@@ -33,8 +33,12 @@
   min-height: 0;
 }
 
+.add-product-modal,
 .edit-product-modal {
   width: 32rem;
+}
+
+.edit-product-modal {
   overflow: hidden;
 }
 

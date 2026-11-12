@@ -208,9 +208,18 @@
   color: #39434b;
 }
 
-.return-status-pending { background: #fff3cd; color: #765600; }
-.return-status-approved { background: #dcefe2; color: #225b35; }
-.return-status-rejected { background: #fce2e2; color: #922b2b; }
+.return-status-pending {
+  background: #fff3cd;
+  color: #765600;
+}
+.return-status-approved {
+  background: #e0edff;
+  color: #1e4a87;
+}
+.return-status-rejected {
+  background: #fce2e2;
+  color: #922b2b;
+}
 
 .item-return-statuses {
   display: flex;
@@ -219,9 +228,14 @@
   margin-top: 0.5rem;
 }
 
-.item-return-statuses:empty { display: none; }
+.item-return-statuses:empty {
+  display: none;
+}
 
-.orders-count { color: #647365; font-size: 0.875rem; }
+.orders-count {
+  color: #647365;
+  font-size: 0.875rem;
+}
 
 .orders-list-header {
   display: flex;
@@ -232,8 +246,13 @@
   margin-bottom: 1rem;
 }
 
-.orders-list-header .orders-count { margin: 0; }
-.orders-list-header .orders-pagination { margin-left: auto; padding: 0; }
+.orders-list-header .orders-count {
+  margin: 0;
+}
+.orders-list-header .orders-pagination {
+  margin-left: auto;
+  padding: 0;
+}
 
 .orders-pagination {
   display: flex;
@@ -254,8 +273,13 @@
   cursor: pointer;
 }
 
-.orders-pagination button:hover:not(:disabled) { background: #edf2e9; }
-.orders-pagination button:disabled { opacity: 0.45; cursor: not-allowed; }
+.orders-pagination button:hover:not(:disabled) {
+  background: #edf2e9;
+}
+.orders-pagination button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
 
 .item-return-remaining {
   display: block;

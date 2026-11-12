@@ -276,6 +276,12 @@ function ManagerReturns() {
                         <dt>Reason</dt>
                         <dd>{request.Reason}</dd>
                       </div>
+                      {request.Details?.trim() && (
+                        <div className="return-customer-details">
+                          <dt>Additional details</dt>
+                          <dd>{request.Details}</dd>
+                        </div>
+                      )}
                       <div>
                         <dt>Quantity</dt>
                         <dd>{request.Quantity}</dd>

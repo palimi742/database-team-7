@@ -408,3 +408,31 @@
 .promotion-eligible-list li {
   overflow-wrap: anywhere;
 }
+
+.manager-promotions .promotion-actions .coupon-delete {
+  color: #a12b2b;
+  border-color: #e8aaaa;
+  background: #fff1f1;
+}
+
+.manager-promotions .promotion-actions .coupon-delete:hover:not(:disabled) {
+  background: #fbdada;
+}
+
+.manager-promotions .promotion-notice {
+  display: flex;
+  align-items: center;
+  width: fit-content;
+  gap: 0.375rem;
+  margin: 0.375rem 0;
+  padding: 0.125rem 0.375rem;
+  border: 1px solid #a9cfb2;
+  border-radius: 6px;
+  background: #e4f3e7;
+  color: #245331;
+}
+
+.manager-promotions .promotion-notice .fm-dismiss-button {
+  margin: 0;
+  padding: 0.125rem 0.375rem;
+}

@@ -1,3 +1,4 @@
+import DismissButton from "../../components/layout/DismissButton.jsx";
 import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ProductImage } from "./EmployeeProductTools";
@@ -19,45 +20,48 @@ export default function EmployeeFulfillment() {
   const [message, setMessage] = useState("");
 
   // The backend identifies the employee from their login cookie.
-  const loadOrders = useCallback(async (signal) => {
-    if (!signal) {
-      setLoading(true);
-      setError("");
-    }
-
-    try {
-      const response = await fetch(API, {
-        credentials: "same-origin",
-        cache: "no-store",
-        signal,
-      });
-
-      if (response.status === 401) {
-        setEmployee(null);
-        setOrders([]);
-        localStorage.removeItem("employee");
-        navigate("/login", { replace: true });
-        return;
+  const loadOrders = useCallback(
+    async (signal) => {
+      if (!signal) {
+        setLoading(true);
+        setError("");
       }
 
-      const data = await response.json();
+      try {
+        const response = await fetch(API, {
+          credentials: "same-origin",
+          cache: "no-store",
+          signal,
+        });
 
-      if (!response.ok) {
-        throw new Error(data.message || "Unable to load orders.");
-      }
+        if (response.status === 401) {
+          setEmployee(null);
+          setOrders([]);
+          localStorage.removeItem("employee");
+          navigate("/login", { replace: true });
+          return;
+        }
 
-      setEmployee(data.employee);
-      setOrders(data.orders);
-    } catch (err) {
-      if (err.name !== "AbortError") {
-        setError(err.message);
-        setEmployee(null);
-        setOrders([]);
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || "Unable to load orders.");
+        }
+
+        setEmployee(data.employee);
+        setOrders(data.orders);
+      } catch (err) {
+        if (err.name !== "AbortError") {
+          setError(err.message);
+          setEmployee(null);
+          setOrders([]);
+        }
+      } finally {
+        if (!signal?.aborted) setLoading(false);
       }
-    } finally {
-      if (!signal?.aborted) setLoading(false);
-    }
-  }, [navigate]);
+    },
+    [navigate],
+  );
 
   // Automatically load orders when the page opens.
   useEffect(() => {
@@ -72,17 +76,14 @@ export default function EmployeeFulfillment() {
     setMessage("");
 
     try {
-      const response = await fetch(
-        `${API}/orders/${orderId}/${action}`,
-        {
-          method,
-          credentials: "same-origin",
-          ...(body && {
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(body),
-          }),
-        },
-      );
+      const response = await fetch(`${API}/orders/${orderId}/${action}`, {
+        method,
+        credentials: "same-origin",
+        ...(body && {
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        }),
+      });
 
       if (response.status === 401) {
         setEmployee(null);
@@ -118,7 +119,9 @@ export default function EmployeeFulfillment() {
   return (
     <div className="employee-page fm-workspace">
       <header className="fm-hero">
-        <Link className="fm-back" to="/employee">← Employee dashboard</Link>
+        <Link className="fm-back" to="/employee">
+          ← Employee dashboard
+        </Link>
         <p className="fm-eyebrow">Fulfillment</p>
         <h1>My Orders</h1>
         <p>Pack and manage your assigned deliveries and curbside pickups.</p>
@@ -146,7 +149,7 @@ export default function EmployeeFulfillment() {
 
         {message && (
           <p className="employee-success" role="status">
-            {message}
+            {message} <DismissButton onClick={() => setMessage("")} />
           </p>
         )}
       </section>
@@ -176,34 +179,29 @@ export default function EmployeeFulfillment() {
             </div>
           </div>
 
-          {!loading && visibleOrders.length === 0 && (
-            <p>No orders found.</p>
-          )}
+          {!loading && visibleOrders.length === 0 && <p>No orders found.</p>}
 
           <div className="employee-order-grid">
             {visibleOrders.map((order) => {
-              const packedCount = order.items.filter((item) => item.Packed).length;
+              const packedCount = order.items.filter(
+                (item) => item.Packed,
+              ).length;
               const packing = order.status === "Assigned";
               const disabled = loading || busyOrder !== null;
               return (
-                <article
-                  className="employee-order"
-                  key={order.FulfillmentID}
-                >
+                <article className="employee-order" key={order.FulfillmentID}>
                   <div className="employee-order-top">
                     <div>
                       <h3>Order #{order.TransactionID}</h3>
                       <p>{order.DeliveryName}</p>
                     </div>
 
-                    <span className="employee-status">
-                      {order.status}
-                    </span>
+                    <span className="employee-status">{order.status}</span>
                   </div>
 
                   <p>
-                    <strong>Customer:</strong>{" "}
-                    {order.CustomerFirstName} {order.CustomerLastName}
+                    <strong>Customer:</strong> {order.CustomerFirstName}{" "}
+                    {order.CustomerLastName}
                   </p>
 
                   {order.DeliveryName === "Home Delivery" && (
@@ -214,16 +212,22 @@ export default function EmployeeFulfillment() {
                   )}
 
                   <p>
-                    <strong>Total:</strong>{" "}
-                    ${Number(order.TotalPrice).toFixed(2)}
+                    <strong>Total:</strong> $
+                    {Number(order.TotalPrice).toFixed(2)}
                   </p>
 
                   <div className="employee-items fm-packing">
                     <h4>{packing ? "Packing checklist" : "Order items"}</h4>
                     {packing && order.items.length > 0 && (
                       <>
-                        <p className="fm-subtle">{packedCount} of {order.items.length} lines packed</p>
-                        <progress aria-label="Order lines packed" value={packedCount} max={order.items.length} />
+                        <p className="fm-subtle">
+                          {packedCount} of {order.items.length} lines packed
+                        </p>
+                        <progress
+                          aria-label="Order lines packed"
+                          value={packedCount}
+                          max={order.items.length}
+                        />
                       </>
                     )}
                     <ul className={packing ? "fm-checklist" : undefined}>
@@ -231,15 +235,39 @@ export default function EmployeeFulfillment() {
                         <li key={item.TransactionItemID}>
                           {packing ? (
                             <label>
-                              <input type="checkbox" checked={Boolean(item.Packed)} disabled={disabled}
-                                onChange={(event) => updateOrder(
-                                  order.FulfillmentID, `items/${item.TransactionItemID}`, { packed: event.target.checked },
-                                )} />
-                              <span>{item.InventoryName} × {item.Quantity}</span>
-                              <ProductImage id={item.InventoryID} url={item.ImageURL} name={item.InventoryName} />
+                              <input
+                                type="checkbox"
+                                checked={Boolean(item.Packed)}
+                                disabled={disabled}
+                                onChange={(event) =>
+                                  updateOrder(
+                                    order.FulfillmentID,
+                                    `items/${item.TransactionItemID}`,
+                                    { packed: event.target.checked },
+                                  )
+                                }
+                              />
+                              <span>
+                                {item.InventoryName} × {item.Quantity}
+                              </span>
+                              <ProductImage
+                                id={item.InventoryID}
+                                url={item.ImageURL}
+                                name={item.InventoryName}
+                              />
                             </label>
-                           ) : <div className="emp-product-line"><span>{item.InventoryName} × {item.Quantity}</span>
-                            <ProductImage id={item.InventoryID} url={item.ImageURL} name={item.InventoryName} /></div>}
+                          ) : (
+                            <div className="emp-product-line">
+                              <span>
+                                {item.InventoryName} × {item.Quantity}
+                              </span>
+                              <ProductImage
+                                id={item.InventoryID}
+                                url={item.ImageURL}
+                                name={item.InventoryName}
+                              />
+                            </div>
+                          )}
                         </li>
                       ))}
                     </ul>
@@ -248,9 +276,7 @@ export default function EmployeeFulfillment() {
                   {order.status === "Assigned" && (
                     <button
                       disabled={disabled || packedCount < order.items.length}
-                      onClick={() =>
-                        updateOrder(order.FulfillmentID, "ready")
-                      }
+                      onClick={() => updateOrder(order.FulfillmentID, "ready")}
                     >
                       {busyOrder === order.FulfillmentID
                         ? "Updating..."
@@ -274,12 +300,15 @@ export default function EmployeeFulfillment() {
                   )}
 
                   {order.status === "Completed" && (
-                    <p className="employee-success">
-                      Order Completed
-                    </p>
+                    <p className="employee-success">Order Completed</p>
                   )}
-                  <OrderIssueForm order={order} disabled={disabled}
-                    onSubmit={(body) => updateOrder(order.FulfillmentID, "issues", body, "POST")} />
+                  <OrderIssueForm
+                    order={order}
+                    disabled={disabled}
+                    onSubmit={(body) =>
+                      updateOrder(order.FulfillmentID, "issues", body, "POST")
+                    }
+                  />
                 </article>
               );
             })}

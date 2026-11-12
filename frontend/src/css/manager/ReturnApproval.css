@@ -130,7 +130,7 @@ dialog.return-approval-modal .return-approval-actions button:focus-visible {
   font-size: 0.95rem;
 }
 
-.return-status {
+.return-status[data-status] {
   padding: 0.2rem 0.65rem;
   border-radius: 999px;
   color: #805219;
@@ -156,6 +156,11 @@ dialog.return-approval-modal .return-approval-actions button:focus-visible {
   margin: 0.9rem 0 0;
   padding-top: 0.75rem;
   border-top: 1px solid #e9eee9;
+}
+
+.return-customer-details dd {
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
 }
 
 .return-details dd {

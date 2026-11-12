@@ -437,8 +437,12 @@
 }
 
 .manager-products-success {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
   margin-top: 0.5rem;
-  padding: 0.75rem 1rem;
+  padding: 0.375rem 0.625rem;
   border: 1px solid #a9cfb2;
   border-radius: 6px;
   background: #e4f3e7;
@@ -447,4 +451,11 @@
 
 .manager-products-success strong {
   margin-right: 0.5rem;
+}
+
+.manager-products .manager-products-success .fm-dismiss-button {
+  margin-left: 0;
+  padding: 0.125rem 0.375rem;
+  border: 0;
+  background: transparent;
 }

@@ -1,3 +1,4 @@
+import DismissButton from "../../components/layout/DismissButton.jsx";
 import "../../css/auth/CustomerLogin.css";
 import { useState } from "react";
 
@@ -13,6 +14,7 @@ import PasswordInput from "../../components/auth/PasswordInput";
 function Login() {
   const navigate = useNavigate();
   const { state } = useLocation();
+  const [signupNoticeDismissed, setSignupNoticeDismissed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const [notice, setNotice] = useState(() =>
@@ -101,9 +103,10 @@ function Login() {
               {notice.message}
             </p>
           )}
-          {!notice && state?.accountCreated && (
+          {!notice && state?.accountCreated && !signupNoticeDismissed && (
             <p className="login-success" role="status">
               Account created successfully. Sign in to get started.
+              <DismissButton onClick={() => setSignupNoticeDismissed(true)} />
             </p>
           )}
           <label className="username-label" htmlFor="username">

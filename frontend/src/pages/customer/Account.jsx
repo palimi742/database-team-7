@@ -1,3 +1,4 @@
+import DismissButton from "../../components/layout/DismissButton.jsx";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../../api";
@@ -116,6 +117,7 @@ export default function Account() {
             aria-live="polite"
           >
             {message}
+            {saved && <DismissButton onClick={() => setMessage("")} />}
           </div>
         )}
         {!customer ? (

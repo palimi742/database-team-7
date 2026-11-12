@@ -1,3 +1,4 @@
+import DismissButton from "../../components/layout/DismissButton.jsx";
 import { Link } from "react-router-dom";
 import RestockProductModal from "../../components/products/RestockProductModal.jsx";
 import { managerFetch } from "../../api.js";
@@ -175,9 +176,14 @@ function ManagerProducts() {
           <div>
             <h1>Products</h1>
             <p>Manage your catalog and inventory.</p>
-            <div className="manager-products-success" role="status">
-              <strong>Success</strong> {notice}
-            </div>
+            {notice && (
+              <div className="manager-products-success">
+                <span role="status">
+                  <strong>Success</strong> {notice}
+                </span>
+                <DismissButton onClick={() => setNotice("")} />
+              </div>
+            )}
           </div>
           <div className="products-heading-actions">
             <Link to="/manager/restock-requests">Manage restock requests</Link>

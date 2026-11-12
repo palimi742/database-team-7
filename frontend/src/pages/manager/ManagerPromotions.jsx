@@ -1,3 +1,4 @@
+import DismissButton from "../../components/layout/DismissButton.jsx";
 import { managerFetch } from "../../api.js";
 import { useEffect, useRef, useState } from "react";
 import ManagerSidebar from "../../components/layout/ManagerSidebar";
@@ -374,7 +375,11 @@ function ManagerPromotions() {
           </div>
         </header>
         {error && editor === null && <p role="alert">{error}</p>}
-        {notice && <p role="status">{notice}</p>}
+        {notice && (
+          <p className="promotion-notice" role="status">
+            {notice} <DismissButton onClick={() => setNotice("")} />
+          </p>
+        )}
         {loading && <p>Loading offers...</p>}
         {!loading && (
           <>
@@ -810,27 +815,13 @@ function ManagerPromotions() {
                             </button>
                             <button
                               type="button"
+                              className="coupon-delete"
                               disabled={saving}
-                              aria-label={`More actions for ${offer.CouponName}`}
-                              popoverTarget={`coupon-actions-${offer.id}`}
+                              aria-label={`Delete ${offer.CouponName}`}
+                              onClick={() => openDelete(offer)}
                             >
-                              ⋯
+                              Delete
                             </button>
-                            <div
-                              id={`coupon-actions-${offer.id}`}
-                              popover="auto"
-                              className="promotion-more"
-                            >
-                              <button
-                                type="button"
-                                onClick={(event) => {
-                                  event.currentTarget.parentElement.hidePopover();
-                                  openDelete(offer);
-                                }}
-                              >
-                                Delete
-                              </button>
-                            </div>
                           </div>
                         </td>
                       </tr>

@@ -1,3 +1,4 @@
+import DismissButton from "../../components/layout/DismissButton.jsx";
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { managerFetch } from "../../api.js";
@@ -59,35 +60,86 @@ export default function ManagerOrderIssues() {
   return (
     <main className="employee-page fm-workspace">
       <header className="fm-hero">
-        <Link className="fm-back" to="/manager">← Manager dashboard</Link>
+        <Link className="fm-back" to="/manager">
+          ← Manager dashboard
+        </Link>
         <p className="fm-eyebrow">Order support</p>
         <h1>Reported Order Issues</h1>
         <p>Review employee reports and send a response.</p>
       </header>
       <div className="fm-feedback">
-        <button type="button" disabled={loading || saving} onClick={() => { setError(""); loadIssues(); }}>Refresh issues</button>
+        <button
+          type="button"
+          disabled={loading || saving}
+          onClick={() => {
+            setError("");
+            loadIssues();
+          }}
+        >
+          Refresh issues
+        </button>
         {loading && <p role="status">Loading issues…</p>}
-        {error && <p role="alert" className="employee-error">{error}</p>}
-        {message && <p role="status" className="employee-success">{message}</p>}
+        {error && (
+          <p role="alert" className="employee-error">
+            {error}
+          </p>
+        )}
+        {message && (
+          <p role="status" className="employee-success">
+            {message} <DismissButton onClick={() => setMessage("")} />
+          </p>
+        )}
       </div>
-      {!loading && !error && !issues.length && <p className="employee-panel">No order issues have been reported.</p>}
+      {!loading && !error && !issues.length && (
+        <p className="employee-panel">No order issues have been reported.</p>
+      )}
       <div className="employee-order-grid">
         {issues.map((issue) => (
           <article className="employee-order fm-issue" key={issue.IssueID}>
             <div className="employee-order-top">
               <h3>Order #{issue.TransactionID}</h3>
-              <span className="employee-status">{issue.ManagerResponse ? "Responded" : "Needs reply"}</span>
+              <span className="employee-status">
+                {issue.ManagerResponse ? "Responded" : "Needs reply"}
+              </span>
             </div>
-            <p className="fm-subtle">{issue.FirstName} {issue.LastName} · {new Date(issue.ReportedAt).toLocaleString()}</p>
-            <p><strong>{issue.IssueType}</strong></p>
+            <p className="fm-subtle">
+              {issue.FirstName} {issue.LastName} ·{" "}
+              {new Date(issue.ReportedAt).toLocaleString()}
+            </p>
+            <p>
+              <strong>{issue.IssueType}</strong>
+            </p>
             <p>{issue.Details}</p>
-            {issue.ManagerResponse ? <p className="fm-reply"><strong>Response</strong><br />{issue.ManagerResponse}</p> : (
-              <form className="fm-form" onSubmit={(event) => reply(event, issue.IssueID)}>
-                <label htmlFor={`reply-${issue.IssueID}`}>Response to employee</label>
-                <textarea id={`reply-${issue.IssueID}`} rows={3} required maxLength={500}
+            {issue.ManagerResponse ? (
+              <p className="fm-reply">
+                <strong>Response</strong>
+                <br />
+                {issue.ManagerResponse}
+              </p>
+            ) : (
+              <form
+                className="fm-form"
+                onSubmit={(event) => reply(event, issue.IssueID)}
+              >
+                <label htmlFor={`reply-${issue.IssueID}`}>
+                  Response to employee
+                </label>
+                <textarea
+                  id={`reply-${issue.IssueID}`}
+                  rows={3}
+                  required
+                  maxLength={500}
                   value={drafts[issue.IssueID] || ""}
-                  onChange={(event) => setDrafts({ ...drafts, [issue.IssueID]: event.target.value })} />
-                <button disabled={saving || !drafts[issue.IssueID]?.trim()}>Send response</button>
+                  onChange={(event) =>
+                    setDrafts({
+                      ...drafts,
+                      [issue.IssueID]: event.target.value,
+                    })
+                  }
+                />
+                <button disabled={saving || !drafts[issue.IssueID]?.trim()}>
+                  Send response
+                </button>
               </form>
             )}
           </article>
