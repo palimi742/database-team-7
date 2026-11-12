@@ -89,7 +89,7 @@ export default function Storefront() {
     {cartError && <p className="fm-store-error" role="alert">{cartError}</p>}
     <div className="fm-store-layout"><div className="fm-store-main">
       <section className="fm-store-hero" aria-labelledby="fm-store-title">
-        <div className="fm-store-hero-copy"><span className="fm-store-eyebrow">FreshMart · Your everyday market</span>
+        <div className="fm-store-hero-copy"><span className="fm-store-eyebrow">FreshMart - Your everyday market</span>
           <h1 id="fm-store-title">Good food<br />starts here.</h1><p>Fresh finds for your everyday table.</p>
           <a className="fm-store-button" href="#fm-products" onClick={scrollToProducts}>Shop groceries <StoreIcon name="arrow" size={20} /></a></div>
       </section>
