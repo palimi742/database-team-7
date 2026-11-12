@@ -82,8 +82,8 @@ function CustomerSignup() {
             name="phoneNumber"
             type="tel"
             inputMode="numeric"
-            pattern=" *(?:[0-9] *){1,10}"
-            title="Enter up to 10 digits. Spaces are allowed."
+            pattern="[ \x2D]*(?:[0-9][ \x2D]*){1,10}"
+            title="Enter up to 10 digits. Spaces and dashes are allowed."
             required
           ></input>
 

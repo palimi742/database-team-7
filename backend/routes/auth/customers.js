@@ -11,6 +11,8 @@ import { validZipCode } from "../../validation/zipCode.js";
 
 const router = Router();
 
+const normalizedPhoneSql = "REGEXP_REPLACE(PhoneNumber, '[^0-9]', '')";
+
 // Identity comes from the verified cookie, never a customer ID in the form.
 router.use("/profile", requireCustomer);
 
@@ -71,6 +73,18 @@ router.put("/profile", async (req, res) => {
       .json({ message: "Enter a phone number with 7 to 10 digits." });
   }
   try {
+    const [[existingPhone]] = await pool.execute(
+      `SELECT CustomerID FROM Customer
+       WHERE ${normalizedPhoneSql} = ? AND CustomerID <> ?
+       LIMIT 1`,
+      [digits, req.customerId],
+    );
+    if (existingPhone) {
+      return res
+        .status(409)
+        .json({ message: "This phone number is already in use." });
+    }
+
     await pool.query(
       `UPDATE Customer
      SET FirstName = ?, LastName = ?, PhoneNumber = ?, CustomerAddress = ?, ZipCode = ?
@@ -118,7 +132,7 @@ router.post("/signup", async (req, res) => {
       });
     }
     const signupPhone =
-      typeof phoneNumber === "string" ? phoneNumber.replace(/ /g, "") : "";
+      typeof phoneNumber === "string" ? phoneNumber.replace(/[ -]/g, "") : "";
     if (!/^[0-9]{1,10}$/.test(signupPhone)) {
       return res
         .status(400)
@@ -131,7 +145,7 @@ router.post("/signup", async (req, res) => {
         .json({ message: "Enter a valid ZIP code (12345 or 12345-6789)." });
     connection = await pool.getConnection();
     const [existingPhones] = await connection.execute(
-      "SELECT CustomerID FROM Customer WHERE PhoneNumber = ? LIMIT 1",
+      `SELECT CustomerID FROM Customer WHERE ${normalizedPhoneSql} = ? LIMIT 1`,
       [signupPhone],
     );
     if (existingPhones.length > 0) {
