@@ -70,12 +70,12 @@ async function saveCoupon(req, res) {
       message: "Enter a name and description (up to 100 and 500 characters)",
     });
   }
-  if (!Number.isInteger(uses) || uses < 1 || uses > 2147483647) {
+  if (!Number.isInteger(uses) || uses < 1 || uses > 20) {
     return res
       .status(400)
       .json({ message: "Limit must be a positive whole number" });
   }
-  if (!Number.isFinite(discount) || discount < 0.01 || discount > 99999999.99) {
+  if (!Number.isFinite(discount) || discount < 0.01 || discount > 500) {
     return res.status(400).json({ message: "Enter a valid dollar discount" });
   }
   if (!Number.isFinite(start) || !Number.isFinite(end) || start >= end) {

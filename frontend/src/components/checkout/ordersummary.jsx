@@ -15,7 +15,7 @@ export default function OrderSummary({ summary, type, onQuantityChange, updating
             return (
               <div className="cart-row checkout-summary-item" key={i.productId}>
                 <span>
-                  {i.name} <span className="summary-quantity">× {onQuantityChange ? <input
+                  {i.name} <span className="summary-quantity">x {onQuantityChange ? <input
                     key={`${i.productId}-${i.quantity}`}
                     aria-label={`Quantity for ${i.name}`} type="number" min="0" step="1"
                     className="quantity-input" defaultValue={i.quantity} disabled={updating}
@@ -31,8 +31,8 @@ export default function OrderSummary({ summary, type, onQuantityChange, updating
                 <span>{money(hasDiscount ? originalCents / 100 : i.lineTotal)}</span>
                 {hasDiscount && (
                   <>
-                    <span className="coupon-applied">Coupon · {i.couponName}</span>
-                    <span className="coupon-applied">−{money(couponCents / 100)}</span>
+                    <span className="coupon-applied">Coupon  {i.couponName}</span>
+                    <span className="coupon-applied">-{money(couponCents / 100)}</span>
                     <strong className="checkout-discounted-price">After coupon</strong>
                     <strong className="checkout-discounted-price">{money(i.lineTotal)}</strong>
                   </>
@@ -60,7 +60,7 @@ export default function OrderSummary({ summary, type, onQuantityChange, updating
           {summary.loyaltyDiscount > 0 && (
             <div className="cart-row">
               <span>Loyalty savings</span>
-              <span>−{money(summary.loyaltyDiscount)}</span>
+              <span>-{money(summary.loyaltyDiscount)}</span>
             </div>
           )}
           <div className="cart-row total">

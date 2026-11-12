@@ -70,7 +70,7 @@ export default function CartPage() {
                         setQuantity(item.productId, Number(item.quantity) - 1)
                       }
                     >
-                      −
+                      -
                     </button>
                     <input
                       key={`${item.productId}-${item.quantity}`}

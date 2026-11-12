@@ -116,7 +116,7 @@ function CartPanel({
           disabled={updating || items.length === 0 || !onReview}
           onClick={onReview}
         >
-          Review cart →
+          Review cart
         </button>
 
         {items.length > 0 && (

@@ -75,7 +75,7 @@ export default function OrderDetails() {
                 return (
                   <article className="return-request-detail" key={request.id}>
                     <div className="return-request-heading">
-                      <h3>{request.name} × {request.quantity}</h3>
+                      <h3>{request.name} x {request.quantity}</h3>
                       <span className={`return-status return-status-${status.tone}`}>{status.label}</span>
                     </div>
                     <p>Return #{request.id} | {request.reason}</p>

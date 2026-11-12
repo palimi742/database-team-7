@@ -29,7 +29,7 @@ export default function Receipt({ o }) {
       </p>
       <p>
         {o.firstName} {o.lastName}
-        {o.phone ? ` \u00b7 ${o.phone}` : ""}
+        {o.phone ? ` ${o.phone}` : ""}
       </p>
       {where}
       {o.items.map((i) => (
