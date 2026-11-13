@@ -109,6 +109,9 @@ function CartPanel({
         <p className="cart-note">
           Free delivery on orders of $50 or more. Delivery is $5.99 below $50.
         </p>
+        <p className="cart-note">
+          Loyalty Points do not deduct from delivery fee.
+        </p>
 
         <button
           type="button"

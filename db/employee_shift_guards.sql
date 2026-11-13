@@ -1,6 +1,7 @@
 -- Run AFTER employee_workspace.sql and employee_inventory_restock.sql have been installed.
 -- Use your existing database. This file does not drop tables, data, or the stock trigger.
 -- Only these two employee guard triggers are replaced when rerun.
+
 DELIMITER $$
 DROP TRIGGER IF EXISTS employee_order_requires_shift$$
 CREATE TRIGGER employee_order_requires_shift
