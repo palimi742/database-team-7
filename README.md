@@ -39,8 +39,20 @@ There are many different triggers implemented in the system. Two examples includ
      
      Customers may only return an item within three days of its purchase date. After this period, they will no longer be allowed to request a return. A trigger will check whether the item's purchase date exceeds the three-day return window. If it does, a pop-up message will appear stating, "The 3-day return window has passed," and the return request will be rejected. If the request is within the three-day window, it will be processed and sent to a manager for approval or rejection.
 
+#### Types of Queries/Reports Available in the Application
 
+The application contains three main reports that managers can access to retrieve summaries and detailed information from the database.
+  1. Employee Report:
+     
+     Using specified parameters, the report will provide summary data showing the total number of employees hired, the total number of hours all employees are scheduled to work within the specified time frame, and the estimated wages all employees will earn during that period. The employee records used to generate this report will be displayed at the bottom of the screen, including employeeID, name, role, hire date, pay rate, and weekly schedule.
 
+  3. Customer Loyalty Report:
+     
+    Using a specified time frame within its parameters, the report will provide summary data showing the number of orders that used loyalty points, the number of orders that did not use points, the total amount saved using points, the total number of points redeemed, and the average number of points used per order. All orders used to generate the report will be displayed at the bottom of the screen, including the order number, customer, fulfillment status, order total, points used, and receipt. Within the receipt, the manager can select "View Order" to see the transaction breakdown, including the original total and the amount deducted using loyalty points.
+ 
+  4. Sales Performance Report:
+
+     Using specified parameters, the report will provide summary data showing total sales revenue, number of transactions, average transaction value, the top five sales days, and merchandise sales by category. All transactions used to generate the summary data will be displayed at the bottom of the page, including orderID, customer, transaction date, order total, and receipt. The receipt will include an option to view the order, showing each item purchased, loyalty points used and earned, and the total transaction price.
 
 
 #### How to Run:
