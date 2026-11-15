@@ -2,11 +2,11 @@
 
 ## Team 7: Grocery Store System
 
-Introduction
+#### Introduction
 
 The grocery store Point of Sale (POS) system is called FreshMart, a database application used to manage customer purchases, employee dashboards, and manager operations. The system will allow customers to place orders by adding items to their cart, allowing for customer transactions and returns. Managers will be able to assign tasks to employees, add or edit products, confirm or reject returns, and view analytics. Additionally, the employee dashboard will allow employees to view inventory, request more stock when quantities are low, process assigned orders, and view their past order history. The purpose of Freshmart is to facilitate customer purchases and deliveries, maintain inventory stock, help managers monitor store analytics, and allow employees to complete customer orders quickly and efficiently.
 
-Types of Data that can be Added, Modified, and Edited
+#### Types of Data that can be Added, Modified, and Edited
 
 FreshMart stores data in its database across different tables within its schema, depending on the type of information being stored. For example, the Customer table stores information such as customerID, firstName, lastName, and other customer details. There are many aspects of the system where data can be added, modified, and edited across the different user roles.
 
@@ -17,7 +17,7 @@ FreshMart stores data in its database across different tables within its schema,
 - **Managers** can add new products or coupons to the store. If any errors are present, they can edit or modify existing products and coupons. Furthermore, they can add new categories and edit existing categories depending on changes to the store's inventory. They can also remove products or coupons if they are no longer needed by archiving them instead of permanently deleting them, so they do not affect existing orders or previous transactions.
 
 
-Types of User Roles
+#### Types of User Roles
 
 The system has three different roles: customer, employee, and manager, each possessing different privileges and permissions.
 
@@ -28,7 +28,7 @@ The system has three different roles: customer, employee, and manager, each poss
 - **Managers:** Managers can add, edit, and modify coupons and products, view analytical reports such as sales and loyalty point reports, process customer return requests, assign employees to customer orders, and approve or reject employee restock requests. They cannot directly process customer orders, as that is the employee's responsibility, or edit existing customer orders.
 
 
-How to Run:
+#### How to Run:
 
 From the repository root:
 
