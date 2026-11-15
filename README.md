@@ -32,8 +32,8 @@ The system has three different roles: customer, employee, and manager, each poss
 There are many different triggers implemented in the system. Two examples include:
 
   1. Alcohol Purchase Age Restriction
-     
-     Customers under the age of 21 cannot purchase alcohol. A trigger will check the birthdate entered in the customer's account when they attempt to place an order containing alcohol. If the customer is under 21, the order will be rejected, and a pop-up message will appear on the purchasing page stating, "Alcohol purchases require an age of 21 or older." If the customer is 21 or older, the purchase will be processed, and an order number will be generated.
+
+     Customers under the age of 21 cannot purchase alcohol. A trigger will calculate the customer's age using the birthdate entered in their account when they attempt to place an order containing alcohol. If the customer is under 21, the order will be rejected, and a pop-up message will appear on the purchasing page stating, "Alcohol purchases require an age of 21 or older." If the customer is 21 or older, the purchase will be processed, and an order number will be generated.
      
   3. Three-Day Return Policy
      
