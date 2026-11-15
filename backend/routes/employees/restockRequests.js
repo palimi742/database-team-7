@@ -160,9 +160,14 @@ router.post("/", async (req, res) => {
       }
     }
 
-    if (error.code === "CLOCK_IN_REQUIRED" ||
-        (error.code === "ER_SIGNAL_EXCEPTION" && /clock in/i.test(error.sqlMessage || error.message))) {
-      return res.status(409).json({ message: "Please clock in before requesting restock." });
+    if (
+      error.code === "CLOCK_IN_REQUIRED" ||
+      (error.code === "ER_SIGNAL_EXCEPTION" &&
+        /clock in/i.test(error.sqlMessage || error.message))
+    ) {
+      return res
+        .status(409)
+        .json({ message: "Please clock in before requesting restock." });
     }
 
     // The database unique constraint also prevents simultaneous duplicates.

@@ -33,8 +33,13 @@ export default function ReturnRequest() {
 
   const returnableItems = order
     ? order.items.filter(
-        (orderItem) => orderItem.quantity > orderItem.returnedQty &&
-          !(order.returns || []).some(request => Number(request.itemId) === Number(orderItem.id) && request.status === "Rejected"),
+        (orderItem) =>
+          orderItem.quantity > orderItem.returnedQty &&
+          !(order.returns || []).some(
+            (request) =>
+              Number(request.itemId) === Number(orderItem.id) &&
+              request.status === "Rejected",
+          ),
       )
     : [];
   const selectedItem = returnableItems.find(
@@ -68,7 +73,11 @@ export default function ReturnRequest() {
       <Navbar />
       <div className="order-details-container">
         <h1>Request return</h1>
-        {error && <p className="order-details-error">{error}</p>}
+        {error && (
+          <p role="alert" className="order-details-error return-error-banner">
+            {error}
+          </p>
+        )}
         {!order && !error && <p>Loading order...</p>}
         {order && (
           <div className="order-details-card return-form">
@@ -111,9 +120,7 @@ export default function ReturnRequest() {
                     value={quantity}
                     required
                     disabled={submitting || !selectedItem}
-                    onChange={(event) =>
-                      setQuantity(event.target.value)
-                    }
+                    onChange={(event) => setQuantity(event.target.value)}
                   />
                 </label>
                 <label>

@@ -102,11 +102,9 @@ router.patch("/:id", requireManager, async (req, res) => {
     name.length > 100 ||
     !/^[A-Z]{3}$/.test(prefix)
   ) {
-    return res
-      .status(400)
-      .json({
-        message: "Enter a category name and a three-letter SKU prefix.",
-      });
+    return res.status(400).json({
+      message: "Enter a category name and a three-letter SKU prefix.",
+    });
   }
 
   let connection;

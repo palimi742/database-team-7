@@ -45,9 +45,7 @@ try {
       continue;
     }
 
-    const delimiterCommand = trimmed.match(
-      /^DELIMITER\s+(\S+)$/i,
-    );
+    const delimiterCommand = trimmed.match(/^DELIMITER\s+(\S+)$/i);
 
     if (delimiterCommand) {
       if (statement.trim()) {
@@ -61,9 +59,7 @@ try {
     statement += `${line}\n`;
 
     if (statement.trimEnd().endsWith(delimiter)) {
-      const query = statement
-        .trimEnd()
-        .slice(0, -delimiter.length);
+      const query = statement.trimEnd().slice(0, -delimiter.length);
 
       await connection.query(query);
 

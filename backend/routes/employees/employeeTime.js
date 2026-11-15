@@ -66,7 +66,9 @@ router.post("/clock-in", async (req, res, next) => {
         .json({ message: "You already have an open shift." });
     }
     next(error);
-  } finally { conn?.release(); }
+  } finally {
+    conn?.release();
+  }
 });
 
 router.post("/clock-out", async (req, res, next) => {
@@ -95,7 +97,9 @@ router.post("/clock-out", async (req, res, next) => {
   } catch (error) {
     if (conn) await conn.rollback();
     next(error);
-  } finally { conn?.release(); }
+  } finally {
+    conn?.release();
+  }
 });
 
 export default router;

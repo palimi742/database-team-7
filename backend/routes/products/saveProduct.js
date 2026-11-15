@@ -96,12 +96,10 @@ router.post(
       );
       if (!category) {
         await connection.rollback();
-        return res
-          .status(400)
-          .json({
-            message:
-              "That category was not found. Refresh the product page and select it again.",
-          });
+        return res.status(400).json({
+          message:
+            "That category was not found. Refresh the product page and select it again.",
+        });
       }
 
       if (!sequence) {

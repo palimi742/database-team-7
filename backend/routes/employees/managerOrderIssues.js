@@ -42,11 +42,9 @@ router.patch("/:issueId", async (req, res, next) => {
       [response, req.employee.EmployeeID, issueId],
     );
     if (!result.affectedRows) {
-      return res
-        .status(409)
-        .json({
-          message: "This issue was already answered or is unavailable.",
-        });
+      return res.status(409).json({
+        message: "This issue was already answered or is unavailable.",
+      });
     }
     res.json({ message: "Response sent to the employee." });
   } catch (error) {

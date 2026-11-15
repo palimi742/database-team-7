@@ -62,11 +62,9 @@ router.post("/", async (req, res) => {
             "Your account is marked as inactive. Please contact FreshMart for assistance.",
         });
       }
-      return res
-        .status(401)
-        .json({
-          message: "Invalid username or password, or inactive account.",
-        });
+      return res.status(401).json({
+        message: "Invalid username or password, or inactive account.",
+      });
     }
 
     const { id, Username, FirstName, LastName, EmployeeRole } = account;

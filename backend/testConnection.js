@@ -21,7 +21,7 @@ try {
   console.table(columns);
 
   const [settings] = await pool.query(
-    "SHOW VARIABLES LIKE 'lower_case_table_names'"
+    "SHOW VARIABLES LIKE 'lower_case_table_names'",
   );
 
   console.table(settings);

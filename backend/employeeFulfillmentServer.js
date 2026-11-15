@@ -4,16 +4,15 @@ import employeeFulfillmentRoutes from "./routes/employees/employeeFulfillment.js
 
 const app = express();
 
-app.use(cors({
-  origin: "http://localhost:5173"
-}));
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+  }),
+);
 
 app.use(express.json());
 
-app.use(
-  "/api/employee/fulfillment",
-  employeeFulfillmentRoutes
-);
+app.use("/api/employee/fulfillment", employeeFulfillmentRoutes);
 
 const PORT = 3001;
 

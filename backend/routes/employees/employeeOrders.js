@@ -24,11 +24,17 @@ class OrderError extends Error {
 
 function respondError(error, res, next) {
   if (error.errno === 30021) {
-  return res.status(403).json({ message: error.sqlMessage });
-}
-  if (error instanceof OrderError || error.code === "CLOCK_IN_REQUIRED") return res.status(error.status).json({ message: error.message });
-  if (error.code === "ER_SIGNAL_EXCEPTION" && /clock in/i.test(error.sqlMessage || error.message)) {
-    return res.status(409).json({ message: "Please clock in before placing an order or requesting restock." });
+    return res.status(403).json({ message: error.sqlMessage });
+  }
+  if (error instanceof OrderError || error.code === "CLOCK_IN_REQUIRED")
+    return res.status(error.status).json({ message: error.message });
+  if (
+    error.code === "ER_SIGNAL_EXCEPTION" &&
+    /clock in/i.test(error.sqlMessage || error.message)
+  ) {
+    return res.status(409).json({
+      message: "Please clock in before placing an order or requesting restock.",
+    });
   }
   if (error.code === "ER_SIGNAL_EXCEPTION") {
     return res
@@ -155,7 +161,10 @@ router.get("/products", async (req, res, next) => {
   const search = String(req.query.q ?? "").trim();
   if (search.length > 100) return res.json({ products: [] });
   const categoryId = req.query.categoryId ? Number(req.query.categoryId) : null;
-  if (categoryId !== null && (!Number.isSafeInteger(categoryId) || categoryId < 1)) {
+  if (
+    categoryId !== null &&
+    (!Number.isSafeInteger(categoryId) || categoryId < 1)
+  ) {
     return res.status(400).json({ message: "Invalid category." });
   }
   try {
@@ -262,9 +271,17 @@ router.get("/recent", async (req, res, next) => {
         [req.employee.EmployeeID, orders.map((order) => order.orderId)],
       );
     }
-    res.json({ orders: orders.map((order) => ({ ...order,
-      items: items.filter((item) => item.orderId === order.orderId) })), page, hasMore });
-  } catch (error) { next(error); }
+    res.json({
+      orders: orders.map((order) => ({
+        ...order,
+        items: items.filter((item) => item.orderId === order.orderId),
+      })),
+      page,
+      hasMore,
+    });
+  } catch (error) {
+    next(error);
+  }
 });
 
 async function findPlacedOrder(db, employeeId, requestKey) {

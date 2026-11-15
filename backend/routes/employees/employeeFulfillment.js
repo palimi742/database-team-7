@@ -221,11 +221,9 @@ router.post("/orders/:orderId/issues", async (req, res, next) => {
     !details ||
     details.length > 500
   ) {
-    return res
-      .status(400)
-      .json({
-        message: "Choose an issue type and enter up to 500 characters.",
-      });
+    return res.status(400).json({
+      message: "Choose an issue type and enter up to 500 characters.",
+    });
   }
   try {
     const [result] = await pool.query(
