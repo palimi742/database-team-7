@@ -27,6 +27,19 @@ The system has three different roles: customer, employee, and manager, each poss
 
 - **Managers:** Managers can add, edit, and modify coupons and products, view analytical reports such as sales and loyalty point reports, process customer return requests, assign employees to customer orders, and approve or reject employee restock requests. They cannot directly process customer orders, as that is the employee's responsibility, or edit existing customer orders.
 
+#### Semantic Constraints Which Are Implemented as Triggers
+
+There are many different triggers implemented in the system. Two examples include:
+
+  1. Alcohol Purchase Age Restriction
+     Customers under the age of 21 cannot purchase alcohol. A trigger will check the birthdate entered in the customer's account when they attempt to place an order containing alcohol. If the customer is under 21, the order will be rejected, and a pop-up message will appear on the purchasing page stating, "Alcohol purchases require an age of 21 or older." If the customer is 21 or older, the purchase will be processed, and an order number will be generated.
+     
+  3. Three-Day Return Policy
+     Customers may only return an item within three days of its purchase date. After this period, they will no longer be allowed to request a return. A trigger will check whether the item's purchase date exceeds the three-day return window. If it does, a pop-up message will appear stating, "The 3-day return window has passed," and the return request will be rejected. If the request is within the three-day window, it will be processed and sent to a manager for approval or rejection.
+
+
+
+
 
 #### How to Run:
 
