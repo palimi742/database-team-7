@@ -2,6 +2,8 @@
 
 ## Team 7: Grocery Store System
 
+How to Run:
+
 From the repository root:
 
 ```sh
@@ -38,3 +40,28 @@ Have 2 terminals open
 4. cd into backend folder
 5. npm install
 6. npm start
+
+
+What application does
+
+Introduction
+
+The grocery store Point of Sale (POS) system is called FreshMart, a database application used to manage customer purchases, employee dashboards, and manager operations. The system will allow customers to place orders by adding items to their cart, allowing for customer transactions and returns. Managers will be able to assign tasks to employees, add or edit products, confirm or reject returns, and view analytics. Additionally, the employee dashboard will allow employees to view inventory, request more stock when quantities are low, process assigned orders, and view their past order history. The purpose of Freshmart is to facilitate customer purchases and deliveries, maintain inventory stock, help managers monitor store analytics, and allow employees to complete customer orders quickly and efficiently.
+
+Types of Data that can be Added, Modified, and Edited
+FreshMart stores data in its database across different tables within its schema, depending on the type of information being stored. For example, the Customer table stores information such as customerID, firstName, lastName, and other customer details. There are many aspects of the system where data can be added, modified, and edited across the different user roles.
+- Customers can create an account, which adds their information to the Customer table in the database. When a customer logs into their account, they can edit or modify       information such as their name and birthdate, updating the existing data in the database. Customers can also add data when placing an order, as a new record is added to    the Orders table and an orderID is generated.
+
+- Employees can submit restock requests for products that are low or out of stock. This adds a new record to the RestockRequests table, which is then reviewed by a           manager. The manager can approve or reject the request. Once the requested items arrive, the manager can confirm the restock and update the product quantity in the         Inventory table.
+
+- Managers can add new products or coupons to the store. If any errors are present, they can edit or modify existing products and coupons. Furthermore, they can add new      categories and edit existing categories depending on changes to the store's inventory. They can also remove products or coupons if they are no longer needed by archiving   them instead of permanently deleting them, so they do not affect existing orders or previous transactions.
+
+
+Types of User Roles
+
+The system has three different roles: customer, employee, and manager, each possessing different privileges and permissions.
+- Customers: Customers can shop on the website, add items to their cart, make transactions, use loyalty points, edit their accounts, use existing coupons, and request        returns for items they have purchased. They are not allowed to view the available inventory quantities for each product, add products to the store, or access employee      and manager dashboards.
+
+- Employees: Employees can place orders for customers, view their work hours and pay, process their assigned orders, and submit restock requests to managers when a product   is low in stock. They cannot access store analytics and reports, assign orders to other employees, process customer return requests, approve employee restock requests,     or add, delete, or edit existing products and coupons.
+
+- Managers: Managers can add, edit, and modify coupons and products, view analytical reports such as sales and loyalty point reports, process customer return requests,       assign employees to customer orders, and approve or reject employee restock requests. They cannot directly process customer orders, as that is the employee's               responsibility, or edit existing customer orders.
