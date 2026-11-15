@@ -37,11 +37,8 @@ There are many different triggers implemented in the system. Two examples includ
      
   3. Return Policy
 
-     Customers may only return an item within three days of its purchase date, as long as the item is not produce. After this period, they will no longer be allowed to request a return. A trigger will check the item's category and purchase date when a customer submits a return request.
-
-If the item is produce, the return request will be rejected, and a pop-up message will appear stating, "Produce items cannot be returned." If the item was purchased more than three days ago, the return request will also be rejected, and a pop-up message will appear stating, "The 3-day return window has passed."
-
-If the item is not produce and was purchased within the three-day return window, the return request will be processed and sent to a manager for approval or rejection.
+     Customers may only return an item within three days of its purchase date, as long as the item is not produce. After this period, they will no longer be allowed to request a return. A trigger will check the item's category and purchase date when a customer submits a return request. If the item is produce, the return request will be rejected, and a pop-up message will appear stating, "Produce items cannot be returned." If the item was purchased more than three days ago, the return request will also be rejected, and a pop-up message will appear stating, "The 3-day return window has passed." If the item is not produce and was purchased within the three-day return window, the return request will be processed and sent to a manager for approval or rejection.
+     
 #### Types of Queries/Reports Available in the Application
 
 The application contains three main reports that managers can access to retrieve summaries and detailed information from the database.
