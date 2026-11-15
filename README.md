@@ -48,7 +48,7 @@ The application contains three main reports that managers can access to retrieve
 
   3. Customer Loyalty Report:
      
-    Using a specified time frame within its parameters, the report will provide summary data showing the number of orders that used loyalty points, the number of orders that did not use points, the total amount saved using points, the total number of points redeemed, and the average number of points used per order. All orders used to generate the report will be displayed at the bottom of the screen, including the order number, customer, fulfillment status, order total, points used, and receipt. Within the receipt, the manager can select "View Order" to see the transaction breakdown, including the original total and the amount deducted using loyalty points.
+     Using a specified time frame within its parameters, the report will provide summary data showing the number of orders that used loyalty points, the number of orders that did not use points, the total amount saved using points, the total number of points redeemed, and the average number of points used per order. All orders used to generate the report will be displayed at the bottom of the screen, including the order number, customer, fulfillment status, order total, points used, and receipt. Within the receipt, the manager can select "View Order" to see the transaction breakdown, including the original total and the amount deducted using loyalty points.
  
   4. Sales Performance Report:
 
