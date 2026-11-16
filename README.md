@@ -22,6 +22,8 @@ FreshMart, a database application used to manage customer purchases, employee da
 ## Cloning the repo
 git clone https://github.com/palimi742/database-team-7.git
 ## Running locally
+Create an empty MySQL schema named `grocery_store`, import `freshmart-final-dump.sql` into it, and set `DB_NAME=grocery_store` in `backend/.env`.
+
 The backend loads `backend/.env` regardless of the working directory.
 Supply `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, and `DB_NAME` when ready.
 
